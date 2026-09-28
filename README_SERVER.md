@@ -57,12 +57,19 @@ cd /root/EPT2026
 /root/miniconda3/bin/python -m pip check
 ```
 
-论文图严格要求 Arial，不允许静默字体替换。Ubuntu/Debian 可安装 Microsoft core fonts：
+论文图严格要求 Arial，不允许静默字体替换。当前服务器镜像不提供
+`ttf-mscorefonts-installer`，因此从拥有合法字体的本机 Windows 上传到该私有服务器；
+字体文件不进入 Git。在本机 PowerShell 执行：
+
+```powershell
+ssh -p 37868 root@connect.nmb1.seetacloud.com "mkdir -p /root/.local/share/fonts/arial"
+scp -P 37868 C:\Windows\Fonts\arial.ttf C:\Windows\Fonts\arialbd.ttf root@connect.nmb1.seetacloud.com:/root/.local/share/fonts/arial/
+ssh -p 37868 root@connect.nmb1.seetacloud.com "fc-cache -f"
+```
+
+回到服务器验证精确字体解析：
 
 ```bash
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y fontconfig ttf-mscorefonts-installer
-fc-cache -f
 /root/miniconda3/bin/python - <<'PY'
 from matplotlib import font_manager
 p = font_manager.findfont("Arial", fallback_to_default=False)
@@ -70,8 +77,6 @@ assert font_manager.FontProperties(fname=p).get_name() == "Arial", p
 print("Arial:", p)
 PY
 ```
-
-若镜像源不提供该包，请把合法获得的 `arial.ttf`/`arialbd.ttf` 放入 `/root/.local/share/fonts/arial/`，执行 `fc-cache -f` 后重跑字体门禁。
 
 ## 3. GPU、数据和六模态门禁
 
