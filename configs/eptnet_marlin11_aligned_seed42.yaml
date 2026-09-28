@@ -1,9 +1,11 @@
 inherits: eptnet_v6_marlin12_seed42.yaml
 
-# Formal RTX 4060 route after alignment-quality exclusion of session_011.
+# Hardware-neutral training route over the immutable aligned11 artifact. The
+# artifact name records that frozen features were originally extracted on a
+# 4060; training may run on any validated CUDA device.
 experiment:
-  name: eptnet_v6_marlin11_4060_gated_seed42
-  output_dir: results/eptnet_v6_marlin11_4060_gated_seed42
+  name: eptnet_marlin11_aligned_seed42
+  output_dir: results/eptnet_marlin11_aligned_seed42
 
 data:
   dataset_name: bci_subjects_ept_v6_marlin4060_aligned11

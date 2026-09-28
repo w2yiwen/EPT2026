@@ -295,10 +295,10 @@ def test_run_metadata_freezes_continuous_session_loader_contract():
 
 
 def test_run_metadata_freezes_causal_window_training_and_complete_validation():
-    config = load_config("configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml")
+    config = load_config("configs/eptnet_marlin11_aligned_windowed_seed42.yaml")
     metadata = _build_run_metadata(
         args=Namespace(
-            config="configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml", resume=None
+            config="configs/eptnet_marlin11_aligned_windowed_seed42.yaml", resume=None
         ),
         config=config,
         device=torch.device("cpu"),

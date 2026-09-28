@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Python = ".\.venv\Scripts\python.exe",
-    [string]$Config = "configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml",
+    [string]$Config = "configs\eptnet_marlin11_aligned_windowed_seed42.yaml",
     [string]$JsonOutput = "results\audits\marlin11_label_speaker_direction.json",
     [string]$MarkdownOutput = "results\audits\marlin11_label_speaker_direction.md"
 )

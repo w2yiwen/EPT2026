@@ -6,7 +6,7 @@ cd "$(dirname "$0")/../.."
 PYTHON_BIN="${PYTHON_BIN:-/root/miniconda3/bin/python}"
 DEVICE="${DEVICE:-cuda:0}"
 DATASET="data/processed/bci_subjects_ept_v6_marlin4060_aligned11"
-CONFIG="configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml"
+CONFIG="configs/eptnet_marlin11_aligned_windowed_seed42.yaml"
 
 if [[ ! -x "$PYTHON_BIN" ]]; then
   echo "Python executable not found: $PYTHON_BIN" >&2

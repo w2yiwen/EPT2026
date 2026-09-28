@@ -1,10 +1,10 @@
-inherits: eptnet_v6_marlin11_4060_seed42.yaml
+inherits: eptnet_marlin11_aligned_seed42.yaml
 
 # Improved optimization protocol: training uses causal windows, while validation
 # and test remain unique complete-session timelines.
 experiment:
-  name: eptnet_v6_marlin11_4060_windowed_seed42
-  output_dir: results/eptnet_v6_marlin11_4060_windowed_seed42
+  name: eptnet_marlin11_aligned_windowed_seed42
+  output_dir: results/eptnet_marlin11_aligned_windowed_seed42
 
 training:
   sequence_protocol: causal_windows

@@ -6,12 +6,12 @@
 4060 processed: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/
 4060 cache:     data/cache/bci_subjects_ept_v6_marlin4060_aligned11/marlin/
 4060 alignment: data/cache/bci_subjects_ept_v6_marlin4060_complete12/whisper_alignment/
-4060 config:    configs/eptnet_v6_marlin11_4060_seed42.yaml
-4060 results:   results/eptnet_v6_marlin11_4060_gated_seed42/
+4060 config:    configs/eptnet_marlin11_aligned_seed42.yaml
+4060 results:   results/eptnet_marlin11_aligned_seed42/
 
-改进训练 config:  configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml
-改进训练 results: results/eptnet_v6_marlin11_4060_windowed_seed42/
-GRU baseline:      configs/baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml
+改进训练 config:  configs/eptnet_marlin11_aligned_windowed_seed42.yaml
+改进训练 results: results/eptnet_marlin11_aligned_windowed_seed42/
+GRU baseline:      configs/gru_marlin11_aligned_windowed_seed42.yaml
 
 4090 processed: data/processed/bci_subjects_ept_v6_marlin_complete12/
 4090 cache:     data/cache/bci_subjects_ept_v6_marlin_complete12/marlin/
@@ -104,7 +104,7 @@ Write-Host "RTX 4060 dataset gate: PASS"
 
 ```powershell
 $env:PYTHONPATH = (Resolve-Path .\src).Path
-.\.venv\Scripts\python.exe -c "from eptnet.config import load_config; from eptnet.train import validate_training_cohort; c=load_config('configs/eptnet_v6_marlin11_4060_seed42.yaml'); assert c['data']['dataset_name']=='bci_subjects_ept_v6_marlin4060_aligned11'; assert len(c['data']['expected_session_ids'])==11 and c['data']['excluded_session_ids']==['session_011']; assert (c['data']['video_dim'],c['data']['audio_dim'],c['data']['text_dim'])==(384,768,768); keys=('use_video','use_audio','use_text','use_eeg_time','use_eeg_spec','use_hr'); assert all(c['model'][k] for k in keys); print(validate_training_cohort(c)); print('RTX 4060 aligned11 training contract: PASS')"
+.\.venv\Scripts\python.exe -c "from eptnet.config import load_config; from eptnet.train import validate_training_cohort; c=load_config('configs/eptnet_marlin11_aligned_seed42.yaml'); assert c['data']['dataset_name']=='bci_subjects_ept_v6_marlin4060_aligned11'; assert len(c['data']['expected_session_ids'])==11 and c['data']['excluded_session_ids']==['session_011']; assert (c['data']['video_dim'],c['data']['audio_dim'],c['data']['text_dim'])==(384,768,768); keys=('use_video','use_audio','use_text','use_eeg_time','use_eeg_spec','use_hr'); assert all(c['model'][k] for k in keys); print(validate_training_cohort(c)); print('RTX 4060 aligned11 training contract: PASS')"
 ```
 
 正式训练入口还会自动执行同一项 cohort contract。日志中必须先出现：
@@ -129,7 +129,7 @@ Set-Location F:\EPT-Net\code
 
 .\scripts\audit\audit_label_speaker_direction.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml
+  -Config configs\eptnet_marlin11_aligned_windowed_seed42.yaml
 ```
 
 通过后输出：
@@ -148,7 +148,7 @@ results/audits/marlin11_label_speaker_direction.md
 ```powershell
 .\scripts\experiments\run_classical_baselines.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_windowed_seed42.yaml `
   -Output results\baselines\marlin11_classical_seed42.json `
   -Device cpu
 ```
@@ -169,14 +169,14 @@ results/baselines/marlin11_classical_seed42.json
 - 除每个 session 的第一个窗口外，窗口开头 32 秒只作为因果 warm-up，上下文可见但不计算任何 loss；
 - 自动类别权重仍由 7 个训练 session 的唯一时间步计算，不按重叠窗口重复统计；
 - validation 和 test 始终使用去重后的完整 session 时间线；
-- 旧的 `eptnet_v6_marlin11_4060_seed42.yaml` 和已有 checkpoint 不受影响。
+- 非窗口版配置 `eptnet_marlin11_aligned_seed42.yaml` 仍可独立使用；旧实验 ID 的 checkpoint 仅作历史归档，不与新配置混合续训。
 
 先 smoke。它读取一个真实训练 session 的全部因果窗口和一个完整 validation session，不读取 test：
 
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_windowed_seed42.yaml `
   -Seed 42 `
   -Device cuda:0 `
   -Smoke
@@ -187,7 +187,7 @@ results/baselines/marlin11_classical_seed42.json
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_windowed_seed42.yaml `
   -Seed 42 `
   -Device cuda:0
 ```
@@ -197,10 +197,10 @@ results/baselines/marlin11_classical_seed42.json
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_windowed_seed42.yaml `
   -Seed 42 `
   -Device cuda:0 `
-  -Resume results\eptnet_v6_marlin11_4060_windowed_seed42\seed_42\last.pt
+  -Resume results\eptnet_marlin11_aligned_windowed_seed42\seed_42\last.pt
 ```
 
 评估新模型：
@@ -208,8 +208,8 @@ results/baselines/marlin11_classical_seed42.json
 ```powershell
 .\scripts\experiments\evaluate.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
-  -Checkpoint results\eptnet_v6_marlin11_4060_windowed_seed42\seed_42\best.pt `
+  -Config configs\eptnet_marlin11_aligned_windowed_seed42.yaml `
+  -Checkpoint results\eptnet_marlin11_aligned_windowed_seed42\seed_42\best.pt `
   -Device cuda:0
 ```
 
@@ -222,21 +222,21 @@ GRU使用完全相同的数据、128 秒窗口、warm-up、损失和完整 sessi
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml `
+  -Config configs\gru_marlin11_aligned_windowed_seed42.yaml `
   -Seed 42 `
   -Device cuda:0 `
   -Smoke
 
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml `
+  -Config configs\gru_marlin11_aligned_windowed_seed42.yaml `
   -Seed 42 `
   -Device cuda:0
 
 .\scripts\experiments\evaluate.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml `
-  -Checkpoint results\baseline_early_fusion_gru_marlin11_4060_windowed_seed42\seed_42\best.pt `
+  -Config configs\gru_marlin11_aligned_windowed_seed42.yaml `
+  -Checkpoint results\gru_marlin11_aligned_windowed_seed42\seed_42\best.pt `
   -Device cuda:0
 ```
 
@@ -247,7 +247,7 @@ GRU使用完全相同的数据、128 秒窗口、warm-up、损失和完整 sessi
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_seed42.yaml `
   -Seed 42 `
   -Device cuda:0 `
   -Smoke
@@ -258,7 +258,7 @@ Smoke 成功后执行正式训练，不要添加 `-Smoke`：
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_seed42.yaml `
   -Seed 42 `
   -Device cuda:0
 ```
@@ -268,10 +268,10 @@ Smoke 成功后执行正式训练，不要添加 `-Smoke`：
 ```powershell
 .\scripts\experiments\train.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_seed42.yaml `
+  -Config configs\eptnet_marlin11_aligned_seed42.yaml `
   -Seed 42 `
   -Device cuda:0 `
-  -Resume results\eptnet_v6_marlin11_4060_gated_seed42\seed_42\last.pt
+  -Resume results\eptnet_marlin11_aligned_seed42\seed_42\last.pt
 ```
 
 ## 9. 旧完整-session模型最终评估
@@ -281,8 +281,8 @@ Smoke 成功后执行正式训练，不要添加 `-Smoke`：
 ```powershell
 .\scripts\experiments\evaluate.ps1 `
   -Python .\.venv\Scripts\python.exe `
-  -Config configs\eptnet_v6_marlin11_4060_seed42.yaml `
-  -Checkpoint results\eptnet_v6_marlin11_4060_gated_seed42\seed_42\best.pt `
+  -Config configs\eptnet_marlin11_aligned_seed42.yaml `
+  -Checkpoint results\eptnet_marlin11_aligned_seed42\seed_42\best.pt `
   -Device cuda:0
 ```
 

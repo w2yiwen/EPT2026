@@ -2,6 +2,20 @@
 
 本入口用于 Linux CUDA 服务器，直接读取已经完成真实时间对齐和冻结特征提取的 11 个 session。它不会重新运行 Whisper、FaceX-Zoo、MARLIN、WavLM 或 MacBERT。训练使用视频、音频、文本、EEG 时域、EEG 频域和 HR 六个模态，并强制使用 `cuda:0`；GPU 不可见时立即退出，不会退回 CPU。
 
+## 命名规则
+
+项目自有入口统一使用 `lower_snake_case`。当前实验 ID 固定采用
+`模型_数据_协议_seed`：
+
+```text
+eptnet_marlin11_aligned_windowed_seed42
+gru_marlin11_aligned_windowed_seed42
+```
+
+配置文件、`results/<experiment_id>/`、日志和图件均复用同一 ID，避免把训练
+GPU 型号写进实验名。`bci_subjects_ept_v6_marlin4060_aligned11` 保持不变，
+因为它是已有 processed artifact 的身份和 provenance，而不是训练硬件声明。
+
 ## 目录约定
 
 ```text
@@ -20,13 +34,13 @@
 训练和评估会生成但不会提交到 Git：
 
 ```text
-results/eptnet_v6_marlin11_4060_windowed_seed42/seed_42/
-results/baseline_early_fusion_gru_marlin11_4060_windowed_seed42/seed_42/
+results/eptnet_marlin11_aligned_windowed_seed42/seed_42/
+results/gru_marlin11_aligned_windowed_seed42/seed_42/
 results/baselines/marlin11_classical_seed42.json
 logs/
-fig/fig01-training-dynamics/*.{pdf,svg,png}
-fig/fig02-model-comparison/*.{pdf,svg,png}
-fig/fig03-heldout-uncertainty/*.{pdf,svg,png}
+fig/fig01_training_dynamics/*.{pdf,svg,png}
+fig/fig02_model_comparison/*.{pdf,svg,png}
+fig/fig03_heldout_uncertainty/*.{pdf,svg,png}
 ```
 
 ## 1. 拉取代码并连接已有数据
@@ -82,7 +96,7 @@ PY
 
 ```bash
 cd /root/EPT2026
-chmod +x scripts/server/verify_marlin11_gpu.sh scripts/experiments/run_marlin11_server.sh
+chmod +x scripts/server/*.sh scripts/experiments/run_marlin11_server.sh
 ./scripts/experiments/run_marlin11_server.sh check
 ```
 
@@ -92,6 +106,15 @@ chmod +x scripts/server/verify_marlin11_gpu.sh scripts/experiments/run_marlin11_
 
 ```bash
 watch -n 1 nvidia-smi
+```
+
+前台训练会直接显示 epoch、train batch 和 validation batch 三层进度条。后台
+训练时，另开一个 SSH 窗口运行规范化监视器：
+
+```bash
+cd /root/EPT2026
+./scripts/server/watch_training_progress.sh main
+# GRU 改为：./scripts/server/watch_training_progress.sh gru
 ```
 
 ## 4. 只做最小 smoke（当前建议）
@@ -106,7 +129,7 @@ cd /root/EPT2026
 若同名 smoke 目录已经存在，训练器会保护旧产物并拒绝覆盖。先检查其内容；确认是可删除的 smoke 产物后再执行：
 
 ```bash
-rm -rf -- /root/EPT2026/results/smoke/eptnet_v6_marlin11_4060_windowed_seed42_smoke
+rm -rf -- /root/EPT2026/results/smoke/eptnet_marlin11_aligned_windowed_seed42_smoke
 ./scripts/experiments/run_marlin11_server.sh smoke-main
 ```
 
@@ -141,16 +164,16 @@ cd /root/EPT2026
 ```bash
 cd /root/EPT2026
 nohup ./scripts/experiments/run_marlin11_server.sh full \
-  > logs/marlin11_full_seed42.log 2>&1 &
-echo $! > logs/marlin11_full_seed42.pid
-tail -f logs/marlin11_full_seed42.log
+  > logs/eptnet_marlin11_aligned_windowed_seed42_full.log 2>&1 &
+echo $! > logs/eptnet_marlin11_aligned_windowed_seed42_full.pid
+tail -f logs/eptnet_marlin11_aligned_windowed_seed42_full.log
 ```
 
 停止跟踪日志用 `Ctrl+C`，不会终止后台训练。检查进程和 GPU：
 
 ```bash
-cat logs/marlin11_full_seed42.pid
-ps -fp "$(cat logs/marlin11_full_seed42.pid)"
+cat logs/eptnet_marlin11_aligned_windowed_seed42_full.pid
+ps -fp "$(cat logs/eptnet_marlin11_aligned_windowed_seed42_full.pid)"
 nvidia-smi
 ```
 

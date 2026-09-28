@@ -17,7 +17,7 @@ from _paper import (  # noqa: E402
     project_root,
 )
 
-SOURCE = "results/eptnet_v6_marlin11_4060_windowed_seed42/seed_42/history.json"
+SOURCE = "results/eptnet_marlin11_aligned_windowed_seed42/seed_42/history.json"
 
 
 def generate():
@@ -46,7 +46,7 @@ def generate():
     source = project_root() / SOURCE
     report = export_and_check(
         figure,
-        output_stem=Path(__file__).with_name("fig01-training-dynamics"),
+        output_stem=Path(__file__).with_name("fig01_training_dynamics"),
         width_mm=90,
         height_mm=90,
         sources=[source],

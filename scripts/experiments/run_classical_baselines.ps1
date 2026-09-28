@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Python = ".\.venv\Scripts\python.exe",
-    [string]$Config = "configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml",
+    [string]$Config = "configs\eptnet_marlin11_aligned_windowed_seed42.yaml",
     [string]$Output = "results\baselines\marlin11_classical_seed42.json",
     [string]$Device = "cpu"
 )

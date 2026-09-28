@@ -19,8 +19,8 @@ from _paper import (  # noqa: E402
     project_root,
 )
 
-MAIN = "results/eptnet_v6_marlin11_4060_windowed_seed42/seed_42/test_metrics.json"
-GRU = "results/baseline_early_fusion_gru_marlin11_4060_windowed_seed42/seed_42/test_metrics.json"
+MAIN = "results/eptnet_marlin11_aligned_windowed_seed42/seed_42/test_metrics.json"
+GRU = "results/gru_marlin11_aligned_windowed_seed42/seed_42/test_metrics.json"
 
 
 def generate():
@@ -60,7 +60,7 @@ def generate():
     sources = [project_root() / MAIN, project_root() / GRU]
     report = export_and_check(
         figure,
-        output_stem=Path(__file__).with_name("fig03-heldout-uncertainty"),
+        output_stem=Path(__file__).with_name("fig03_heldout_uncertainty"),
         width_mm=190,
         height_mm=90,
         sources=sources,

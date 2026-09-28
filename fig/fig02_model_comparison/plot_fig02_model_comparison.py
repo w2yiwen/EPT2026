@@ -19,8 +19,8 @@ from _paper import (  # noqa: E402
     project_root,
 )
 
-MAIN = "results/eptnet_v6_marlin11_4060_windowed_seed42/seed_42/test_metrics.json"
-GRU = "results/baseline_early_fusion_gru_marlin11_4060_windowed_seed42/seed_42/test_metrics.json"
+MAIN = "results/eptnet_marlin11_aligned_windowed_seed42/seed_42/test_metrics.json"
+GRU = "results/gru_marlin11_aligned_windowed_seed42/seed_42/test_metrics.json"
 CLASSICAL = "results/baselines/marlin11_classical_seed42.json"
 
 
@@ -53,7 +53,7 @@ def generate():
     sources = [project_root() / item for item in (MAIN, GRU, CLASSICAL)]
     report = export_and_check(
         figure,
-        output_stem=Path(__file__).with_name("fig02-model-comparison"),
+        output_stem=Path(__file__).with_name("fig02_model_comparison"),
         width_mm=90,
         height_mm=90,
         sources=sources,

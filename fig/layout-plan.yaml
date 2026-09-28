@@ -7,25 +7,25 @@ rows:
     target_width: 190
     target_height: 90
     horizontal_gaps: [10]
-    figures: [fig01-training-dynamics, fig02-model-comparison]
+    figures: [fig01_training_dynamics, fig02_model_comparison]
   - id: row-2
     target_width: 190
     target_height: 90
     horizontal_gaps: []
-    figures: [fig03-heldout-uncertainty]
+    figures: [fig03_heldout_uncertainty]
 figures:
-  - id: fig01-training-dynamics
-    directory: fig/fig01-training-dynamics
+  - id: fig01_training_dynamics
+    directory: fig/fig01_training_dynamics
     width: 90
     height: 90
     size_source: layout_default
-  - id: fig02-model-comparison
-    directory: fig/fig02-model-comparison
+  - id: fig02_model_comparison
+    directory: fig/fig02_model_comparison
     width: 90
     height: 90
     size_source: layout_default
-  - id: fig03-heldout-uncertainty
-    directory: fig/fig03-heldout-uncertainty
+  - id: fig03_heldout_uncertainty
+    directory: fig/fig03_heldout_uncertainty
     width: 190
     height: 90
     size_source: layout_default

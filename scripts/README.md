@@ -69,6 +69,8 @@ Private inputs and generated datasets stay outside public release artifacts.
 
 - `verify_marlin11_gpu.sh`: fail-closed CUDA, data-symlink, 11-session cohort,
   and six-modality gate. It never starts training and never falls back to CPU.
+- `watch_training_progress.sh`: live main/GRU epoch progress, latest losses,
+  active process, and RTX GPU utilization/memory dashboard.
 
 ## `audit/` — read-only gates
 

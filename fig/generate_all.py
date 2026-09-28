@@ -9,9 +9,9 @@ from pathlib import Path
 def main() -> None:
     root = Path(__file__).resolve().parent
     scripts = [
-        root / "fig01-training-dynamics" / "plot_fig01_training_dynamics.py",
-        root / "fig02-model-comparison" / "plot_fig02_model_comparison.py",
-        root / "fig03-heldout-uncertainty" / "plot_fig03_heldout_uncertainty.py",
+        root / "fig01_training_dynamics" / "plot_fig01_training_dynamics.py",
+        root / "fig02_model_comparison" / "plot_fig02_model_comparison.py",
+        root / "fig03_heldout_uncertainty" / "plot_fig03_heldout_uncertainty.py",
     ]
     reports = []
     for script in scripts:

@@ -1,9 +1,0 @@
-inherits: eptnet_v6_marlin11_4060_windowed_seed42.yaml
-
-experiment:
-  name: baseline_early_fusion_gru_marlin11_4060_windowed_seed42
-  output_dir: results/baseline_early_fusion_gru_marlin11_4060_windowed_seed42
-
-model:
-  name: early_fusion_gru
-  hidden_dim: 124
