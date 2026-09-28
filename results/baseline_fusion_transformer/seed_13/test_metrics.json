@@ -1,0 +1,113 @@
+{
+  "protocol": {
+    "evaluation_unit": "unique chronological rows reconstructed per session",
+    "positive_class": 0,
+    "frame_threshold": 0.55,
+    "boundary_threshold": 0.5,
+    "boundary_tolerance_steps": 1,
+    "event_iou_thresholds": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "early_detection_delays_steps": [
+      0.0,
+      1.0,
+      2.0
+    ],
+    "latency_definition": "word-end decision time minus target event start time"
+  },
+  "data": {
+    "num_sequences": 1,
+    "num_unique_steps": 156,
+    "num_target_events": 30,
+    "num_predicted_events": 44
+  },
+  "frame": {
+    "num_frames": 156,
+    "true_positive": 68,
+    "false_positive": 5,
+    "true_negative": 54,
+    "false_negative": 29,
+    "macro_f1": 0.7802816901408451,
+    "balanced_accuracy": 0.8081425825615935,
+    "auroc": 0.9119343001922068,
+    "auprc": 0.9492312454089504,
+    "average_precision": 0.9495011249768484
+  },
+  "boundary": {
+    "boundary_tolerance_steps": 1,
+    "start_tp": 24,
+    "start_fp": 25,
+    "start_fn": 6,
+    "start_precision": 0.4897959183673469,
+    "start_recall": 0.8,
+    "start_f1": 0.6075949367088609,
+    "end_tp": 21,
+    "end_fp": 21,
+    "end_fn": 9,
+    "end_precision": 0.5,
+    "end_recall": 0.7,
+    "end_f1": 0.5833333333333334,
+    "boundary_macro_f1": 0.5954641350210972
+  },
+  "event": {
+    "event_f1_iou_0.3": 0.7027027027027029,
+    "event_precision_iou_0.3": 0.5909090909090909,
+    "event_recall_iou_0.3": 0.8666666666666667,
+    "event_ap_iou_0.3": 0.5840404040404039,
+    "event_tp_iou_0.3": 26,
+    "event_fp_iou_0.3": 18,
+    "event_fn_iou_0.3": 4,
+    "event_f1_iou_0.5": 0.5405405405405405,
+    "event_precision_iou_0.5": 0.45454545454545453,
+    "event_recall_iou_0.5": 0.6666666666666666,
+    "event_ap_iou_0.5": 0.3521691271691271,
+    "event_tp_iou_0.5": 20,
+    "event_fp_iou_0.5": 24,
+    "event_fn_iou_0.5": 10,
+    "event_f1_iou_0.7": 0.29729729729729726,
+    "event_precision_iou_0.7": 0.25,
+    "event_recall_iou_0.7": 0.36666666666666664,
+    "event_ap_iou_0.7": 0.14809523809523809,
+    "event_tp_iou_0.7": 11,
+    "event_fp_iou_0.7": 33,
+    "event_fn_iou_0.7": 19,
+    "event_map": 0.3614349231015897,
+    "mean_matched_iou": 0.805,
+    "mean_detection_delay": 0.35,
+    "mean_detection_delay_steps": 0.35
+  },
+  "early_detection": {
+    "early_detection_recall_delay_0_steps": 0.5666666666666667,
+    "early_detection_recall_delay_1_steps": 0.5666666666666667,
+    "early_detection_recall_delay_2_steps": 0.6333333333333333
+  },
+  "latency": {
+    "mean_detection_delay_seconds": 0.46199798583984375
+  },
+  "efficiency": {
+    "inference_seconds": 0.006829399993875995,
+    "num_steps": 156,
+    "steps_per_second": 22842.416631019863,
+    "peak_cuda_memory_bytes": 18419712,
+    "parameter_count": 415718
+  },
+  "checkpoint": {
+    "path": "C:\\Users\\23124\\Desktop\\EPT-Net\\code\\results\\baseline_fusion_transformer\\seed_13\\best.pt",
+    "epoch": 7,
+    "seed": 13,
+    "experiment": "baseline_fusion_transformer",
+    "training_config_sha256": "56b44b653f8d0877a4a3ccd87f97089389f36cb760aee5be6f340c87092871ae"
+  },
+  "calibration": {
+    "enabled": true,
+    "method": "validation_grid_macro_f1",
+    "selection_split": "validation",
+    "calibration_min_threshold": 0.1,
+    "calibration_max_threshold": 0.9,
+    "calibration_steps": 81,
+    "frame_threshold": 0.55,
+    "validation_macro_f1": 0.84
+  }
+}

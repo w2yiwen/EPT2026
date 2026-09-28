@@ -1,0 +1,21 @@
+{
+  "storage_mode": "session_timelines",
+  "sessions": 29,
+  "window_files": 0,
+  "manifests": [
+    "sessions_all.jsonl",
+    "sessions_test.jsonl",
+    "sessions_train.jsonl",
+    "sessions_val.jsonl"
+  ],
+  "loaded_session": "session_022",
+  "steps": 336,
+  "device": "cuda:0",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "output_shape": [
+    1,
+    336,
+    2
+  ],
+  "finite_logits": true
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-27T04:18:55+00:00",
+  "release_ready": true,
+  "expected_test_steps": 156,
+  "expected_test_events": 30,
+  "expected_primary_seeds": [
+    13,
+    42,
+    73
+  ],
+  "provenance_consistent_across_available_runs": true,
+  "available_provenance_sha256": [
+    "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6"
+  ],
+  "parameter_fairness_issues": [],
+  "global_consistency_issues": [],
+  "experiments": [
+    {
+      "experiment": "eptnet_continuous_no_text",
+      "scope": "trusted",
+      "complete": true,
+      "expected_seeds": [
+        13,
+        42,
+        73
+      ],
+      "completed_seeds": [
+        13,
+        42,
+        73
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    },
+    {
+      "experiment": "baseline_early_fusion_gru_continuous_no_text",
+      "scope": "trusted",
+      "complete": true,
+      "expected_seeds": [
+        13,
+        42,
+        73
+      ],
+      "completed_seeds": [
+        13,
+        42,
+        73
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    },
+    {
+      "experiment": "baseline_fusion_transformer_continuous_no_text",
+      "scope": "trusted",
+      "complete": true,
+      "expected_seeds": [
+        13,
+        42,
+        73
+      ],
+      "completed_seeds": [
+        13,
+        42,
+        73
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    },
+    {
+      "experiment": "ablation_no_persistent_continuous_no_text",
+      "scope": "trusted_ablation",
+      "complete": true,
+      "expected_seeds": [
+        13,
+        42,
+        73
+      ],
+      "completed_seeds": [
+        13,
+        42,
+        73
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    },
+    {
+      "experiment": "ablation_fixed_reader_continuous_no_text",
+      "scope": "single_seed_diagnostic",
+      "complete": true,
+      "expected_seeds": [
+        42
+      ],
+      "completed_seeds": [
+        42
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    },
+    {
+      "experiment": "ablation_no_behavior_continuous_no_text",
+      "scope": "single_seed_diagnostic",
+      "complete": true,
+      "expected_seeds": [
+        42
+      ],
+      "completed_seeds": [
+        42
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    },
+    {
+      "experiment": "ablation_single_scale_continuous_no_text",
+      "scope": "single_seed_diagnostic",
+      "complete": true,
+      "expected_seeds": [
+        42
+      ],
+      "completed_seeds": [
+        42
+      ],
+      "missing": [],
+      "errors": [],
+      "provenance_sha256": "8faff4fba3e30b55ee892c7f0b7ebcf63d3555b856ab393f1da89744376cfdf6",
+      "devices": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ]
+    }
+  ]
+}

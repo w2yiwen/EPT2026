@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch_version": "2.7.1+cu118",
+  "transformers_version": "4.56.1",
+  "macbert": {
+    "model_id": "hfl/chinese-macbert-base",
+    "revision": "a986e004d2a7f2a1c2f5a3edef4e20604a974ed1",
+    "output_shape": [
+      2,
+      768
+    ],
+    "finite": true,
+    "pooling": "last_hidden_state_cls"
+  },
+  "wavlm": {
+    "model_id": "microsoft/wavlm-base-plus",
+    "revision": "4c66d4806a428f2e922ccfa1a962776e232d487b",
+    "authorized_local_audio_used": true,
+    "steps_checked": 2,
+    "output_shape": [
+      2,
+      768
+    ],
+    "availability_mask": [
+      true,
+      true
+    ],
+    "finite": true,
+    "pooling": "per-step masked mean of last_hidden_state"
+  }
+}

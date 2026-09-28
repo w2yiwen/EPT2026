@@ -1,0 +1,224 @@
+{
+  "reference_experiment": "eptnet_bci_subjects_no_text",
+  "device": "cpu",
+  "deterministic_model_seed": 0,
+  "selection": {
+    "selection_protocol": "minimum-cardinality set of training-manifest windows covering every model-enabled modality that is observed during at least one target-valid step; ties are resolved by the lexicographically smallest ordered sample-id tuple",
+    "manifest_path": "data/processed/bci_subjects_ept_v1/manifests/train.jsonl",
+    "manifest_sha256": "ee0e988cd649fb10575f15a3c57025941cb1d7f7bd312059571b1e1d1ba6cac1",
+    "manifest_record_count": 148,
+    "manifest_sample_ids_sha256": "283084e1e1fbe1aca42c2e30cac0561965f51016c65cbd01649812f484ecb2c7",
+    "enabled_modalities_by_config": {
+      "configs/bci_subjects.yaml": [
+        "eeg_time",
+        "eeg_spectral",
+        "hr",
+        "video"
+      ],
+      "configs/bci_subjects_baseline_early_fusion_gru.yaml": [
+        "eeg_time",
+        "eeg_spectral",
+        "hr",
+        "video"
+      ],
+      "configs/bci_subjects_baseline_fusion_transformer.yaml": [
+        "eeg_time",
+        "eeg_spectral",
+        "hr",
+        "video"
+      ],
+      "configs/bci_subjects_ablation_no_recurrent_fusion.yaml": [
+        "eeg_time",
+        "eeg_spectral",
+        "hr",
+        "video"
+      ]
+    },
+    "enabled_modalities_union": [
+      "eeg_time",
+      "eeg_spectral",
+      "hr",
+      "video"
+    ],
+    "globally_target_valid_modalities": [
+      "eeg_time",
+      "eeg_spectral",
+      "hr",
+      "video",
+      "text"
+    ],
+    "required_cover_modalities": [
+      "eeg_time",
+      "eeg_spectral",
+      "hr",
+      "video"
+    ],
+    "enabled_but_globally_unavailable_modalities": [],
+    "manifest_window_target_valid_modality_step_occurrences": {
+      "eeg_time": 1237,
+      "eeg_spectral": 1237,
+      "hr": 5157,
+      "video": 6265,
+      "audio": 0,
+      "text": 6880
+    },
+    "selected_sample_ids": [
+      "session_004_train_window_0000"
+    ],
+    "selected_sample_ids_sha256": "6387b99350c19f0dc2e3407b9477c1d25cc7189a39ffa8b838aa4f86a6155ef9",
+    "selected_tensor_sha256": {
+      "session_004_train_window_0000": "af3b59a64895dfa3b508418276be37ae2376d3de3ca0edde5dc5a11758b9dfe8"
+    },
+    "selected_sample_count": 1,
+    "selected_samples": [
+      {
+        "sample_id": "session_004_train_window_0000",
+        "target_valid_steps": 63,
+        "target_valid_modality_steps": {
+          "eeg_time": 63,
+          "eeg_spectral": 63,
+          "hr": 63,
+          "video": 63,
+          "audio": 0,
+          "text": 63
+        },
+        "covered_enabled_modalities": [
+          "eeg_time",
+          "eeg_spectral",
+          "hr",
+          "video"
+        ]
+      }
+    ]
+  },
+  "records": [
+    {
+      "config": "configs/bci_subjects.yaml",
+      "experiment": "eptnet_bci_subjects_no_text",
+      "model": "eptnet",
+      "allocated_parameters": 403852,
+      "trainable_parameters": 403852,
+      "graph_participating_parameters": 334796,
+      "graph_participating_fraction": 0.8290066658082664,
+      "graph_participating_parameter_tensors": 104,
+      "nonzero_gradient_parameters": 334796,
+      "nonzero_gradient_parameter_fraction": 0.8290066658082664,
+      "nonzero_gradient_parameter_tensors": 104,
+      "nonzero_gradient_elements": 334668,
+      "nonzero_gradient_element_fraction": 0.8286897180155106,
+      "zero_gradient_graph_parameters": 0,
+      "mean_audit_loss": 2.82304048538208,
+      "audit_sample_ids": [
+        "session_004_train_window_0000"
+      ],
+      "audit_sample_ids_sha256": "6387b99350c19f0dc2e3407b9477c1d25cc7189a39ffa8b838aa4f86a6155ef9",
+      "manifest_sha256": "ee0e988cd649fb10575f15a3c57025941cb1d7f7bd312059571b1e1d1ba6cac1",
+      "counting_protocol": "trainable parameter elements whose parameter tensor has a non-None gradient after deterministic accumulated full-multitask backward passes over the shared minimal target-valid modality-cover sample set; graph participation does not imply a non-zero update",
+      "nonzero_gradient_parameter_counting_protocol": "trainable parameter elements belonging to a parameter tensor with at least one finite exactly non-zero accumulated gradient element on the shared audit sample set",
+      "nonzero_gradient_element_counting_protocol": "individual trainable parameter elements with a finite exactly non-zero accumulated gradient on the shared audit sample set",
+      "executed_parameters": 334796,
+      "executed_fraction": 0.8290066658082664,
+      "executed_parameters_is_alias_of": "graph_participating_parameters",
+      "graph_participating_ratio_to_eptnet": 1.0,
+      "nonzero_gradient_parameter_ratio_to_eptnet": 1.0,
+      "nonzero_gradient_element_ratio_to_eptnet": 1.0,
+      "executed_parameter_ratio_to_eptnet": 1.0
+    },
+    {
+      "config": "configs/bci_subjects_baseline_early_fusion_gru.yaml",
+      "experiment": "baseline_early_fusion_gru_bci_subjects_no_text",
+      "model": "early_fusion_gru",
+      "allocated_parameters": 436362,
+      "trainable_parameters": 436362,
+      "graph_participating_parameters": 334682,
+      "graph_participating_fraction": 0.7669824595175565,
+      "graph_participating_parameter_tensors": 41,
+      "nonzero_gradient_parameters": 334682,
+      "nonzero_gradient_parameter_fraction": 0.7669824595175565,
+      "nonzero_gradient_parameter_tensors": 41,
+      "nonzero_gradient_elements": 334434,
+      "nonzero_gradient_element_fraction": 0.7664141240529652,
+      "zero_gradient_graph_parameters": 0,
+      "mean_audit_loss": 2.976769208908081,
+      "audit_sample_ids": [
+        "session_004_train_window_0000"
+      ],
+      "audit_sample_ids_sha256": "6387b99350c19f0dc2e3407b9477c1d25cc7189a39ffa8b838aa4f86a6155ef9",
+      "manifest_sha256": "ee0e988cd649fb10575f15a3c57025941cb1d7f7bd312059571b1e1d1ba6cac1",
+      "counting_protocol": "trainable parameter elements whose parameter tensor has a non-None gradient after deterministic accumulated full-multitask backward passes over the shared minimal target-valid modality-cover sample set; graph participation does not imply a non-zero update",
+      "nonzero_gradient_parameter_counting_protocol": "trainable parameter elements belonging to a parameter tensor with at least one finite exactly non-zero accumulated gradient element on the shared audit sample set",
+      "nonzero_gradient_element_counting_protocol": "individual trainable parameter elements with a finite exactly non-zero accumulated gradient on the shared audit sample set",
+      "executed_parameters": 334682,
+      "executed_fraction": 0.7669824595175565,
+      "executed_parameters_is_alias_of": "graph_participating_parameters",
+      "graph_participating_ratio_to_eptnet": 0.9996594941397149,
+      "nonzero_gradient_parameter_ratio_to_eptnet": 0.9996594941397149,
+      "nonzero_gradient_element_ratio_to_eptnet": 0.999300799598408,
+      "executed_parameter_ratio_to_eptnet": 0.9996594941397149
+    },
+    {
+      "config": "configs/bci_subjects_baseline_fusion_transformer.yaml",
+      "experiment": "baseline_fusion_transformer_bci_subjects_no_text",
+      "model": "fusion_transformer",
+      "allocated_parameters": 419066,
+      "trainable_parameters": 419066,
+      "graph_participating_parameters": 343626,
+      "graph_participating_fraction": 0.8199806235771931,
+      "graph_participating_parameter_tensors": 61,
+      "nonzero_gradient_parameters": 343626,
+      "nonzero_gradient_parameter_fraction": 0.8199806235771931,
+      "nonzero_gradient_parameter_tensors": 61,
+      "nonzero_gradient_elements": 343442,
+      "nonzero_gradient_element_fraction": 0.8195415519273813,
+      "zero_gradient_graph_parameters": 0,
+      "mean_audit_loss": 2.7443315982818604,
+      "audit_sample_ids": [
+        "session_004_train_window_0000"
+      ],
+      "audit_sample_ids_sha256": "6387b99350c19f0dc2e3407b9477c1d25cc7189a39ffa8b838aa4f86a6155ef9",
+      "manifest_sha256": "ee0e988cd649fb10575f15a3c57025941cb1d7f7bd312059571b1e1d1ba6cac1",
+      "counting_protocol": "trainable parameter elements whose parameter tensor has a non-None gradient after deterministic accumulated full-multitask backward passes over the shared minimal target-valid modality-cover sample set; graph participation does not imply a non-zero update",
+      "nonzero_gradient_parameter_counting_protocol": "trainable parameter elements belonging to a parameter tensor with at least one finite exactly non-zero accumulated gradient element on the shared audit sample set",
+      "nonzero_gradient_element_counting_protocol": "individual trainable parameter elements with a finite exactly non-zero accumulated gradient on the shared audit sample set",
+      "executed_parameters": 343626,
+      "executed_fraction": 0.8199806235771931,
+      "executed_parameters_is_alias_of": "graph_participating_parameters",
+      "graph_participating_ratio_to_eptnet": 1.0263742697045366,
+      "nonzero_gradient_parameter_ratio_to_eptnet": 1.0263742697045366,
+      "nonzero_gradient_element_ratio_to_eptnet": 1.0262170270237967,
+      "executed_parameter_ratio_to_eptnet": 1.0263742697045366
+    },
+    {
+      "config": "configs/bci_subjects_ablation_no_recurrent_fusion.yaml",
+      "experiment": "ablation_no_recurrent_fusion_bci_subjects_no_text",
+      "model": "eptnet",
+      "allocated_parameters": 403852,
+      "trainable_parameters": 403852,
+      "graph_participating_parameters": 276428,
+      "graph_participating_fraction": 0.6844784723116389,
+      "graph_participating_parameter_tensors": 92,
+      "nonzero_gradient_parameters": 276428,
+      "nonzero_gradient_parameter_fraction": 0.6844784723116389,
+      "nonzero_gradient_parameter_tensors": 92,
+      "nonzero_gradient_elements": 276300,
+      "nonzero_gradient_element_fraction": 0.6841615245188831,
+      "zero_gradient_graph_parameters": 0,
+      "mean_audit_loss": 2.6670446395874023,
+      "audit_sample_ids": [
+        "session_004_train_window_0000"
+      ],
+      "audit_sample_ids_sha256": "6387b99350c19f0dc2e3407b9477c1d25cc7189a39ffa8b838aa4f86a6155ef9",
+      "manifest_sha256": "ee0e988cd649fb10575f15a3c57025941cb1d7f7bd312059571b1e1d1ba6cac1",
+      "counting_protocol": "trainable parameter elements whose parameter tensor has a non-None gradient after deterministic accumulated full-multitask backward passes over the shared minimal target-valid modality-cover sample set; graph participation does not imply a non-zero update",
+      "nonzero_gradient_parameter_counting_protocol": "trainable parameter elements belonging to a parameter tensor with at least one finite exactly non-zero accumulated gradient element on the shared audit sample set",
+      "nonzero_gradient_element_counting_protocol": "individual trainable parameter elements with a finite exactly non-zero accumulated gradient on the shared audit sample set",
+      "executed_parameters": 276428,
+      "executed_fraction": 0.6844784723116389,
+      "executed_parameters_is_alias_of": "graph_participating_parameters",
+      "graph_participating_ratio_to_eptnet": 0.8256609995340446,
+      "nonzero_gradient_parameter_ratio_to_eptnet": 0.8256609995340446,
+      "nonzero_gradient_element_ratio_to_eptnet": 0.8255943203413533,
+      "executed_parameter_ratio_to_eptnet": 0.8256609995340446
+    }
+  ]
+}

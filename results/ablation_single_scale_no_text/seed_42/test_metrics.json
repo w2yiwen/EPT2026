@@ -1,0 +1,113 @@
+{
+  "protocol": {
+    "evaluation_unit": "unique chronological rows reconstructed per session",
+    "positive_class": 0,
+    "frame_threshold": 0.55,
+    "boundary_threshold": 0.5,
+    "boundary_tolerance_steps": 1,
+    "event_iou_thresholds": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "early_detection_delays_steps": [
+      0.0,
+      1.0,
+      2.0
+    ],
+    "latency_definition": "non-negative time-to-detection; steps=max(raw emit_step minus target start step, 0); seconds=max(word-end decision time at raw emit_step minus target event onset time, 0), including overlapping word intervals; decoded events retain the raw emit_step"
+  },
+  "data": {
+    "num_sequences": 1,
+    "num_unique_steps": 156,
+    "num_target_events": 30,
+    "num_predicted_events": 19
+  },
+  "frame": {
+    "num_frames": 156,
+    "true_positive": 41,
+    "false_positive": 14,
+    "true_negative": 45,
+    "false_negative": 56,
+    "macro_f1": 0.5509868421052632,
+    "balanced_accuracy": 0.5926961383889569,
+    "auroc": 0.6196051022191159,
+    "auprc": 0.7038182180017891,
+    "average_precision": 0.7075400157439254
+  },
+  "boundary": {
+    "boundary_tolerance_steps": 1,
+    "start_tp": 29,
+    "start_fp": 121,
+    "start_fn": 1,
+    "start_precision": 0.19333333333333333,
+    "start_recall": 0.9666666666666667,
+    "start_f1": 0.32222222222222224,
+    "end_tp": 29,
+    "end_fp": 106,
+    "end_fn": 1,
+    "end_precision": 0.21481481481481482,
+    "end_recall": 0.9666666666666667,
+    "end_f1": 0.3515151515151515,
+    "boundary_macro_f1": 0.3368686868686869
+  },
+  "event": {
+    "event_f1_iou_0.3": 0.2857142857142857,
+    "event_precision_iou_0.3": 0.3684210526315789,
+    "event_recall_iou_0.3": 0.23333333333333334,
+    "event_ap_iou_0.3": 0.09799498746867166,
+    "event_tp_iou_0.3": 7,
+    "event_fp_iou_0.3": 12,
+    "event_fn_iou_0.3": 23,
+    "event_f1_iou_0.5": 0.163265306122449,
+    "event_precision_iou_0.5": 0.21052631578947367,
+    "event_recall_iou_0.5": 0.13333333333333333,
+    "event_ap_iou_0.5": 0.039523809523809524,
+    "event_tp_iou_0.5": 4,
+    "event_fp_iou_0.5": 15,
+    "event_fn_iou_0.5": 26,
+    "event_f1_iou_0.7": 0.04081632653061225,
+    "event_precision_iou_0.7": 0.05263157894736842,
+    "event_recall_iou_0.7": 0.03333333333333333,
+    "event_ap_iou_0.7": 0.0047619047619047615,
+    "event_tp_iou_0.7": 1,
+    "event_fp_iou_0.7": 18,
+    "event_fn_iou_0.7": 29,
+    "event_map": 0.04742690058479532,
+    "mean_matched_iou": 0.6916666666666667,
+    "mean_detection_delay": 0.5,
+    "mean_detection_delay_steps": 0.5
+  },
+  "early_detection": {
+    "early_detection_recall_delay_0_steps": 0.1,
+    "early_detection_recall_delay_1_steps": 0.1,
+    "early_detection_recall_delay_2_steps": 0.13333333333333333
+  },
+  "latency": {
+    "mean_detection_delay_seconds": 0.6299972534179688
+  },
+  "efficiency": {
+    "inference_seconds": 0.8508691000170074,
+    "num_steps": 156,
+    "steps_per_second": 183.34195000956296,
+    "peak_cuda_memory_bytes": 16581120,
+    "parameter_count": 424396
+  },
+  "checkpoint": {
+    "path": "results/ablation_single_scale_no_text/seed_42/best.pt",
+    "epoch": 2,
+    "seed": 42,
+    "experiment": "ablation_single_scale_no_text",
+    "training_config_sha256": "115ce13c79a561dd301460185305ceef67f92bd8ab57be6d6a4268ce04ceb462"
+  },
+  "calibration": {
+    "enabled": true,
+    "method": "validation_grid_macro_f1",
+    "selection_split": "validation",
+    "calibration_min_threshold": 0.1,
+    "calibration_max_threshold": 0.9,
+    "calibration_steps": 81,
+    "frame_threshold": 0.55,
+    "validation_macro_f1": 0.5933152584559314
+  }
+}

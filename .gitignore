@@ -1,5 +1,10 @@
 /data/
-results/
+results/checkpoints/
+results/smoke/
+results/**/*.pth
+results/**/*.pt
+results/**/*.bin
+results/**/*.ckpt
 logs/
 .cache/
 __pycache__/

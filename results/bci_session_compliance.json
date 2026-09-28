@@ -1,0 +1,848 @@
+{
+  "schema_version": 1,
+  "dataset": "bci_subjects_ept_v1",
+  "observational_unit": "one chronological interview session per subject",
+  "missingness_policy": "structural absence is encoded as an all-zero feature row only when the matching availability mask is false; absent raw signals are never imputed or synthesized",
+  "selected_profile": "strong_behavior_sources",
+  "all_sessions_compliant": false,
+  "compliant_sessions": 1,
+  "total_sessions": 18,
+  "profiles": {
+    "model_contract": {
+      "requirements": [
+        "annotation_source",
+        "timeline",
+        "tensor_schema",
+        "finite_features",
+        "explicit_missingness",
+        "target_supervision"
+      ],
+      "compliant_sessions": 18,
+      "total_sessions": 18,
+      "coverage": 1.0
+    },
+    "legacy_face_text": {
+      "requirements": [
+        "annotation_source",
+        "timeline",
+        "tensor_schema",
+        "finite_features",
+        "explicit_missingness",
+        "target_supervision",
+        "face_features",
+        "text_features"
+      ],
+      "compliant_sessions": 17,
+      "total_sessions": 18,
+      "coverage": 0.9444444444444444
+    },
+    "strong_behavior_sources": {
+      "requirements": [
+        "annotation_source",
+        "timeline",
+        "tensor_schema",
+        "finite_features",
+        "explicit_missingness",
+        "target_supervision",
+        "raw_video",
+        "raw_audio",
+        "text_features"
+      ],
+      "compliant_sessions": 1,
+      "total_sessions": 18,
+      "coverage": 0.05555555555555555
+    },
+    "strong_behavior_features": {
+      "requirements": [
+        "annotation_source",
+        "timeline",
+        "tensor_schema",
+        "finite_features",
+        "explicit_missingness",
+        "target_supervision",
+        "openface_features",
+        "wavlm_features",
+        "macbert_features"
+      ],
+      "compliant_sessions": 0,
+      "total_sessions": 18,
+      "coverage": 0.0
+    },
+    "complete_multimodal_sources": {
+      "requirements": [
+        "annotation_source",
+        "timeline",
+        "tensor_schema",
+        "finite_features",
+        "explicit_missingness",
+        "target_supervision",
+        "raw_video",
+        "raw_audio",
+        "text_features",
+        "eeg_input",
+        "paired_ppg_input"
+      ],
+      "compliant_sessions": 0,
+      "total_sessions": 18,
+      "coverage": 0.0
+    }
+  },
+  "check_descriptions": {
+    "annotation_source": "an annotated transcript source exists",
+    "timeline": "the one-second timeline is non-empty, contiguous, and monotonic",
+    "tensor_schema": "every feature, mask, target, and timestamp has the declared shape",
+    "finite_features": "every stored feature and timestamp is finite",
+    "explicit_missingness": "unavailable feature rows are zero and guarded by false masks",
+    "target_supervision": "target-valid truth and deception steps plus an event are present",
+    "face_features": "at least one aligned facial-action feature step is available",
+    "text_features": "at least one aligned non-empty transcript step is available",
+    "raw_video": "a real source video is available for a frozen face extractor",
+    "raw_audio": "a real source audio file is available for a frozen speech extractor",
+    "eeg_input": "raw EEG exists and yields at least one valid aligned step",
+    "paired_ppg_input": "paired PPG exists and yields at least one valid aligned step",
+    "openface_features": "frozen OpenFace features are available for at least one step",
+    "wavlm_features": "frozen WavLM Base+ features are available for at least one step",
+    "macbert_features": "frozen MacBERT features are available for at least one step"
+  },
+  "selected_profile_failed_check_counts": {
+    "raw_video": 17,
+    "raw_audio": 17
+  },
+  "sessions": {
+    "session_001": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 404,
+        "target_valid_steps": 335,
+        "target_deception_steps": 180,
+        "target_truth_steps": 155,
+        "deception_events": 21,
+        "face_feature_steps": 404,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 404
+      }
+    },
+    "session_002": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": false,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 398,
+        "target_valid_steps": 316,
+        "target_deception_steps": 61,
+        "target_truth_steps": 255,
+        "deception_events": 11,
+        "face_feature_steps": 398,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 398
+      }
+    },
+    "session_003": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": false,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 410,
+        "target_valid_steps": 361,
+        "target_deception_steps": 38,
+        "target_truth_steps": 323,
+        "deception_events": 13,
+        "face_feature_steps": 410,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 410
+      }
+    },
+    "session_004": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": true,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 445,
+        "target_valid_steps": 212,
+        "target_deception_steps": 41,
+        "target_truth_steps": 171,
+        "deception_events": 5,
+        "face_feature_steps": 445,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 443
+      }
+    },
+    "session_005": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 727,
+        "target_valid_steps": 627,
+        "target_deception_steps": 99,
+        "target_truth_steps": 528,
+        "deception_events": 6,
+        "face_feature_steps": 727,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 667
+      }
+    },
+    "session_006": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": true,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 466,
+        "target_valid_steps": 107,
+        "target_deception_steps": 58,
+        "target_truth_steps": 49,
+        "deception_events": 5,
+        "face_feature_steps": 466,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 169
+      }
+    },
+    "session_007": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 350,
+        "target_valid_steps": 303,
+        "target_deception_steps": 58,
+        "target_truth_steps": 245,
+        "deception_events": 7,
+        "face_feature_steps": 350,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 350
+      }
+    },
+    "session_008": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": false,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 302,
+        "target_valid_steps": 205,
+        "target_deception_steps": 65,
+        "target_truth_steps": 140,
+        "deception_events": 12,
+        "face_feature_steps": 302,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 298
+      }
+    },
+    "session_009": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": false,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 402,
+        "target_valid_steps": 274,
+        "target_deception_steps": 18,
+        "target_truth_steps": 256,
+        "deception_events": 11,
+        "face_feature_steps": 402,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 401
+      }
+    },
+    "session_010": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": false,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 400,
+        "target_valid_steps": 350,
+        "target_deception_steps": 64,
+        "target_truth_steps": 286,
+        "deception_events": 30,
+        "face_feature_steps": 400,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 400
+      }
+    },
+    "session_011": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": true,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 423,
+        "target_valid_steps": 330,
+        "target_deception_steps": 46,
+        "target_truth_steps": 284,
+        "deception_events": 15,
+        "face_feature_steps": 423,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 423
+      }
+    },
+    "session_012": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": true,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 516,
+        "target_valid_steps": 398,
+        "target_deception_steps": 123,
+        "target_truth_steps": 275,
+        "deception_events": 14,
+        "face_feature_steps": 516,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 513
+      }
+    },
+    "session_013": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 343,
+        "target_valid_steps": 200,
+        "target_deception_steps": 25,
+        "target_truth_steps": 175,
+        "deception_events": 12,
+        "face_feature_steps": 343,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 261
+      }
+    },
+    "session_014": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 306,
+        "target_valid_steps": 259,
+        "target_deception_steps": 70,
+        "target_truth_steps": 189,
+        "deception_events": 21,
+        "face_feature_steps": 306,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 306
+      }
+    },
+    "session_015": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 352,
+        "target_valid_steps": 267,
+        "target_deception_steps": 27,
+        "target_truth_steps": 240,
+        "deception_events": 6,
+        "face_feature_steps": 352,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 352
+      }
+    },
+    "session_016": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 386,
+        "target_valid_steps": 318,
+        "target_deception_steps": 130,
+        "target_truth_steps": 188,
+        "deception_events": 17,
+        "face_feature_steps": 386,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 386
+      }
+    },
+    "session_017": {
+      "compliant": true,
+      "missing_required_checks": [],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": false,
+        "text_features": true,
+        "raw_video": true,
+        "raw_audio": true,
+        "eeg_input": false,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": false,
+        "strong_behavior_sources": true,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 406,
+        "target_valid_steps": 328,
+        "target_deception_steps": 73,
+        "target_truth_steps": 255,
+        "deception_events": 21,
+        "face_feature_steps": 0,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 406
+      }
+    },
+    "session_018": {
+      "compliant": false,
+      "missing_required_checks": [
+        "raw_video",
+        "raw_audio"
+      ],
+      "checks": {
+        "annotation_source": true,
+        "timeline": true,
+        "tensor_schema": true,
+        "finite_features": true,
+        "explicit_missingness": true,
+        "target_supervision": true,
+        "face_features": true,
+        "text_features": true,
+        "raw_video": false,
+        "raw_audio": false,
+        "eeg_input": true,
+        "paired_ppg_input": true,
+        "openface_features": false,
+        "wavlm_features": false,
+        "macbert_features": false
+      },
+      "profile_status": {
+        "model_contract": true,
+        "legacy_face_text": true,
+        "strong_behavior_sources": false,
+        "strong_behavior_features": false,
+        "complete_multimodal_sources": false
+      },
+      "counts": {
+        "steps": 369,
+        "target_valid_steps": 300,
+        "target_deception_steps": 69,
+        "target_truth_steps": 231,
+        "deception_events": 21,
+        "face_feature_steps": 369,
+        "audio_feature_steps": 0,
+        "text_feature_steps": 367
+      }
+    }
+  }
+}

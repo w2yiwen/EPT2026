@@ -1,0 +1,814 @@
+[
+  {
+    "epoch": 1,
+    "train": {
+      "total": 2.295154571533203,
+      "classification": 0.6819252480160106,
+      "boundary": 1.0598690726540305,
+      "offset": 1.1051009730859236,
+      "smooth": 0.04049056429754604,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 2.1531906127929688,
+      "classification": 0.7081053853034973,
+      "boundary": 1.0496783256530762,
+      "offset": 0.7888424396514893,
+      "smooth": 0.04928194731473923,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 2.1531906127929688,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 1.0175736999954097,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 2,
+    "train": {
+      "total": 2.2076759338378906,
+      "classification": 0.6357788226821206,
+      "boundary": 1.0287874286825007,
+      "offset": 1.0839105248451233,
+      "smooth": 0.05772478743032976,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 2.136491060256958,
+      "classification": 0.7207126617431641,
+      "boundary": 1.0218126773834229,
+      "offset": 0.7848605513572693,
+      "smooth": 0.0767672210931778,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 2.136491060256958,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.5412836000032257,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 3,
+    "train": {
+      "total": 2.127257000316273,
+      "classification": 0.5885912179946899,
+      "boundary": 1.009493280540813,
+      "offset": 1.0548219626600093,
+      "smooth": 0.08807686851783232,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 2.0645480155944824,
+      "classification": 0.6728119850158691,
+      "boundary": 0.9983113408088684,
+      "offset": 0.7821771502494812,
+      "smooth": 0.11681735515594482,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 2.0645480155944824,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.4827404000097886,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 4,
+    "train": {
+      "total": 2.0318312644958496,
+      "classification": 0.5287438522685658,
+      "boundary": 0.9791100512851368,
+      "offset": 1.0429623452099888,
+      "smooth": 0.12480892241001129,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.9347939491271973,
+      "classification": 0.5879350900650024,
+      "boundary": 0.9542826414108276,
+      "offset": 0.7788402438163757,
+      "smooth": 0.15780319273471832,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.9347939491271973,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.4785312000021804,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 5,
+    "train": {
+      "total": 1.925358772277832,
+      "classification": 0.4640733166174455,
+      "boundary": 0.9389854290268638,
+      "offset": 1.0381384491920471,
+      "smooth": 0.16153621131723578,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.833070158958435,
+      "classification": 0.5265610814094543,
+      "boundary": 0.9151706099510193,
+      "offset": 0.7749746441841125,
+      "smooth": 0.19255618751049042,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.833070158958435,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.6025499999814201,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 6,
+    "train": {
+      "total": 1.814659909768538,
+      "classification": 0.4056011059067466,
+      "boundary": 0.8952959992668845,
+      "offset": 1.0204174410213123,
+      "smooth": 0.17770315435799686,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.7403547763824463,
+      "classification": 0.4725126028060913,
+      "boundary": 0.8769070506095886,
+      "offset": 0.7736963629722595,
+      "smooth": 0.2043464183807373,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.7403547763824463,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.5169891999976244,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 7,
+    "train": {
+      "total": 1.6969156698747114,
+      "classification": 0.34098963845859875,
+      "boundary": 0.8513018976558339,
+      "offset": 1.0021306167949329,
+      "smooth": 0.1779418255795132,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.6473058462142944,
+      "classification": 0.41280806064605713,
+      "boundary": 0.8443130850791931,
+      "offset": 0.7723924517631531,
+      "smooth": 0.19942346215248108,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.6473058462142944,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.48142930000904016,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 8,
+    "train": {
+      "total": 1.5669386170127175,
+      "classification": 0.277940807017413,
+      "boundary": 0.7987978133288297,
+      "offset": 0.9737368822097778,
+      "smooth": 0.16657779704440723,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.5885568857192993,
+      "classification": 0.36699649691581726,
+      "boundary": 0.826306939125061,
+      "offset": 0.7825115323066711,
+      "smooth": 0.19988161325454712,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.5885568857192993,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.5767912000010256,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 9,
+    "train": {
+      "total": 1.4481649073687466,
+      "classification": 0.22600952332670038,
+      "boundary": 0.7418626546859741,
+      "offset": 0.9549848924983632,
+      "smooth": 0.1400162713094191,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.5853346586227417,
+      "classification": 0.3984435796737671,
+      "boundary": 0.7996863722801208,
+      "offset": 0.7657836079597473,
+      "smooth": 0.21564918756484985,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.5853346586227417,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.5840868999948725,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 10,
+    "train": {
+      "total": 1.3112707463177768,
+      "classification": 0.1815566515380686,
+      "boundary": 0.6808927113359625,
+      "offset": 0.8929148478941484,
+      "smooth": 0.11819863725792278,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.5534989833831787,
+      "classification": 0.36378446221351624,
+      "boundary": 0.8056299090385437,
+      "offset": 0.7599472999572754,
+      "smooth": 0.2055448591709137,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.5534989833831787,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.4877124000049662,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 11,
+    "train": {
+      "total": 1.2093510302630337,
+      "classification": 0.15336618504740976,
+      "boundary": 0.6203881935639814,
+      "offset": 0.8671303499828685,
+      "smooth": 0.1015740077603947,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.577519416809082,
+      "classification": 0.40946733951568604,
+      "boundary": 0.7822800874710083,
+      "offset": 0.7629217505455017,
+      "smooth": 0.21555638313293457,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.5534989833831787,
+    "stale_epochs": 1,
+    "improved": false,
+    "elapsed_seconds": 0.4720456000068225,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 12,
+    "train": {
+      "total": 1.0905583338304,
+      "classification": 0.1253211037679152,
+      "boundary": 0.5611574216322466,
+      "offset": 0.8053222352808173,
+      "smooth": 0.0709348747676069,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.5459047555923462,
+      "classification": 0.4103352427482605,
+      "boundary": 0.751185417175293,
+      "offset": 0.759382963180542,
+      "smooth": 0.23462921380996704,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.5459047555923462,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.4683069000020623,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 13,
+    "train": {
+      "total": 0.9945042566819624,
+      "classification": 0.10974270511757243,
+      "boundary": 0.5036011825908314,
+      "offset": 0.7598809166388079,
+      "smooth": 0.06099576706236059,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.5843031406402588,
+      "classification": 0.42750823497772217,
+      "boundary": 0.7882477641105652,
+      "offset": 0.7272921800613403,
+      "smooth": 0.24505989253520966,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.5459047555923462,
+    "stale_epochs": 1,
+    "improved": false,
+    "elapsed_seconds": 0.42628400001558475,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 14,
+    "train": {
+      "total": 0.9176399491050027,
+      "classification": 0.09655245054851878,
+      "boundary": 0.45842269333926117,
+      "offset": 0.7231543931094083,
+      "smooth": 0.05438050695440986,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.507123589515686,
+      "classification": 0.39349156618118286,
+      "boundary": 0.7474175095558167,
+      "offset": 0.7229452133178711,
+      "smooth": 0.23709285259246826,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 0,
+    "improved": true,
+    "elapsed_seconds": 0.4861568000051193,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 15,
+    "train": {
+      "total": 0.8549883744933389,
+      "classification": 0.09081027182665738,
+      "boundary": 0.41956970366564666,
+      "offset": 0.6872226758436724,
+      "smooth": 0.04985366693951867,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.668380856513977,
+      "classification": 0.45874059200286865,
+      "boundary": 0.8343660831451416,
+      "offset": 0.7410996556282043,
+      "smooth": 0.23622141778469086,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 1,
+    "improved": false,
+    "elapsed_seconds": 0.5831422999908682,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 16,
+    "train": {
+      "total": 0.8033715974200856,
+      "classification": 0.08186730606989427,
+      "boundary": 0.38810339299115265,
+      "offset": 0.6652030104940588,
+      "smooth": 0.03996884213252501,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.6065231561660767,
+      "classification": 0.4375050961971283,
+      "boundary": 0.8049728274345398,
+      "offset": 0.7187449932098389,
+      "smooth": 0.2336401790380478,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 2,
+    "improved": false,
+    "elapsed_seconds": 0.46506980000413023,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 17,
+    "train": {
+      "total": 0.755636908791282,
+      "classification": 0.08130545033649965,
+      "boundary": 0.3613003167239102,
+      "offset": 0.6245075897736982,
+      "smooth": 0.03886752812699838,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.6847203969955444,
+      "classification": 0.4377663731575012,
+      "boundary": 0.8895536065101624,
+      "offset": 0.7054591774940491,
+      "smooth": 0.23353996872901917,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.0003,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 3,
+    "improved": false,
+    "elapsed_seconds": 0.555708500003675,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 18,
+    "train": {
+      "total": 0.7185712510889227,
+      "classification": 0.07772100445899097,
+      "boundary": 0.33429139852523804,
+      "offset": 0.6116310954093933,
+      "smooth": 0.03716408596797423,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.70566725730896,
+      "classification": 0.4366104006767273,
+      "boundary": 0.9055083990097046,
+      "offset": 0.717621386051178,
+      "smooth": 0.2368898093700409,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.0003,
+    "next_learning_rate": 0.00015,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 4,
+    "improved": false,
+    "elapsed_seconds": 0.4323860999720637,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 19,
+    "train": {
+      "total": 0.6829082315618341,
+      "classification": 0.07517505098472942,
+      "boundary": 0.3149698322469538,
+      "offset": 0.5842134817080065,
+      "smooth": 0.032830132340843025,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.7312495708465576,
+      "classification": 0.4395688772201538,
+      "boundary": 0.9171737432479858,
+      "offset": 0.7395921349525452,
+      "smooth": 0.2355475276708603,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.00015,
+    "next_learning_rate": 0.00015,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 5,
+    "improved": false,
+    "elapsed_seconds": 0.4752294000063557,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 20,
+    "train": {
+      "total": 0.6583026214079424,
+      "classification": 0.07396601682359522,
+      "boundary": 0.3020052205432545,
+      "offset": 0.5634143840182911,
+      "smooth": 0.03121022947809913,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.7736855745315552,
+      "classification": 0.4477475583553314,
+      "boundary": 0.9554981589317322,
+      "offset": 0.7311655879020691,
+      "smooth": 0.2428545355796814,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.00015,
+    "next_learning_rate": 0.00015,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 6,
+    "improved": false,
+    "elapsed_seconds": 0.45621539998683147,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 21,
+    "train": {
+      "total": 0.6392556645653464,
+      "classification": 0.07328273694623601,
+      "boundary": 0.2867761796171015,
+      "offset": 0.5570963241837241,
+      "smooth": 0.03242863579229875,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.8220890760421753,
+      "classification": 0.4773895740509033,
+      "boundary": 0.9766173362731934,
+      "offset": 0.7262476682662964,
+      "smooth": 0.24791282415390015,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.00015,
+    "next_learning_rate": 0.00015,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 7,
+    "improved": false,
+    "elapsed_seconds": 0.5978849000239279,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 22,
+    "train": {
+      "total": 0.6188452081246809,
+      "classification": 0.0699923729354685,
+      "boundary": 0.27969341386448254,
+      "offset": 0.5371160236271945,
+      "smooth": 0.030070115558125755,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.8889449834823608,
+      "classification": 0.4998050928115845,
+      "boundary": 1.0139418840408325,
+      "offset": 0.7403093576431274,
+      "smooth": 0.25216829776763916,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 0.00015,
+    "next_learning_rate": 7.5e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 8,
+    "improved": false,
+    "elapsed_seconds": 0.5595472999848425,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 23,
+    "train": {
+      "total": 0.607916230505163,
+      "classification": 0.0690366260030053,
+      "boundary": 0.2729839086532593,
+      "offset": 0.5306250127879056,
+      "smooth": 0.02915906330401247,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.8902621269226074,
+      "classification": 0.4940894544124603,
+      "boundary": 1.0123543739318848,
+      "offset": 0.7575981616973877,
+      "smooth": 0.2509574294090271,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 7.5e-05,
+    "next_learning_rate": 7.5e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 9,
+    "improved": false,
+    "elapsed_seconds": 0.5432994999864604,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 24,
+    "train": {
+      "total": 0.5960413054986433,
+      "classification": 0.06889254938472401,
+      "boundary": 0.2634860873222351,
+      "offset": 0.5261958295648749,
+      "smooth": 0.02823823190886866,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.9107787609100342,
+      "classification": 0.4976436495780945,
+      "boundary": 1.0277276039123535,
+      "offset": 0.7607126235961914,
+      "smooth": 0.25255754590034485,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 7.5e-05,
+    "next_learning_rate": 7.5e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 10,
+    "improved": false,
+    "elapsed_seconds": 0.5322615000186488,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 25,
+    "train": {
+      "total": 0.591218271038749,
+      "classification": 0.06835823912512172,
+      "boundary": 0.26397601582787256,
+      "offset": 0.5166338980197906,
+      "smooth": 0.028353716839443554,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.9223076105117798,
+      "classification": 0.5065340399742126,
+      "boundary": 1.0333013534545898,
+      "offset": 0.7548288106918335,
+      "smooth": 0.252881795167923,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 7.5e-05,
+    "next_learning_rate": 7.5e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 11,
+    "improved": false,
+    "elapsed_seconds": 0.40485500000067987,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 26,
+    "train": {
+      "total": 0.5738238611004569,
+      "classification": 0.06791199337352406,
+      "boundary": 0.25463171709667554,
+      "offset": 0.5014958110722628,
+      "smooth": 0.026611744341525165,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.9277970790863037,
+      "classification": 0.5143221020698547,
+      "boundary": 1.0313010215759277,
+      "offset": 0.7542226314544678,
+      "smooth": 0.2531319856643677,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 7.5e-05,
+    "next_learning_rate": 3.75e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 12,
+    "improved": false,
+    "elapsed_seconds": 0.44276910001644865,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 27,
+    "train": {
+      "total": 0.5729356245561079,
+      "classification": 0.06768387691541151,
+      "boundary": 0.25238923593000934,
+      "offset": 0.5046363879333843,
+      "smooth": 0.02721530571579933,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.935229778289795,
+      "classification": 0.5166659355163574,
+      "boundary": 1.0350964069366455,
+      "offset": 0.7568085789680481,
+      "smooth": 0.2531617283821106,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 3.75e-05,
+    "next_learning_rate": 3.75e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 13,
+    "improved": false,
+    "elapsed_seconds": 0.4462778000161052,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 28,
+    "train": {
+      "total": 0.5668993375518105,
+      "classification": 0.06685120138255032,
+      "boundary": 0.25048202547160064,
+      "offset": 0.4981987313790755,
+      "smooth": 0.023336315696889706,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.9406378269195557,
+      "classification": 0.5195013284683228,
+      "boundary": 1.0387804508209229,
+      "offset": 0.7545750141143799,
+      "smooth": 0.25342896580696106,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 3.75e-05,
+    "next_learning_rate": 3.75e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 14,
+    "improved": false,
+    "elapsed_seconds": 0.4669067000213545,
+    "max_cuda_memory_bytes": 97033216
+  },
+  {
+    "epoch": 29,
+    "train": {
+      "total": 0.5618364160711115,
+      "classification": 0.06696555831215599,
+      "boundary": 0.24859934503381903,
+      "offset": 0.49152442812919617,
+      "smooth": 0.025464405729012055,
+      "num_valid_steps": 1408.0,
+      "num_batches": 6.0
+    },
+    "val": {
+      "total": 1.9540295600891113,
+      "classification": 0.5193689465522766,
+      "boundary": 1.0513195991516113,
+      "offset": 0.7565252780914307,
+      "smooth": 0.253924161195755,
+      "num_valid_steps": 150.0,
+      "num_batches": 1.0
+    },
+    "learning_rate": 3.75e-05,
+    "next_learning_rate": 3.75e-05,
+    "best_val_loss": 1.507123589515686,
+    "stale_epochs": 15,
+    "improved": false,
+    "elapsed_seconds": 0.36387630001991056,
+    "max_cuda_memory_bytes": 97033216
+  }
+]

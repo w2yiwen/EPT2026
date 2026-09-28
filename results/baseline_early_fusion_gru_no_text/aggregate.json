@@ -1,0 +1,707 @@
+{
+  "experiment": "baseline_early_fusion_gru_no_text",
+  "num_runs": 3,
+  "seeds": [
+    13,
+    42,
+    73
+  ],
+  "training_config_sha256": "9acd27f015b13e867126993deac422812c2f030b40e5db5b332a02c3f7fa96ef",
+  "protocol": {
+    "evaluation_unit": "unique chronological rows reconstructed per session",
+    "positive_class": 0,
+    "boundary_threshold": 0.5,
+    "boundary_tolerance_steps": 1,
+    "event_iou_thresholds": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "early_detection_delays_steps": [
+      0.0,
+      1.0,
+      2.0
+    ],
+    "latency_definition": "non-negative time-to-detection; steps=max(raw emit_step minus target start step, 0); seconds=0 when raw emit_step is no later than the target start step, otherwise max(word-end decision time minus target event onset time, 0); decoded events retain the raw emit_step"
+  },
+  "data": {
+    "num_sequences": 1,
+    "num_unique_steps": 156,
+    "num_target_events": 30
+  },
+  "calibration_protocol": {
+    "enabled": true,
+    "method": "validation_grid_macro_f1",
+    "selection_split": "validation",
+    "calibration_min_threshold": 0.1,
+    "calibration_max_threshold": 0.9,
+    "calibration_steps": 81
+  },
+  "incomplete_metrics": [],
+  "runs": [
+    {
+      "path": "C:\\Users\\23124\\Desktop\\EPT-Net\\code\\results\\baseline_early_fusion_gru_no_text\\seed_13\\test_metrics.json",
+      "experiment": "baseline_early_fusion_gru_no_text",
+      "seed": 13,
+      "training_config_sha256": "9acd27f015b13e867126993deac422812c2f030b40e5db5b332a02c3f7fa96ef",
+      "metrics": {
+        "frame.num_frames": 156.0,
+        "frame.true_positive": 46.0,
+        "frame.false_positive": 17.0,
+        "frame.true_negative": 42.0,
+        "frame.false_negative": 51.0,
+        "frame.macro_f1": 0.5638157894736842,
+        "frame.balanced_accuracy": 0.5930456054516862,
+        "frame.auroc": 0.6056264197099424,
+        "frame.auprc": 0.7072223136160387,
+        "frame.average_precision": 0.7106465499077557,
+        "boundary.boundary_tolerance_steps": 1.0,
+        "boundary.start_tp": 12.0,
+        "boundary.start_fp": 48.0,
+        "boundary.start_fn": 18.0,
+        "boundary.start_precision": 0.2,
+        "boundary.start_recall": 0.4,
+        "boundary.start_f1": 0.26666666666666666,
+        "boundary.end_tp": 30.0,
+        "boundary.end_fp": 119.0,
+        "boundary.end_fn": 0.0,
+        "boundary.end_precision": 0.20134228187919462,
+        "boundary.end_recall": 1.0,
+        "boundary.end_f1": 0.33519553072625696,
+        "boundary.boundary_macro_f1": 0.30093109869646184,
+        "event.event_f1_iou_0.3": 0.44897959183673464,
+        "event.event_precision_iou_0.3": 0.5789473684210527,
+        "event.event_recall_iou_0.3": 0.36666666666666664,
+        "event.event_ap_iou_0.3": 0.23194444444444445,
+        "event.event_tp_iou_0.3": 11.0,
+        "event.event_fp_iou_0.3": 8.0,
+        "event.event_fn_iou_0.3": 19.0,
+        "event.event_f1_iou_0.5": 0.24489795918367346,
+        "event.event_precision_iou_0.5": 0.3157894736842105,
+        "event.event_recall_iou_0.5": 0.2,
+        "event.event_ap_iou_0.5": 0.07222222222222222,
+        "event.event_tp_iou_0.5": 6.0,
+        "event.event_fp_iou_0.5": 13.0,
+        "event.event_fn_iou_0.5": 24.0,
+        "event.event_f1_iou_0.7": 0.04081632653061225,
+        "event.event_precision_iou_0.7": 0.05263157894736842,
+        "event.event_recall_iou_0.7": 0.03333333333333333,
+        "event.event_ap_iou_0.7": 0.00196078431372549,
+        "event.event_tp_iou_0.7": 1.0,
+        "event.event_fp_iou_0.7": 18.0,
+        "event.event_fn_iou_0.7": 29.0,
+        "event.event_map": 0.10204248366013073,
+        "event.mean_matched_iou": 0.5833333333333334,
+        "event.mean_detection_delay": 0.8333333333333334,
+        "event.mean_detection_delay_steps": 0.8333333333333334,
+        "early_detection.early_detection_recall_delay_0_steps": 0.1,
+        "early_detection.early_detection_recall_delay_1_steps": 0.16666666666666666,
+        "early_detection.early_detection_recall_delay_2_steps": 0.16666666666666666,
+        "latency.mean_detection_delay_seconds": 0.8166707356770834,
+        "efficiency.inference_seconds": 0.0033178000012412667,
+        "efficiency.num_steps": 156.0,
+        "efficiency.steps_per_second": 47019.1090305735,
+        "efficiency.peak_cuda_memory_bytes": 25136640.0,
+        "efficiency.parameter_count": 403206.0
+      }
+    },
+    {
+      "path": "C:\\Users\\23124\\Desktop\\EPT-Net\\code\\results\\baseline_early_fusion_gru_no_text\\seed_42\\test_metrics.json",
+      "experiment": "baseline_early_fusion_gru_no_text",
+      "seed": 42,
+      "training_config_sha256": "9acd27f015b13e867126993deac422812c2f030b40e5db5b332a02c3f7fa96ef",
+      "metrics": {
+        "frame.num_frames": 156.0,
+        "frame.true_positive": 54.0,
+        "frame.false_positive": 20.0,
+        "frame.true_negative": 39.0,
+        "frame.false_negative": 43.0,
+        "frame.macro_f1": 0.5923852183650615,
+        "frame.balanced_accuracy": 0.6088589900401887,
+        "frame.auroc": 0.6571728114625196,
+        "frame.auprc": 0.7157847278557652,
+        "frame.average_precision": 0.722389484565855,
+        "boundary.boundary_tolerance_steps": 1.0,
+        "boundary.start_tp": 16.0,
+        "boundary.start_fp": 60.0,
+        "boundary.start_fn": 14.0,
+        "boundary.start_precision": 0.21052631578947367,
+        "boundary.start_recall": 0.5333333333333333,
+        "boundary.start_f1": 0.3018867924528302,
+        "boundary.end_tp": 16.0,
+        "boundary.end_fp": 61.0,
+        "boundary.end_fn": 14.0,
+        "boundary.end_precision": 0.2077922077922078,
+        "boundary.end_recall": 0.5333333333333333,
+        "boundary.end_f1": 0.2990654205607477,
+        "boundary.boundary_macro_f1": 0.3004761065067889,
+        "event.event_f1_iou_0.3": 0.37499999999999994,
+        "event.event_precision_iou_0.3": 0.5,
+        "event.event_recall_iou_0.3": 0.3,
+        "event.event_ap_iou_0.3": 0.15,
+        "event.event_tp_iou_0.3": 9.0,
+        "event.event_fp_iou_0.3": 9.0,
+        "event.event_fn_iou_0.3": 21.0,
+        "event.event_f1_iou_0.5": 0.20833333333333334,
+        "event.event_precision_iou_0.5": 0.2777777777777778,
+        "event.event_recall_iou_0.5": 0.16666666666666666,
+        "event.event_ap_iou_0.5": 0.046296296296296294,
+        "event.event_tp_iou_0.5": 5.0,
+        "event.event_fp_iou_0.5": 13.0,
+        "event.event_fn_iou_0.5": 25.0,
+        "event.event_f1_iou_0.7": 0.0,
+        "event.event_precision_iou_0.7": 0.0,
+        "event.event_recall_iou_0.7": 0.0,
+        "event.event_ap_iou_0.7": 0.0,
+        "event.event_tp_iou_0.7": 0.0,
+        "event.event_fp_iou_0.7": 18.0,
+        "event.event_fn_iou_0.7": 30.0,
+        "event.event_map": 0.0654320987654321,
+        "event.mean_matched_iou": 0.5333333333333333,
+        "event.mean_detection_delay": 0.8,
+        "event.mean_detection_delay_steps": 0.8,
+        "early_detection.early_detection_recall_delay_0_steps": 0.1,
+        "early_detection.early_detection_recall_delay_1_steps": 0.13333333333333333,
+        "early_detection.early_detection_recall_delay_2_steps": 0.13333333333333333,
+        "latency.mean_detection_delay_seconds": 0.884002685546875,
+        "efficiency.inference_seconds": 0.006578599975910038,
+        "efficiency.num_steps": 156.0,
+        "efficiency.steps_per_second": 23713.252146543542,
+        "efficiency.peak_cuda_memory_bytes": 25136640.0,
+        "efficiency.parameter_count": 403206.0
+      }
+    },
+    {
+      "path": "C:\\Users\\23124\\Desktop\\EPT-Net\\code\\results\\baseline_early_fusion_gru_no_text\\seed_73\\test_metrics.json",
+      "experiment": "baseline_early_fusion_gru_no_text",
+      "seed": 73,
+      "training_config_sha256": "9acd27f015b13e867126993deac422812c2f030b40e5db5b332a02c3f7fa96ef",
+      "metrics": {
+        "frame.num_frames": 156.0,
+        "frame.true_positive": 48.0,
+        "frame.false_positive": 26.0,
+        "frame.true_negative": 33.0,
+        "frame.false_negative": 49.0,
+        "frame.macro_f1": 0.5147443075774543,
+        "frame.balanced_accuracy": 0.5270836973615236,
+        "frame.auroc": 0.5470906867027783,
+        "frame.auprc": 0.6445422280069733,
+        "frame.average_precision": 0.6523259746678016,
+        "boundary.boundary_tolerance_steps": 1.0,
+        "boundary.start_tp": 30.0,
+        "boundary.start_fp": 114.0,
+        "boundary.start_fn": 0.0,
+        "boundary.start_precision": 0.20833333333333334,
+        "boundary.start_recall": 1.0,
+        "boundary.start_f1": 0.3448275862068966,
+        "boundary.end_tp": 30.0,
+        "boundary.end_fp": 113.0,
+        "boundary.end_fn": 0.0,
+        "boundary.end_precision": 0.2097902097902098,
+        "boundary.end_recall": 1.0,
+        "boundary.end_f1": 0.3468208092485549,
+        "boundary.boundary_macro_f1": 0.34582419772772577,
+        "event.event_f1_iou_0.3": 0.18181818181818182,
+        "event.event_precision_iou_0.3": 0.2857142857142857,
+        "event.event_recall_iou_0.3": 0.13333333333333333,
+        "event.event_ap_iou_0.3": 0.04444444444444444,
+        "event.event_tp_iou_0.3": 4.0,
+        "event.event_fp_iou_0.3": 10.0,
+        "event.event_fn_iou_0.3": 26.0,
+        "event.event_f1_iou_0.5": 0.09090909090909091,
+        "event.event_precision_iou_0.5": 0.14285714285714285,
+        "event.event_recall_iou_0.5": 0.06666666666666667,
+        "event.event_ap_iou_0.5": 0.01717171717171717,
+        "event.event_tp_iou_0.5": 2.0,
+        "event.event_fp_iou_0.5": 12.0,
+        "event.event_fn_iou_0.5": 28.0,
+        "event.event_f1_iou_0.7": 0.045454545454545456,
+        "event.event_precision_iou_0.7": 0.07142857142857142,
+        "event.event_recall_iou_0.7": 0.03333333333333333,
+        "event.event_ap_iou_0.7": 0.01111111111111111,
+        "event.event_tp_iou_0.7": 1.0,
+        "event.event_fp_iou_0.7": 13.0,
+        "event.event_fn_iou_0.7": 29.0,
+        "event.event_map": 0.024242424242424242,
+        "event.mean_matched_iou": 0.75,
+        "event.mean_detection_delay": 0.0,
+        "event.mean_detection_delay_steps": 0.0,
+        "early_detection.early_detection_recall_delay_0_steps": 0.06666666666666667,
+        "early_detection.early_detection_recall_delay_1_steps": 0.06666666666666667,
+        "early_detection.early_detection_recall_delay_2_steps": 0.06666666666666667,
+        "latency.mean_detection_delay_seconds": 0.0,
+        "efficiency.inference_seconds": 0.008289699995657429,
+        "efficiency.num_steps": 156.0,
+        "efficiency.steps_per_second": 18818.533853061126,
+        "efficiency.peak_cuda_memory_bytes": 25136640.0,
+        "efficiency.parameter_count": 403206.0
+      }
+    }
+  ],
+  "aggregate": {
+    "boundary.boundary_macro_f1": {
+      "mean": 0.3157438009769922,
+      "std": 0.026051381076333056,
+      "min": 0.3004761065067889,
+      "max": 0.34582419772772577,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.boundary_tolerance_steps": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.end_f1": {
+      "mean": 0.3270272535118532,
+      "std": 0.02490351083019013,
+      "min": 0.2990654205607477,
+      "max": 0.3468208092485549,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.end_fn": {
+      "mean": 4.666666666666667,
+      "std": 8.082903768654761,
+      "min": 0.0,
+      "max": 14.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.end_fp": {
+      "mean": 97.66666666666667,
+      "std": 31.89566323708183,
+      "min": 61.0,
+      "max": 119.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.end_precision": {
+      "mean": 0.20630823315387073,
+      "std": 0.004415145189328208,
+      "min": 0.20134228187919462,
+      "max": 0.2097902097902098,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.end_recall": {
+      "mean": 0.8444444444444444,
+      "std": 0.26943012562182533,
+      "min": 0.5333333333333333,
+      "max": 1.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.end_tp": {
+      "mean": 25.333333333333332,
+      "std": 8.082903768654761,
+      "min": 16.0,
+      "max": 30.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.start_f1": {
+      "mean": 0.30446034844213116,
+      "std": 0.03914396158625393,
+      "min": 0.26666666666666666,
+      "max": 0.3448275862068966,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.start_fn": {
+      "mean": 10.666666666666666,
+      "std": 9.451631252505218,
+      "min": 0.0,
+      "max": 18.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.start_fp": {
+      "mean": 74.0,
+      "std": 35.156791662493895,
+      "min": 48.0,
+      "max": 114.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.start_precision": {
+      "mean": 0.20628654970760235,
+      "std": 0.005553631553573845,
+      "min": 0.2,
+      "max": 0.21052631578947367,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.start_recall": {
+      "mean": 0.6444444444444445,
+      "std": 0.3150543750835072,
+      "min": 0.4,
+      "max": 1.0,
+      "n": 3,
+      "missing": 0
+    },
+    "boundary.start_tp": {
+      "mean": 19.333333333333332,
+      "std": 9.451631252505218,
+      "min": 12.0,
+      "max": 30.0,
+      "n": 3,
+      "missing": 0
+    },
+    "early_detection.early_detection_recall_delay_0_steps": {
+      "mean": 0.08888888888888889,
+      "std": 0.01924500897298753,
+      "min": 0.06666666666666667,
+      "max": 0.1,
+      "n": 3,
+      "missing": 0
+    },
+    "early_detection.early_detection_recall_delay_1_steps": {
+      "mean": 0.12222222222222222,
+      "std": 0.05091750772173155,
+      "min": 0.06666666666666667,
+      "max": 0.16666666666666666,
+      "n": 3,
+      "missing": 0
+    },
+    "early_detection.early_detection_recall_delay_2_steps": {
+      "mean": 0.12222222222222222,
+      "std": 0.05091750772173155,
+      "min": 0.06666666666666667,
+      "max": 0.16666666666666666,
+      "n": 3,
+      "missing": 0
+    },
+    "efficiency.inference_seconds": {
+      "mean": 0.006062033324269578,
+      "std": 0.0025258816713791517,
+      "min": 0.0033178000012412667,
+      "max": 0.008289699995657429,
+      "n": 3,
+      "missing": 0
+    },
+    "efficiency.num_steps": {
+      "mean": 156.0,
+      "std": 0.0,
+      "min": 156.0,
+      "max": 156.0,
+      "n": 3,
+      "missing": 0
+    },
+    "efficiency.parameter_count": {
+      "mean": 403206.0,
+      "std": 0.0,
+      "min": 403206.0,
+      "max": 403206.0,
+      "n": 3,
+      "missing": 0
+    },
+    "efficiency.peak_cuda_memory_bytes": {
+      "mean": 25136640.0,
+      "std": 0.0,
+      "min": 25136640.0,
+      "max": 25136640.0,
+      "n": 3,
+      "missing": 0
+    },
+    "efficiency.steps_per_second": {
+      "mean": 29850.298343392722,
+      "std": 15068.696430093994,
+      "min": 18818.533853061126,
+      "max": 47019.1090305735,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_ap_iou_0.3": {
+      "mean": 0.14212962962962963,
+      "std": 0.09399744436592468,
+      "min": 0.04444444444444444,
+      "max": 0.23194444444444445,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_ap_iou_0.5": {
+      "mean": 0.045230078563411893,
+      "std": 0.02754073604262163,
+      "min": 0.01717171717171717,
+      "max": 0.07222222222222222,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_ap_iou_0.7": {
+      "mean": 0.004357298474945533,
+      "std": 0.005930569755475467,
+      "min": 0.0,
+      "max": 0.01111111111111111,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_f1_iou_0.3": {
+      "mean": 0.3352659245516388,
+      "std": 0.13794166272224417,
+      "min": 0.18181818181818182,
+      "max": 0.44897959183673464,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_f1_iou_0.5": {
+      "mean": 0.18138012780869925,
+      "std": 0.08045495232837789,
+      "min": 0.09090909090909091,
+      "max": 0.24489795918367346,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_f1_iou_0.7": {
+      "mean": 0.0287569573283859,
+      "std": 0.02501200141505151,
+      "min": 0.0,
+      "max": 0.045454545454545456,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_fn_iou_0.3": {
+      "mean": 22.0,
+      "std": 3.605551275463989,
+      "min": 19.0,
+      "max": 26.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_fn_iou_0.5": {
+      "mean": 25.666666666666668,
+      "std": 2.0816659994661326,
+      "min": 24.0,
+      "max": 28.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_fn_iou_0.7": {
+      "mean": 29.333333333333332,
+      "std": 0.5773502691896257,
+      "min": 29.0,
+      "max": 30.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_fp_iou_0.3": {
+      "mean": 9.0,
+      "std": 1.0,
+      "min": 8.0,
+      "max": 10.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_fp_iou_0.5": {
+      "mean": 12.666666666666666,
+      "std": 0.5773502691896257,
+      "min": 12.0,
+      "max": 13.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_fp_iou_0.7": {
+      "mean": 16.333333333333332,
+      "std": 2.8867513459481287,
+      "min": 13.0,
+      "max": 18.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_map": {
+      "mean": 0.06390566888932903,
+      "std": 0.03892248453625051,
+      "min": 0.024242424242424242,
+      "max": 0.10204248366013073,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_precision_iou_0.3": {
+      "mean": 0.4548872180451128,
+      "std": 0.15173260203466593,
+      "min": 0.2857142857142857,
+      "max": 0.5789473684210527,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_precision_iou_0.5": {
+      "mean": 0.24547479810637704,
+      "std": 0.09087909348721955,
+      "min": 0.14285714285714285,
+      "max": 0.3157894736842105,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_precision_iou_0.7": {
+      "mean": 0.041353383458646614,
+      "std": 0.037025781209759794,
+      "min": 0.0,
+      "max": 0.07142857142857142,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_recall_iou_0.3": {
+      "mean": 0.26666666666666666,
+      "std": 0.1201850425154663,
+      "min": 0.13333333333333333,
+      "max": 0.36666666666666664,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_recall_iou_0.5": {
+      "mean": 0.14444444444444443,
+      "std": 0.06938886664887109,
+      "min": 0.06666666666666667,
+      "max": 0.2,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_recall_iou_0.7": {
+      "mean": 0.022222222222222223,
+      "std": 0.019245008972987525,
+      "min": 0.0,
+      "max": 0.03333333333333333,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_tp_iou_0.3": {
+      "mean": 8.0,
+      "std": 3.605551275463989,
+      "min": 4.0,
+      "max": 11.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_tp_iou_0.5": {
+      "mean": 4.333333333333333,
+      "std": 2.0816659994661326,
+      "min": 2.0,
+      "max": 6.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.event_tp_iou_0.7": {
+      "mean": 0.6666666666666666,
+      "std": 0.5773502691896257,
+      "min": 0.0,
+      "max": 1.0,
+      "n": 3,
+      "missing": 0
+    },
+    "event.mean_detection_delay": {
+      "mean": 0.5444444444444445,
+      "std": 0.47179719434582545,
+      "min": 0.0,
+      "max": 0.8333333333333334,
+      "n": 3,
+      "missing": 0
+    },
+    "event.mean_detection_delay_steps": {
+      "mean": 0.5444444444444445,
+      "std": 0.47179719434582545,
+      "min": 0.0,
+      "max": 0.8333333333333334,
+      "n": 3,
+      "missing": 0
+    },
+    "event.mean_matched_iou": {
+      "mean": 0.6222222222222222,
+      "std": 0.11344765475923409,
+      "min": 0.5333333333333333,
+      "max": 0.75,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.auprc": {
+      "mean": 0.6891830898262591,
+      "std": 0.03889644768329872,
+      "min": 0.6445422280069733,
+      "max": 0.7157847278557652,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.auroc": {
+      "mean": 0.6032966392917467,
+      "std": 0.0550780306066091,
+      "min": 0.5470906867027783,
+      "max": 0.6571728114625196,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.average_precision": {
+      "mean": 0.695120669713804,
+      "std": 0.03752350692108025,
+      "min": 0.6523259746678016,
+      "max": 0.722389484565855,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.balanced_accuracy": {
+      "mean": 0.5763294309511329,
+      "std": 0.04337479095765243,
+      "min": 0.5270836973615236,
+      "max": 0.6088589900401887,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.false_negative": {
+      "mean": 47.666666666666664,
+      "std": 4.163331998932265,
+      "min": 43.0,
+      "max": 51.0,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.false_positive": {
+      "mean": 21.0,
+      "std": 4.58257569495584,
+      "min": 17.0,
+      "max": 26.0,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.macro_f1": {
+      "mean": 0.5569817718054,
+      "std": 0.039269015840737755,
+      "min": 0.5147443075774543,
+      "max": 0.5923852183650615,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.num_frames": {
+      "mean": 156.0,
+      "std": 0.0,
+      "min": 156.0,
+      "max": 156.0,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.true_negative": {
+      "mean": 38.0,
+      "std": 4.58257569495584,
+      "min": 33.0,
+      "max": 42.0,
+      "n": 3,
+      "missing": 0
+    },
+    "frame.true_positive": {
+      "mean": 49.333333333333336,
+      "std": 4.163331998932265,
+      "min": 46.0,
+      "max": 54.0,
+      "n": 3,
+      "missing": 0
+    },
+    "latency.mean_detection_delay_seconds": {
+      "mean": 0.5668911404079862,
+      "std": 0.4920950839757671,
+      "min": 0.0,
+      "max": 0.884002685546875,
+      "n": 3,
+      "missing": 0
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-09-28T04:30:19.614215+00:00",
+  "dataset": "bci_subjects_ept_v5_absolute_time_no_facial",
+  "device": "cuda:0",
+  "gpu_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "session_id": "session_012",
+  "timeline_steps": 516,
+  "eeg_valid_steps": 477,
+  "ppg_valid_steps": 502,
+  "class_logits_shape": [
+    1,
+    516,
+    2
+  ],
+  "boundary_logits_shape": [
+    1,
+    516,
+    2
+  ],
+  "offsets_shape": [
+    1,
+    516,
+    2
+  ],
+  "all_outputs_finite": true,
+  "training_started": false
+}

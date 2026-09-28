@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "dataset": "bci_subjects_ept_v3_all29",
+  "privacy_contract": {
+    "deidentified_aggregate_only": true,
+    "contains_subject_ids": false,
+    "contains_source_filenames": false,
+    "contains_row_level_data": false
+  },
+  "protocol": {
+    "subject_disjoint_fixed_split": true,
+    "pilot_not_cross_validation": true,
+    "split_strategy": "fixed_seed_constrained_monte_carlo_stratification_v2",
+    "split_frozen_before_training": true,
+    "label_aware_pretraining_stratification": true,
+    "split_seed": 42,
+    "split_objective_value": 0.01738960313327594,
+    "split_feasible_assignments": 1564,
+    "split_inputs_sha256": "113318d2928045fa7f8e753abb2897e669304d2e8ef3dcd0f36bdcd4c0245255",
+    "split_assignment_sha256": "208936a979971cc6285e9a21b92a655c52dc83bde4bd9478cbe3d8ceed8a67f0",
+    "positive_class": 0,
+    "text_enabled": false,
+    "audio_enabled": false,
+    "target_mask_required": true,
+    "target_speaker_inference": "maximum_total_non_whitespace_transcript_characters",
+    "target_speaker_inference_uses_annotation_marks": false,
+    "target_speaker_inference_scope": "retrospective_complete_transcript"
+  },
+  "total_subject_sessions": 29,
+  "total_context_steps": 11866,
+  "total_target_valid_steps": 9272,
+  "splits": {
+    "train": {
+      "num_subject_sessions": 20,
+      "num_context_steps": 8195,
+      "num_target_valid_steps": 6281,
+      "label_counts": {
+        "0": 1641,
+        "1": 4640
+      },
+      "deception_prevalence": 0.26126412991561854,
+      "num_deception_events": 267,
+      "modality_session_counts": {
+        "eeg_time": 6,
+        "eeg_spectral": 6,
+        "physiology": 10,
+        "video": 14,
+        "audio": 0,
+        "text": 20
+      },
+      "event_length_steps": {
+        "minimum": 1,
+        "median": 3.0,
+        "maximum": 50,
+        "single_step_events": 46
+      }
+    },
+    "val": {
+      "num_subject_sessions": 4,
+      "num_context_steps": 1501,
+      "num_target_valid_steps": 1234,
+      "label_counts": {
+        "0": 312,
+        "1": 922
+      },
+      "deception_prevalence": 0.25283630470016205,
+      "num_deception_events": 51,
+      "modality_session_counts": {
+        "eeg_time": 1,
+        "eeg_spectral": 1,
+        "physiology": 2,
+        "video": 3,
+        "audio": 0,
+        "text": 4
+      },
+      "event_length_steps": {
+        "minimum": 1,
+        "median": 3.0,
+        "maximum": 34,
+        "single_step_events": 9
+      }
+    },
+    "test": {
+      "num_subject_sessions": 5,
+      "num_context_steps": 2170,
+      "num_target_valid_steps": 1757,
+      "label_counts": {
+        "0": 386,
+        "1": 1371
+      },
+      "deception_prevalence": 0.21969265793966988,
+      "num_deception_events": 63,
+      "modality_session_counts": {
+        "eeg_time": 1,
+        "eeg_spectral": 1,
+        "physiology": 2,
+        "video": 3,
+        "audio": 0,
+        "text": 5
+      },
+      "event_length_steps": {
+        "minimum": 1,
+        "median": 3.0,
+        "maximum": 82,
+        "single_step_events": 8
+      }
+    }
+  },
+  "modality_coverage": {
+    "eeg_time": {
+      "sessions_available": 8,
+      "available_steps": 2741
+    },
+    "eeg_spectral": {
+      "sessions_available": 8,
+      "available_steps": 2741
+    },
+    "physiology": {
+      "sessions_available": 14,
+      "available_steps": 5731
+    },
+    "video": {
+      "sessions_available": 20,
+      "available_steps": 8013
+    },
+    "audio": {
+      "sessions_available": 0,
+      "available_steps": 0
+    },
+    "text": {
+      "sessions_available": 29,
+      "available_steps": 11411
+    }
+  },
+  "data_fingerprint_sha256": "f988292741f0daf86299634a74e9855ad5f3ed1f00d6389b346709e2a680a781",
+  "fingerprint_inputs": {
+    "artifacts": {
+      "dataset_summary": "918253ccc53a4a96e1469963963c558e04dda12851b2df4d526c0bfdd2b6f6b9",
+      "feature_schema": "3821795cc304ab49197bf6bc72ac003a61585bc3ac7cfb02c315e1d9fda155de",
+      "normalization_stats": "37aa1c18c80e82782b8a4a003413f6015376cff7b2a3e0975a5981aeb956d295",
+      "split_strategy": "579c61cdd837a2860deb5fdd44460674eb739eda515e8201d93a3c6d8f3e675b"
+    },
+    "manifests_and_tensors": {
+      "train": "aa4959d7e43dd80868491a601701fabc6e6542c3718ce9997710a3ca624a7ffe",
+      "val": "578b2c4807946709956d25312de4667f919ba5ac005fab8d85574bea6f48e246",
+      "test": "07cd17c1c205f8da390705835e9caffb42f411630e75728551b2d1c5c1cc8776"
+    }
+  },
+  "limitations": [
+    "The fixed split uses labels and modality availability for pre-training stratification.",
+    "One fixed 20/4/5 split is a pilot protocol, not cross-validation or population-level validation.",
+    "Speaker-turn timestamps require within-turn character interpolation.",
+    "Sensor streams are duration-normalized because acquisition clocks are inconsistent.",
+    "EEG and physiology are missing for a subset of subjects and are handled by explicit masks.",
+    "The selected prepared dataset has no audio representation; audio is disabled and unavailable for every subject.",
+    "Target identity is inferred retrospectively from complete-transcript speaking volume; it is not supplied role metadata or an online role-discovery method.",
+    "The target-speaker heuristic and highlighted-label semantics still require independent confirmation by the data owner.",
+    "This audit does not establish annotation validity or population-level generalization."
+  ]
+}
