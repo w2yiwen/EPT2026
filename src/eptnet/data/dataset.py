@@ -286,6 +286,109 @@ class StitchedManifestDataset(Dataset):
         return sample
 
 
+class CausalTrainingWindowDataset(Dataset):
+    """Create causal optimization windows from unique stitched sessions.
+
+    Only the leading ``warmup_steps`` of windows after the first window in a
+    session are masked from the loss.  Those rows remain visible to the model as
+    causal context.  Validation and evaluation intentionally do not use this
+    adapter; they continue to consume one unique chronological row per session.
+    """
+
+    def __init__(
+        self,
+        sessions: Dataset,
+        *,
+        window_size: int,
+        stride: int,
+        warmup_steps: int,
+        positive_class: int,
+        positive_window_oversample: int = 1,
+    ) -> None:
+        if window_size <= 0 or stride <= 0:
+            raise ValueError("window_size and stride must be positive")
+        if warmup_steps < 0 or warmup_steps >= window_size:
+            raise ValueError("warmup_steps must be in [0, window_size)")
+        if positive_window_oversample < 1:
+            raise ValueError("positive_window_oversample must be at least 1")
+        self.sessions = sessions
+        self.window_size = int(window_size)
+        self.stride = int(stride)
+        self.warmup_steps = int(warmup_steps)
+        self.positive_class = int(positive_class)
+        self.positive_window_oversample = int(positive_window_oversample)
+        self._windows: list[tuple[int, int, int, bool]] = []
+
+        for session_index in range(len(sessions)):
+            sample = sessions[session_index]
+            length = int(sample["labels"].shape[0])
+            starts = list(range(0, max(length - self.window_size, 0) + 1, self.stride))
+            final_start = max(0, length - self.window_size)
+            if not starts or starts[-1] != final_start:
+                starts.append(final_start)
+            for start in starts:
+                end = min(start + self.window_size, length)
+                local_warmup = 0 if start == 0 else min(self.warmup_steps, end - start - 1)
+                target_mask = sample.get("target_mask")
+                if target_mask is None:
+                    target_mask = torch.ones(length, dtype=torch.bool)
+                supervised = target_mask[start:end].bool().clone()
+                if local_warmup:
+                    supervised[:local_warmup] = False
+                if not bool(supervised.any().item()):
+                    continue
+                labels = sample["labels"][start:end]
+                contains_positive = bool(
+                    ((labels == self.positive_class) & supervised).any().item()
+                )
+                repeats = self.positive_window_oversample if contains_positive else 1
+                for replica in range(repeats):
+                    self._windows.append((session_index, start, replica, contains_positive))
+        if not self._windows:
+            raise ValueError("Causal window construction produced no supervised windows")
+
+    def __len__(self) -> int:
+        return len(self._windows)
+
+    def __getitem__(self, index: int) -> dict[str, Any]:
+        session_index, start, replica, contains_positive = self._windows[index]
+        source = self.sessions[session_index]
+        length = int(source["labels"].shape[0])
+        end = min(start + self.window_size, length)
+        local_warmup = 0 if start == 0 else min(self.warmup_steps, end - start - 1)
+        output: dict[str, Any] = {}
+        for key, value in source.items():
+            if key in {"sample_id", "metadata"}:
+                continue
+            if isinstance(value, Tensor) and value.ndim > 0 and value.shape[0] == length:
+                output[key] = value[start:end].clone()
+            elif isinstance(value, (list, tuple)) and len(value) == length:
+                output[key] = list(value[start:end])
+            else:
+                output[key] = value
+
+        original_target = output.get("target_mask")
+        if original_target is None:
+            original_target = torch.ones(end - start, dtype=torch.bool)
+        loss_mask = original_target.bool().clone()
+        if local_warmup:
+            loss_mask[:local_warmup] = False
+        output["target_mask"] = loss_mask
+        session_id = str(source.get("metadata", {}).get("session_id", session_index))
+        output["sample_id"] = (
+            f"{session_id}_causal_{start:05d}_{end:05d}_replica{replica}"
+        )
+        output["metadata"] = {
+            **dict(source.get("metadata", {})),
+            "causal_window_start": start,
+            "causal_window_end_exclusive": end,
+            "causal_warmup_steps": local_warmup,
+            "contains_supervised_positive": contains_positive,
+            "oversample_replica": replica,
+        }
+        return output
+
+
 def collate_multimodal(samples: list[dict[str, Any]]) -> dict[str, Any]:
     """Pad variable-length sessions and add the batch axis."""
     if not samples:

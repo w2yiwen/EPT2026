@@ -52,6 +52,8 @@ def test_all_trusted_configs_use_isolated_no_text_outputs():
             "eptnet_v6_marlin12_4060_seed42.yaml",
             "eptnet_v6_marlin12_seed42.yaml",
             "eptnet_v6_marlin11_4060_seed42.yaml",
+            "eptnet_v6_marlin11_4060_windowed_seed42.yaml",
+            "baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml",
     }
     for path in Path("configs").glob("*.yaml"):
         if path.name in explicit_text_configs:
@@ -158,6 +160,21 @@ def test_seed42_marlin11_4060_config_declares_exact_aligned_cohort() -> None:
     assert config["experiment"]["output_dir"] == (
         "results/eptnet_v6_marlin11_4060_gated_seed42"
     )
+
+
+def test_marlin11_windowed_and_gru_configs_use_causal_training_only() -> None:
+    main = load_config("configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml")
+    baseline = load_config(
+        "configs/baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml"
+    )
+    for config in (main, baseline):
+        assert config["training"]["sequence_protocol"] == "causal_windows"
+        assert config["training"]["window_size"] == 128
+        assert config["training"]["window_stride"] == 32
+        assert config["training"]["window_warmup_steps"] == 32
+        assert config["data"]["dataset_name"] == "bci_subjects_ept_v6_marlin4060_aligned11"
+    assert main["model"]["name"] == "eptnet"
+    assert baseline["model"]["name"] == "early_fusion_gru"
 
 
 @pytest.mark.parametrize(

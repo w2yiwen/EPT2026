@@ -16,7 +16,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset, Subset
 
 from .config import load_config, save_resolved_config
-from .data import StitchedManifestDataset, collate_multimodal
+from .data import CausalTrainingWindowDataset, StitchedManifestDataset, collate_multimodal
 from .engine import Trainer
 from .losses import EPTNetLoss
 from .models import build_model
@@ -32,6 +32,7 @@ from .training_artifacts import (
 )
 
 CONTINUOUS_SESSION_PROTOCOL = "continuous_session"
+CAUSAL_WINDOW_PROTOCOL = "causal_windows"
 
 
 def validate_training_cohort(config: Mapping[str, Any]) -> dict[str, Any]:
@@ -310,6 +311,52 @@ def _build_run_metadata(
     trainable_parameters = sum(
         parameter.numel() for parameter in model.parameters() if parameter.requires_grad
     )
+    protocol = str(training["sequence_protocol"])
+    windowed = protocol == CAUSAL_WINDOW_PROTOCOL
+    sequence_protocol: dict[str, Any] = {
+        "name": protocol,
+        "dataset_adapter": (
+            "CausalTrainingWindowDataset" if windowed else "StitchedManifestDataset"
+        ),
+        "unit": "causal_window" if windowed else "complete_session",
+        "training_unit": "causal_window" if windowed else "complete_session",
+        "validation_unit": "complete_session",
+        "sampler": "RandomSampler" if windowed else "SequentialSampler",
+        "shuffle": windowed,
+        "drop_last": False,
+        "session_batch_size": int(training["batch_size"]),
+        "train_sessions": train_sessions,
+        "val_sessions": val_sessions,
+        "train_unique_steps": train_unique_steps,
+        "train_batches_per_epoch": train_batches_per_epoch,
+        "val_batches_per_epoch": val_batches_per_epoch,
+        "checkpoint_selection": "minimum participant-mean validation total loss",
+        "validation_row_accounting": "one unique (session_id, row_index) per epoch",
+        "target_step_weighted_losses": "reported as diagnostics only",
+    }
+    if windowed:
+        sequence_protocol.update(
+            {
+                "window_size": int(training["window_size"]),
+                "window_stride": int(training["window_stride"]),
+                "window_warmup_steps": int(training["window_warmup_steps"]),
+                "positive_window_oversample": int(
+                    training["positive_window_oversample"]
+                ),
+                "warmup_semantics": (
+                    "visible as causal context but excluded from target_mask and every loss"
+                ),
+                "training_loss_aggregation": "unweighted mean over causal-window batches",
+                "evaluation_uses_windows": False,
+            }
+        )
+    else:
+        sequence_protocol.update(
+            {
+                "row_accounting": "one unique (session_id, row_index) per epoch",
+                "epoch_loss_aggregation": "unweighted mean over complete-session batches",
+            }
+        )
     return {
         "status": "running",
         "started_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -333,24 +380,7 @@ def _build_run_metadata(
             "cublas_workspace_config": os.environ.get("CUBLAS_WORKSPACE_CONFIG"),
         },
         "amp_enabled": bool(training.get("amp", False)),
-        "sequence_protocol": {
-            "name": str(training["sequence_protocol"]),
-            "dataset_adapter": "StitchedManifestDataset",
-            "unit": "complete_session",
-            "sampler": "SequentialSampler",
-            "shuffle": False,
-            "drop_last": False,
-            "session_batch_size": int(training["batch_size"]),
-            "train_sessions": train_sessions,
-            "val_sessions": val_sessions,
-            "train_unique_steps": train_unique_steps,
-            "train_batches_per_epoch": train_batches_per_epoch,
-            "val_batches_per_epoch": val_batches_per_epoch,
-            "row_accounting": "one unique (session_id, row_index) per epoch",
-            "epoch_loss_aggregation": "unweighted mean over complete-session batches",
-            "checkpoint_selection": "minimum participant-mean validation total loss",
-            "target_step_weighted_losses": "reported as diagnostics only",
-        },
+        "sequence_protocol": sequence_protocol,
         "total_parameters": total_parameters,
         "trainable_parameters": trainable_parameters,
         "provenance": dict(provenance),
@@ -410,6 +440,55 @@ def _build_continuous_session_loader(
         pin_memory=device.type == "cuda",
     )
     return dataset, loader
+
+
+def _build_causal_window_loader(
+    manifest_path: str,
+    *,
+    settings: Mapping[str, Any],
+    positive_class: int,
+    device: torch.device,
+    seed: int,
+    maximum_sessions: int | None = None,
+) -> tuple[Dataset, DataLoader, Dataset]:
+    """Build shuffled causal train windows and retain unique sessions for audits."""
+
+    if str(settings.get("sequence_protocol", "")) != CAUSAL_WINDOW_PROTOCOL:
+        raise ValueError("Causal window loader requires sequence_protocol='causal_windows'")
+    complete_dataset = StitchedManifestDataset(manifest_path, require_targets=True)
+    if maximum_sessions is None:
+        complete_dataset.materialize()
+        unique_dataset: Dataset = complete_dataset
+    else:
+        if maximum_sessions <= 0:
+            raise ValueError("maximum_sessions must be positive")
+        selected_indices = list(range(min(maximum_sessions, len(complete_dataset))))
+        for index in selected_indices:
+            complete_dataset[index]
+        unique_dataset = Subset(complete_dataset, selected_indices)
+
+    window_dataset = CausalTrainingWindowDataset(
+        unique_dataset,
+        window_size=int(settings["window_size"]),
+        stride=int(settings["window_stride"]),
+        warmup_steps=int(settings["window_warmup_steps"]),
+        positive_class=int(positive_class),
+        positive_window_oversample=int(settings["positive_window_oversample"]),
+    )
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    loader = DataLoader(
+        window_dataset,
+        batch_size=int(settings["batch_size"]),
+        shuffle=True,
+        drop_last=False,
+        generator=generator,
+        num_workers=int(settings["num_workers"]),
+        collate_fn=collate_multimodal,
+        worker_init_fn=seed_worker,
+        pin_memory=device.type == "cuda",
+    )
+    return window_dataset, loader, unique_dataset
 
 
 def _resolve_automatic_loss_weights(
@@ -576,21 +655,33 @@ def main() -> None:
         raise ValueError(
             "train_manifest and val_manifest must point to prepared real-data manifests"
         )
-    train_dataset, train_loader = _build_continuous_session_loader(
-        train_manifest,
-        settings=settings,
-        device=device,
-        seed=seed,
-        maximum_sessions=1 if args.smoke else None,
-    )
+    if str(settings["sequence_protocol"]) == CAUSAL_WINDOW_PROTOCOL:
+        train_dataset, train_loader, train_unique_dataset = _build_causal_window_loader(
+            train_manifest,
+            settings=settings,
+            positive_class=int(config["evaluation"]["positive_class"]),
+            device=device,
+            seed=seed,
+            maximum_sessions=1 if args.smoke else None,
+        )
+    else:
+        train_dataset, train_loader = _build_continuous_session_loader(
+            train_manifest,
+            settings=settings,
+            device=device,
+            seed=seed,
+            maximum_sessions=1 if args.smoke else None,
+        )
+        train_unique_dataset = train_dataset
+    validation_settings = {**settings, "sequence_protocol": CONTINUOUS_SESSION_PROTOCOL}
     val_dataset, val_loader = _build_continuous_session_loader(
         val_manifest,
-        settings=settings,
+        settings=validation_settings,
         device=device,
         seed=(seed + 1) % 2**32,
         maximum_sessions=1 if args.smoke else None,
     )
-    target_statistics = _resolve_automatic_loss_weights(config, train_dataset)
+    target_statistics = _resolve_automatic_loss_weights(config, train_unique_dataset)
     post_materialization_provenance = build_runtime_provenance(config)
     if post_materialization_provenance["provenance_sha256"] != provenance["provenance_sha256"]:
         raise RuntimeError(
@@ -605,7 +696,7 @@ def main() -> None:
         args=args,
         config=config,
         device=device,
-        train_sessions=len(train_dataset),
+        train_sessions=len(train_unique_dataset),
         val_sessions=len(val_dataset),
         train_unique_steps=int(target_statistics["unique_training_steps"]),
         train_batches_per_epoch=len(train_loader),
@@ -652,7 +743,7 @@ def main() -> None:
             history = load_training_history(output_dir / "history.json")
             runtime_estimate = estimate_full_training_runtime(
                 history,
-                observed_train_steps=_dataset_step_count(train_dataset),
+                observed_train_steps=_dataset_step_count(train_unique_dataset),
                 observed_val_steps=_dataset_step_count(val_dataset),
                 full_train_steps=_manifest_step_count(train_manifest),
                 full_val_steps=_manifest_step_count(val_manifest),

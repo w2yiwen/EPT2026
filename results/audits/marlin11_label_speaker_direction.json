@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "prepared tensor structure and recorded target-speaker provenance",
+  "dataset": "bci_subjects_ept_v6_marlin4060_aligned11",
+  "config": "configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml",
+  "positive_class": 0,
+  "label_semantics": {
+    "0": "deception",
+    "1": "truth"
+  },
+  "checks": {
+    "every_session_contains_binary_labels": true,
+    "positive_mask_equals_target_mask_and_label_zero": true,
+    "target_speaker_matches_alignment_provenance": true,
+    "summary_counts_match_tensors": true
+  },
+  "split_counts": {
+    "train": {
+      "sessions": 7,
+      "target_valid_steps": 1628,
+      "deception_steps": 339
+    },
+    "val": {
+      "sessions": 1,
+      "target_valid_steps": 260,
+      "deception_steps": 63
+    },
+    "test": {
+      "sessions": 3,
+      "target_valid_steps": 645,
+      "deception_steps": 139
+    }
+  },
+  "sessions": [
+    {
+      "session_id": "session_002",
+      "split": "train",
+      "target_speaker_id": "1",
+      "alignment_target_speaker_id": "1",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 223,
+      "deception_steps": 46,
+      "deception_prevalence": 0.2062780269058296,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 22
+    },
+    {
+      "session_id": "session_003",
+      "split": "train",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 340,
+      "deception_steps": 29,
+      "deception_prevalence": 0.08529411764705883,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 24
+    },
+    {
+      "session_id": "session_004",
+      "split": "train",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 150,
+      "deception_steps": 26,
+      "deception_prevalence": 0.17333333333333334,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 16
+    },
+    {
+      "session_id": "session_006",
+      "split": "train",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 106,
+      "deception_steps": 58,
+      "deception_prevalence": 0.5471698113207547,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 10
+    },
+    {
+      "session_id": "session_009",
+      "split": "train",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 133,
+      "deception_steps": 10,
+      "deception_prevalence": 0.07518796992481203,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 12
+    },
+    {
+      "session_id": "session_010",
+      "split": "train",
+      "target_speaker_id": "1",
+      "alignment_target_speaker_id": "1",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 324,
+      "deception_steps": 57,
+      "deception_prevalence": 0.17592592592592593,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 56
+    },
+    {
+      "session_id": "session_012",
+      "split": "train",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 352,
+      "deception_steps": 113,
+      "deception_prevalence": 0.3210227272727273,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 36
+    },
+    {
+      "session_id": "session_018",
+      "split": "val",
+      "target_speaker_id": "1",
+      "alignment_target_speaker_id": "1",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 260,
+      "deception_steps": 63,
+      "deception_prevalence": 0.2423076923076923,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 42
+    },
+    {
+      "session_id": "session_008",
+      "split": "test",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 186,
+      "deception_steps": 56,
+      "deception_prevalence": 0.3010752688172043,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 28
+    },
+    {
+      "session_id": "session_015",
+      "split": "test",
+      "target_speaker_id": "2",
+      "alignment_target_speaker_id": "2",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 147,
+      "deception_steps": 12,
+      "deception_prevalence": 0.08163265306122448,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 8
+    },
+    {
+      "session_id": "session_017",
+      "split": "test",
+      "target_speaker_id": "1",
+      "alignment_target_speaker_id": "1",
+      "speaker_consistent": true,
+      "observed_labels": [
+        0,
+        1
+      ],
+      "label_semantics": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "target_valid_steps": 312,
+      "deception_steps": 71,
+      "deception_prevalence": 0.22756410256410256,
+      "positive_mask_direction_mismatches": 0,
+      "boundary_positive_entries": 42
+    }
+  ],
+  "failures": [],
+  "source_sha256": {
+    "dataset_summary.json": "6e69bd3b413368c35ffbc312b984ea0e1d1f4f56953404f30bce7c46f50837f3",
+    "train_manifest": "aaa2890a3fe5689f92e5df689a1898c7cb4d321b106206aa6473b089714e9ffd",
+    "val_manifest": "c837a41a4edd1641646e6bedfa98bf9d133e2199d5ccaebd0922199d79c8bd33",
+    "test_manifest": "e662cf6edeed3b07adaeb57aa4f03466f2e82931697f14f8cfa691339736d938"
+  },
+  "limitation": "Passing proves internal direction and speaker-provenance consistency; it cannot prove that the original human highlights are semantically correct. Independent data-owner confirmation remains required."
+}

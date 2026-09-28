@@ -8,13 +8,14 @@ import pytest
 import torch
 from torch.utils.data import SequentialSampler
 
-from eptnet.data import StitchedManifestDataset, collate_multimodal
+from eptnet.data import CausalTrainingWindowDataset, StitchedManifestDataset, collate_multimodal
 from eptnet.data.prepare_bci import (
     discover_feature_groups,
     excluded_eeg_features,
     snap_split_boundary,
 )
 from eptnet.train import (
+    _build_causal_window_loader,
     _build_continuous_session_loader,
     _resolve_automatic_loss_weights,
 )
@@ -167,7 +168,7 @@ def test_training_loader_uses_one_unshuffled_709_step_session(tmp_path: Path):
     assert int(batch["sequence_mask"].sum()) == total_steps
 
 
-def test_training_loader_rejects_windowed_or_multi_session_batch_protocol(tmp_path: Path):
+def test_continuous_loader_rejects_other_or_multi_session_batch_protocol(tmp_path: Path):
     manifest = _manifest(
         tmp_path,
         [("window", "session_train", _window([0, 1, 2]))],
@@ -188,6 +189,67 @@ def test_training_loader_rejects_windowed_or_multi_session_batch_protocol(tmp_pa
         _build_continuous_session_loader(
             str(manifest), settings=batched, device=torch.device("cpu"), seed=42
         )
+
+
+def test_causal_window_loader_masks_warmup_and_keeps_validation_rows_unique(tmp_path: Path):
+    manifest = _manifest(
+        tmp_path,
+        [("session", "session_train", _window(list(range(160))))],
+    )
+    settings = {
+        "sequence_protocol": "causal_windows",
+        "batch_size": 1,
+        "num_workers": 0,
+        "window_size": 128,
+        "window_stride": 32,
+        "window_warmup_steps": 32,
+        "positive_window_oversample": 1,
+    }
+    dataset, loader, unique = _build_causal_window_loader(
+        str(manifest),
+        settings=settings,
+        positive_class=0,
+        device=torch.device("cpu"),
+        seed=42,
+    )
+
+    assert isinstance(dataset, CausalTrainingWindowDataset)
+    assert len(unique) == 1
+    assert len(dataset) == 2
+    assert len(loader) == 2
+    first = dataset[0]
+    second = dataset[1]
+    assert first["row_indices"].tolist() == list(range(128))
+    assert bool(first["target_mask"][:32].all())
+    assert second["row_indices"].tolist() == list(range(32, 160))
+    assert not bool(second["target_mask"][:32].any())
+    assert bool(second["target_mask"][32:].all())
+    assert unique[0]["row_indices"].unique().numel() == 160
+
+
+def test_positive_causal_windows_can_be_oversampled_without_changing_unique_data(
+    tmp_path: Path,
+):
+    sample = _window(list(range(96)))
+    sample["labels"].fill_(1)
+    sample["positive_mask"].fill_(False)
+    sample["labels"][60] = 0
+    sample["positive_mask"][60] = True
+    manifest = _manifest(tmp_path, [("session", "session_train", sample)])
+    unique = StitchedManifestDataset(str(manifest))
+    windows = CausalTrainingWindowDataset(
+        unique,
+        window_size=64,
+        stride=32,
+        warmup_steps=16,
+        positive_class=0,
+        positive_window_oversample=2,
+    )
+
+    assert len(unique) == 1
+    assert len(windows) == 4
+    assert sum(item["metadata"]["contains_supervised_positive"] for item in windows) == 4
+    assert {item["metadata"]["oversample_replica"] for item in windows} == {0, 1}
 
 
 def test_automatic_loss_weights_count_each_overlapping_row_once(tmp_path: Path):

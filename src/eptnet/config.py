@@ -75,6 +75,10 @@ _SECTION_KEYS = {
     "training": frozenset(
         {
             "sequence_protocol",
+            "window_size",
+            "window_stride",
+            "window_warmup_steps",
+            "positive_window_oversample",
             "epochs",
             "batch_size",
             "learning_rate",
@@ -115,7 +119,15 @@ _OPTIONAL_SECTION_KEYS = {
             "excluded_session_ids",
             "require_aligned_behavior_modalities",
         }
-    )
+    ),
+    "training": frozenset(
+        {
+            "window_size",
+            "window_stride",
+            "window_warmup_steps",
+            "positive_window_oversample",
+        }
+    ),
 }
 _CACHE_KEYS = frozenset({"time", "spec", "hr"})
 _SCHEDULER_KEYS = frozenset(
@@ -408,12 +420,27 @@ def _validate_config(config: Mapping[str, Any]) -> None:
 
     training = sections["training"]
     sequence_protocol = _require_string(training, "sequence_protocol", "training")
-    if sequence_protocol != "continuous_session":
-        raise ValueError("training.sequence_protocol must be 'continuous_session'")
+    if sequence_protocol not in {"continuous_session", "causal_windows"}:
+        raise ValueError(
+            "training.sequence_protocol must be 'continuous_session' or 'causal_windows'"
+        )
     _require_int(training, "epochs", "training", minimum=1)
     batch_size = _require_int(training, "batch_size", "training", minimum=1)
     if batch_size != 1:
-        raise ValueError("training.batch_size must be 1 for sequence_protocol='continuous_session'")
+        raise ValueError("training.batch_size must be 1 for the supported sequence protocols")
+    if sequence_protocol == "causal_windows":
+        window_size = _require_int(training, "window_size", "training", minimum=2)
+        window_stride = _require_int(training, "window_stride", "training", minimum=1)
+        window_warmup = _require_int(
+            training, "window_warmup_steps", "training", minimum=0
+        )
+        _require_int(training, "positive_window_oversample", "training", minimum=1)
+        if window_stride > window_size:
+            raise ValueError("training.window_stride must not exceed training.window_size")
+        if window_warmup >= window_size:
+            raise ValueError(
+                "training.window_warmup_steps must be smaller than training.window_size"
+            )
     learning_rate = _require_real(
         training,
         "learning_rate",

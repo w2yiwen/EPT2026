@@ -9,6 +9,10 @@
 4060 config:    configs/eptnet_v6_marlin11_4060_seed42.yaml
 4060 results:   results/eptnet_v6_marlin11_4060_gated_seed42/
 
+改进训练 config:  configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml
+改进训练 results: results/eptnet_v6_marlin11_4060_windowed_seed42/
+GRU baseline:      configs/baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml
+
 4090 processed: data/processed/bci_subjects_ept_v6_marlin_complete12/
 4090 cache:     data/cache/bci_subjects_ept_v6_marlin_complete12/marlin/
 4090 results:   results/eptnet_v6_marlin12_gated_seed42/
@@ -111,7 +115,132 @@ $env:PYTHONPATH = (Resolve-Path .\src).Path
 
 该门禁检查 11 个指定 ID 与 train/validation/test 的并集完全相等、三个 split 互斥、`session_011` 未泄漏、每个人的 video/audio/text 有有效时间步，并且每个 session 都带完整 Whisper 对齐元数据。验证报告同时写入 `run_metadata.json`。
 
-## 4. Smoke、完整训练与恢复
+## 4. 标签方向与目标说话人审计
+
+训练前先执行 fail-closed 审计。它逐 session 检查：
+
+- 固定语义为 `0=deception`、`1=truth`，评估正类为 0；
+- `positive_mask == target_mask AND label==0`；
+- Whisper 对齐记录中的目标说话人与标注记录一致；
+- tensor 内 target-valid 数量与 `dataset_summary.json` 一致。
+
+```powershell
+Set-Location F:\EPT-Net\code
+
+.\scripts\audit\audit_label_speaker_direction.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml
+```
+
+通过后输出：
+
+```text
+results/audits/marlin11_label_speaker_direction.json
+results/audits/marlin11_label_speaker_direction.md
+```
+
+该审计证明内部标签方向和说话人 provenance 一致，但不能替代数据所有者对原始高亮语义的人工确认。
+
+## 5. Majority 与 Logistic 基线
+
+下面的入口只用 train 拟合标准化和 Logistic 参数，只用 validation 选择阈值，最后一次性评估 test。不会使用 test 拟合特征标准化、参数或阈值：
+
+```powershell
+.\scripts\experiments\run_classical_baselines.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Output results\baselines\marlin11_classical_seed42.json `
+  -Device cpu
+```
+
+输出：
+
+```text
+results/baselines/marlin11_classical_seed42.json
+```
+
+当前真实运行参考值为 Majority Macro-F1 `0.4396`、Logistic Macro-F1 `0.4806`、Logistic AUROC `0.4624`。这些是用于判断神经网络是否真正超过简单模型的基线，不是主模型结果。
+
+## 6. 128 秒因果窗口 EPT-Net（推荐新训练）
+
+新协议只改变训练采样：
+
+- 训练窗口长度 128 秒、步长 32 秒；
+- 除每个 session 的第一个窗口外，窗口开头 32 秒只作为因果 warm-up，上下文可见但不计算任何 loss；
+- 自动类别权重仍由 7 个训练 session 的唯一时间步计算，不按重叠窗口重复统计；
+- validation 和 test 始终使用去重后的完整 session 时间线；
+- 旧的 `eptnet_v6_marlin11_4060_seed42.yaml` 和已有 checkpoint 不受影响。
+
+先 smoke。它读取一个真实训练 session 的全部因果窗口和一个完整 validation session，不读取 test：
+
+```powershell
+.\scripts\experiments\train.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Seed 42 `
+  -Device cuda:0 `
+  -Smoke
+```
+
+正式训练：
+
+```powershell
+.\scripts\experiments\train.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Seed 42 `
+  -Device cuda:0
+```
+
+中断后原样恢复：
+
+```powershell
+.\scripts\experiments\train.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Seed 42 `
+  -Device cuda:0 `
+  -Resume results\eptnet_v6_marlin11_4060_windowed_seed42\seed_42\last.pt
+```
+
+评估新模型：
+
+```powershell
+.\scripts\experiments\evaluate.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\eptnet_v6_marlin11_4060_windowed_seed42.yaml `
+  -Checkpoint results\eptnet_v6_marlin11_4060_windowed_seed42\seed_42\best.pt `
+  -Device cuda:0
+```
+
+测试指标将写到同一个 `seed_42` 目录下的 `test_metrics.json`、`test_metrics_predictions.jsonl` 和 `test_metrics_events.json`。
+
+## 7. 同协议 Early-Fusion GRU 基线
+
+GRU使用完全相同的数据、128 秒窗口、warm-up、损失和完整 session 评估协议，只替换时序模型：
+
+```powershell
+.\scripts\experiments\train.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml `
+  -Seed 42 `
+  -Device cuda:0 `
+  -Smoke
+
+.\scripts\experiments\train.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml `
+  -Seed 42 `
+  -Device cuda:0
+
+.\scripts\experiments\evaluate.ps1 `
+  -Python .\.venv\Scripts\python.exe `
+  -Config configs\baseline_early_fusion_gru_marlin11_4060_windowed_seed42.yaml `
+  -Checkpoint results\baseline_early_fusion_gru_marlin11_4060_windowed_seed42\seed_42\best.pt `
+  -Device cuda:0
+```
+
+## 8. 旧完整-session实验复现
 
 先运行 smoke：
 
@@ -145,7 +274,7 @@ Smoke 成功后执行正式训练，不要添加 `-Smoke`：
   -Resume results\eptnet_v6_marlin11_4060_gated_seed42\seed_42\last.pt
 ```
 
-## 5. 最终评估
+## 9. 旧完整-session模型最终评估
 
 只读取训练选出的 `best.pt`；阈值只在 validation 上校准，然后冻结并评估 test：
 

@@ -294,6 +294,35 @@ def test_run_metadata_freezes_continuous_session_loader_contract():
     assert protocol["row_accounting"] == "one unique (session_id, row_index) per epoch"
 
 
+def test_run_metadata_freezes_causal_window_training_and_complete_validation():
+    config = load_config("configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml")
+    metadata = _build_run_metadata(
+        args=Namespace(
+            config="configs/eptnet_v6_marlin11_4060_windowed_seed42.yaml", resume=None
+        ),
+        config=config,
+        device=torch.device("cpu"),
+        train_sessions=7,
+        val_sessions=1,
+        train_unique_steps=1628,
+        train_batches_per_epoch=80,
+        val_batches_per_epoch=1,
+        model=torch.nn.Linear(2, 2),
+        provenance={"provenance_sha256": "a" * 64},
+    )
+
+    protocol = metadata["sequence_protocol"]
+    assert protocol["name"] == "causal_windows"
+    assert protocol["dataset_adapter"] == "CausalTrainingWindowDataset"
+    assert protocol["unit"] == "causal_window"
+    assert protocol["validation_unit"] == "complete_session"
+    assert protocol["shuffle"] is True
+    assert protocol["window_size"] == 128
+    assert protocol["window_stride"] == 32
+    assert protocol["window_warmup_steps"] == 32
+    assert protocol["evaluation_uses_windows"] is False
+
+
 def test_new_run_refuses_to_overwrite_existing_evidence(tmp_path):
     output_dir = tmp_path / "seed_42"
     output_dir.mkdir()

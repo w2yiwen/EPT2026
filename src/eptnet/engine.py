@@ -238,10 +238,9 @@ class Trainer:
                 progress.set_postfix(postfix, refresh=False)
         if batches == 0 or total_valid_steps == 0:
             raise RuntimeError("DataLoader produced zero valid batches")
-        # The trusted continuous-session loader enforces batch_size=1, so the
-        # primary loss is an unweighted mean over subjects/sessions.  Keep the
-        # target-step-weighted value as a diagnostic rather than allowing long
-        # sessions to dominate checkpoint selection.
+        # The primary loss is an unweighted mean over optimization batches.  A
+        # training batch may be a complete session or a declared causal window;
+        # validation remains one complete subject/session per batch.
         averaged = {name: value / batches for name, value in batch_accumulated.items()}
         averaged.update(
             {
@@ -328,6 +327,10 @@ class Trainer:
                 raise ValueError(f"Resume rejected because experiment.{key} changed")
         exact_training_keys = (
             "sequence_protocol",
+            "window_size",
+            "window_stride",
+            "window_warmup_steps",
+            "positive_window_oversample",
             "batch_size",
             "patience",
             "learning_rate",
