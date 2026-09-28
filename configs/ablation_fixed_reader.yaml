@@ -1,0 +1,6 @@
+inherits: default.yaml
+experiment:
+  name: ablation_fixed_reader_continuous_no_text
+  output_dir: results/ablation_fixed_reader_continuous_no_text
+model:
+  adaptive_reader: false

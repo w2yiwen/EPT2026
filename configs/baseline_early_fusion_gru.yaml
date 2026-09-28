@@ -1,0 +1,9 @@
+inherits: default.yaml
+experiment:
+  name: baseline_early_fusion_gru_continuous_no_text
+  output_dir: results/baseline_early_fusion_gru_continuous_no_text
+model:
+  name: early_fusion_gru
+  # 358,926 executed parameters, within 0.1% of EPT-Net's 358,604.
+  # Allocated-but-disabled text branches are excluded from this fairness count.
+  hidden_dim: 120

@@ -1,0 +1,30 @@
+inherits: eptnet_v6_marlin12_seed42.yaml
+
+# Formal RTX 4060 route after alignment-quality exclusion of session_011.
+experiment:
+  name: eptnet_v6_marlin11_4060_gated_seed42
+  output_dir: results/eptnet_v6_marlin11_4060_gated_seed42
+
+data:
+  dataset_name: bci_subjects_ept_v6_marlin4060_aligned11
+  train_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_train.jsonl
+  val_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_val.jsonl
+  test_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_test.jsonl
+  video_dim: 384
+  audio_dim: 768
+  text_dim: 768
+  expected_session_ids:
+    - session_002
+    - session_003
+    - session_004
+    - session_006
+    - session_008
+    - session_009
+    - session_010
+    - session_012
+    - session_015
+    - session_017
+    - session_018
+  excluded_session_ids:
+    - session_011
+  require_aligned_behavior_modalities: true

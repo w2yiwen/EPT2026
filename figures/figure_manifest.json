@@ -1,0 +1,531 @@
+{
+  "schema_version": 2,
+  "generator": {
+    "path": "gen_fig_experiments.py",
+    "sha256": "119d7c796a29fa9373587304fc9049f8f463a18b54dec36fc96ca8fa9fb58a4a"
+  },
+  "plotting_contract": {
+    "trusted_protocol": "text-disabled continuous-session training; one unique chronological row per epoch and unique chronological test rows",
+    "main_comparison": "three seeds (13, 42, 73); mean and sample standard deviation",
+    "repeated_mechanism_ablation": "full EPT versus no recurrent fusion update; three seeds (13, 42, 73); mean and sample standard deviation; reader policy still receives previous state",
+    "single_seed_diagnostics": "fixed reader, no behavior, and EEG-time plus behavior only; seed 42 only; diagnostic without uncertainty",
+    "quarantined_protocol": "release-safe aggregate snapshot of legacy window-trained no-text and text-enabled seed-42 results; shown only as a matched-protocol shortcut audit; neither is trusted performance evidence",
+    "palette": "Okabe-Ito",
+    "exports": [
+      "vector PDF",
+      "300 dpi PNG"
+    ]
+  },
+  "sources": [
+    {
+      "path": "figures/figure_data.json",
+      "sha256": "2081ffbab88c820ae822e571d51195ca0c3ce717c1f3fbaa73dad5e3e728bf2c"
+    },
+    {
+      "path": "results/ablation_fixed_reader_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "acc61d2a962265cfe11d1e8fb5a62349849803f842759792e13fff2411882dd8"
+    },
+    {
+      "path": "results/ablation_fixed_reader_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "29664852ec0b5d421532b7cc789f1a0a5f5decb60df2f4f2d34aff87ec8ceb19"
+    },
+    {
+      "path": "results/ablation_no_behavior_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "82a3685b7840905bf3efbcc01f05e3904c3091b80ae5e919e821f2bdd2f04630"
+    },
+    {
+      "path": "results/ablation_no_behavior_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "a96c15fe03f16e1a2f6d522795c855bbc73a8b0f2a4632f77b77eae78e8537da"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/aggregate.json",
+      "sha256": "2ff730012687efa7a0bd89ea6578b4a5782fc93acfe326b9dc8252dbb324bfd9"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/seed_13/resolved_config.yaml",
+      "sha256": "3bc8b1f4d04e5911b58bae56771e780ab7a94f923524fafee633ee4cb3ffa3f0"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/seed_13/test_metrics.json",
+      "sha256": "701833d96d36cbabb63d54100081dd3a6bfca085687a06a5750bdb1e6c655db3"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "4d1744216d2cb41b5ae327418e9b54193497cb3dbcf352ca2b85f1e218580f27"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "b0dd0dcbd11cc3f4c9e46778d831f723dbc3126e8958275f860f1d3aeb7d6c95"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/seed_73/resolved_config.yaml",
+      "sha256": "12ccc626d3883ce5fe5594a1e5d4f58b1a7235d1dbc77bf7892f7739eb86bdfd"
+    },
+    {
+      "path": "results/ablation_no_persistent_continuous_no_text/seed_73/test_metrics.json",
+      "sha256": "310783a1506a6103aee82253e259ff83fe0868d9cea8adb9b7f3a09bd89270e6"
+    },
+    {
+      "path": "results/ablation_single_scale_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "2371fad5f85b1a6f45bff245822729daecdcd530316d49657cd7298306b72df0"
+    },
+    {
+      "path": "results/ablation_single_scale_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "f16ce2af3b7b0d7e5fb8bb8f9424b7597f7336ca927dbba32dda60d5007eae17"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/aggregate.json",
+      "sha256": "042d7a9e340d460c33f7739cbc8ddbc8fc9712257bb7c6c4c866bad0ddcbfc9f"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/seed_13/resolved_config.yaml",
+      "sha256": "4a8a214584a20b64c51d01f5e2b9521da52b577a983879a5ccb54aa91b9c9ad7"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/seed_13/test_metrics.json",
+      "sha256": "f78afc7238b399ec6f5c87996165d1a84e1680b06beebef728cf63566cc79242"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "13aef5fa9d508ca9f59deee48dc85ae31914960f70c5615c060a103b037fd576"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "36a71fb0ab924cefd71a3076b384c896676520c89527e73d1391479ff2ee910d"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/seed_73/resolved_config.yaml",
+      "sha256": "e8e0020b40a302890544cc3a483a42ca0a752784383350d1591c1c2826b550e2"
+    },
+    {
+      "path": "results/baseline_early_fusion_gru_continuous_no_text/seed_73/test_metrics.json",
+      "sha256": "febed0eb1a150b66497c2c1c87f948ed27fa0d033ba92083db295bd9f1b83f0e"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/aggregate.json",
+      "sha256": "0ac5a67ef4f92a38c861bd8adad924218cfa568d40075f6387ec8d6ce0614aa1"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/seed_13/resolved_config.yaml",
+      "sha256": "781bcf86022f2482755f7429439c047a56a8ed26988bc7b3370150f4fec14d74"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/seed_13/test_metrics.json",
+      "sha256": "cef0b08100110a8c8616d04cb93fddf38266286f961a477771d7d69933bf0417"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "4e9b222d0b51cae9a8e54693a13bfd33247981321e83d3ceb900ecbae9a0a9aa"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "bdd415faeb01c1a93783d7137b323908dbad1bb862d301594157e533d60a2a82"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/seed_73/resolved_config.yaml",
+      "sha256": "09e90df34ba4a84ff89b64bb7a1427c2a6dc89aa63ba2febb7a1e75e8b69d47d"
+    },
+    {
+      "path": "results/baseline_fusion_transformer_continuous_no_text/seed_73/test_metrics.json",
+      "sha256": "0d95b060ad217353f47f2616033b6fa5fa4f1a8579e842c237b705cea532136e"
+    },
+    {
+      "path": "results/data_audit.json",
+      "sha256": "07ab82b9f410f3e32ca923d263c129b7594accbe3f56077bbc3b7985d0c67cd4"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/aggregate.json",
+      "sha256": "2efafbc74d9a47f88a98e988291fcd9e71ead3d8822b53bed711cab813ed6b54"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/seed_13/resolved_config.yaml",
+      "sha256": "ab193f0c71682d39c585924f1a29d7fde82f11d25589f4e1a1b5da31f5f93c80"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/seed_13/test_metrics.json",
+      "sha256": "60ef0346ddce5fe83ca89021e7ddb23efc8492a85ed921c45f925beaf3477f4a"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/seed_42/resolved_config.yaml",
+      "sha256": "f8d9d6abb8a7bb2c0918b6b2c1005fb9e506cec979628bc02404823e1aaaf270"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/seed_42/test_metrics.json",
+      "sha256": "ed77f73d2b4fcaa806a39863b13cce1b65713cfc88d78982cc35554bd68ffc89"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/seed_73/resolved_config.yaml",
+      "sha256": "25912077620385e2f47e49e98a636752f10dd412c64d609d5371e0b142fabfd8"
+    },
+    {
+      "path": "results/eptnet_continuous_no_text/seed_73/test_metrics.json",
+      "sha256": "be507f52cb445cacf3c46b60b3d03aebcb612772f05dd001822c6272f76892fa"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "fig_data_integrity_audit.pdf",
+      "bytes": 106315,
+      "sha256": "c0b90c4483e1eae56e1522a2fd3fd62e87e1d7e11924a99132efae4ac58398e0"
+    },
+    {
+      "path": "fig_data_integrity_audit.png",
+      "bytes": 204485,
+      "sha256": "7d128ea14624306ba984a691746127fe124802eded1b667cd2945e9cbad58d11"
+    },
+    {
+      "path": "fig_main_comparison.pdf",
+      "bytes": 63560,
+      "sha256": "89ca4a49fcc478a6b00562f52161c8d048c73da1fd2d3fa5e853fd3964650468"
+    },
+    {
+      "path": "fig_main_comparison.png",
+      "bytes": 112324,
+      "sha256": "41c2b08ffe77548e8afc708d60c5a0cc28e0fc2ad9567a55ca29c747568dace2"
+    },
+    {
+      "path": "fig_mechanism_ablation.pdf",
+      "bytes": 65633,
+      "sha256": "d40cf3a305e4821b182e8a74817ca07e7783af34cb9a32aee35074823defad71"
+    },
+    {
+      "path": "fig_mechanism_ablation.png",
+      "bytes": 162847,
+      "sha256": "7571985be12b06a109c0145c6d717778f8d5c2b4d6f51a829a78b089e04c76d8"
+    }
+  ],
+  "plotted_data": {
+    "main_comparison": {
+      "EPT-Net": {
+        "AUROC": {
+          "mean": 0.5176189644126041,
+          "sample_std": 0.12374716197515279,
+          "seeds": [
+            0.5850078630089114,
+            0.37480342477721473,
+            0.5930456054516862
+          ]
+        },
+        "Macro-F1": {
+          "mean": 0.41949254780795997,
+          "sample_std": 0.05596080241881143,
+          "seeds": [
+            0.432967032967033,
+            0.35802469135802467,
+            0.4674859190988223
+          ]
+        },
+        "Boundary F1": {
+          "mean": 0.3073932821056859,
+          "sample_std": 0.05715369582358099,
+          "seeds": [
+            0.3386327503974562,
+            0.24142857142857144,
+            0.34211852449103
+          ]
+        },
+        "Event F1 @ IoU 0.5": {
+          "mean": 0.09393939393939395,
+          "sample_std": 0.09106048000798012,
+          "seeds": [
+            0.18181818181818182,
+            0.0,
+            0.1
+          ]
+        },
+        "Event mAP": {
+          "mean": 0.028805453805453806,
+          "sample_std": 0.03160100498679447,
+          "seeds": [
+            0.0626068376068376,
+            0.0,
+            0.023809523809523808
+          ]
+        }
+      },
+      "Early-fusion GRU": {
+        "AUROC": {
+          "mean": 0.5416739472304736,
+          "sample_std": 0.043357864564201036,
+          "seeds": [
+            0.5140660492748559,
+            0.5193080552157959,
+            0.5916477372007688
+          ]
+        },
+        "Macro-F1": {
+          "mean": 0.5096246206086611,
+          "sample_std": 0.041565681895962665,
+          "seeds": [
+            0.48057713651498335,
+            0.4910592607887673,
+            0.5572374645222327
+          ]
+        },
+        "Boundary F1": {
+          "mean": 0.3285412490034958,
+          "sample_std": 0.029833755598548464,
+          "seeds": [
+            0.3131192467149182,
+            0.3095750247078658,
+            0.36292947558770344
+          ]
+        },
+        "Event F1 @ IoU 0.5": {
+          "mean": 0.26060353219301907,
+          "sample_std": 0.05068678667110074,
+          "seeds": [
+            0.3137254901960784,
+            0.21276595744680848,
+            0.25531914893617025
+          ]
+        },
+        "Event mAP": {
+          "mean": 0.08440440943708917,
+          "sample_std": 0.02076992468404299,
+          "seeds": [
+            0.10785375118708451,
+            0.07703703703703703,
+            0.06832244008714598
+          ]
+        }
+      },
+      "Fusion Transformer": {
+        "AUROC": {
+          "mean": 0.586871687343468,
+          "sample_std": 0.04420769854283955,
+          "seeds": [
+            0.6339332517910188,
+            0.546217019045955,
+            0.5804647911934301
+          ]
+        },
+        "Macro-F1": {
+          "mean": 0.5415451345092293,
+          "sample_std": 0.026222607056468474,
+          "seeds": [
+            0.5640309058030577,
+            0.5127404241328292,
+            0.5478640735918008
+          ]
+        },
+        "Boundary F1": {
+          "mean": 0.4087593469575071,
+          "sample_std": 0.05444226008310916,
+          "seeds": [
+            0.47020399959803033,
+            0.3895424836601307,
+            0.3665315576143602
+          ]
+        },
+        "Event F1 @ IoU 0.5": {
+          "mean": 0.2404149399223291,
+          "sample_std": 0.11180711252525251,
+          "seeds": [
+            0.3448275862068965,
+            0.12244897959183673,
+            0.253968253968254
+          ]
+        },
+        "Event mAP": {
+          "mean": 0.08648668165846342,
+          "sample_std": 0.0666964941752115,
+          "seeds": [
+            0.1445060229625447,
+            0.013616557734204794,
+            0.10133746427864077
+          ]
+        }
+      }
+    },
+    "mechanism_ablation": {
+      "repeated_three_seed": {
+        "Full EPT": {
+          "AUROC": {
+            "mean": 0.5176189644126041,
+            "sample_std": 0.12374716197515279,
+            "seeds": [
+              0.5850078630089114,
+              0.37480342477721473,
+              0.5930456054516862
+            ]
+          },
+          "Macro-F1": {
+            "mean": 0.41949254780795997,
+            "sample_std": 0.05596080241881143,
+            "seeds": [
+              0.432967032967033,
+              0.35802469135802467,
+              0.4674859190988223
+            ]
+          },
+          "Boundary F1": {
+            "mean": 0.3073932821056859,
+            "sample_std": 0.05715369582358099,
+            "seeds": [
+              0.3386327503974562,
+              0.24142857142857144,
+              0.34211852449103
+            ]
+          },
+          "Event F1@0.5": {
+            "mean": 0.09393939393939395,
+            "sample_std": 0.09106048000798012,
+            "seeds": [
+              0.18181818181818182,
+              0.0,
+              0.1
+            ]
+          },
+          "Event mAP": {
+            "mean": 0.028805453805453806,
+            "sample_std": 0.03160100498679447,
+            "seeds": [
+              0.0626068376068376,
+              0.0,
+              0.023809523809523808
+            ]
+          }
+        },
+        "No recurrent\nfusion update": {
+          "AUROC": {
+            "mean": 0.5591473003669404,
+            "sample_std": 0.09250370706368226,
+            "seeds": [
+              0.4523851127031277,
+              0.6154114974663638,
+              0.6096452909313297
+            ]
+          },
+          "Macro-F1": {
+            "mean": 0.4741663596063125,
+            "sample_std": 0.03775528516194945,
+            "seeds": [
+              0.45061210799932916,
+              0.45417306707629285,
+              0.5177139037433155
+            ]
+          },
+          "Boundary F1": {
+            "mean": 0.36295129314369157,
+            "sample_std": 0.08836703964342066,
+            "seeds": [
+              0.3762545620437956,
+              0.2686868686868687,
+              0.44391244870041036
+            ]
+          },
+          "Event F1@0.5": {
+            "mean": 0.1635336976320583,
+            "sample_std": 0.0033513502752952847,
+            "seeds": [
+              0.16393442622950818,
+              0.16666666666666669,
+              0.16
+            ]
+          },
+          "Event mAP": {
+            "mean": 0.04488483862526008,
+            "sample_std": 0.0019400635680827316,
+            "seeds": [
+              0.046400547621811984,
+              0.0426984126984127,
+              0.045555555555555564
+            ]
+          }
+        }
+      },
+      "single_seed_diagnostic": {
+        "Full EPT": {
+          "AUROC": 0.37480342477721473,
+          "Macro-F1": 0.35802469135802467,
+          "Boundary F1": 0.24142857142857144,
+          "Event F1@0.5": 0.0,
+          "Event mAP": 0.0
+        },
+        "Fixed reader": {
+          "AUROC": 0.41918574174384066,
+          "Macro-F1": 0.390990990990991,
+          "Boundary F1": 0.29852990310725025,
+          "Event F1@0.5": 0.1,
+          "Event mAP": 0.0291005291005291
+        },
+        "No behavior": {
+          "AUROC": 0.4095753975187838,
+          "Macro-F1": 0.3709677419354839,
+          "Boundary F1": 0.21473623853211007,
+          "Event F1@0.5": 0.0606060606060606,
+          "Event mAP": 0.022222222222222223
+        },
+        "EEG-time +\nbehavior only": {
+          "AUROC": 0.5200069893412547,
+          "Macro-F1": 0.512087912087912,
+          "Boundary F1": 0.38161044122295984,
+          "Event F1@0.5": 0.15094339622641512,
+          "Event mAP": 0.044444444444444446
+        }
+      }
+    },
+    "data_integrity_audit": {
+      "event_fragmentation": {
+        "Train": {
+          "n_events": 172,
+          "min": 1.0,
+          "q25": 1.0,
+          "median": 2.0,
+          "mean": 2.441860465116279,
+          "q75": 3.0,
+          "max": 17.0
+        },
+        "Validation": {
+          "n_events": 36,
+          "min": 1.0,
+          "q25": 1.0,
+          "median": 1.0,
+          "mean": 2.0833333333333335,
+          "q75": 2.25,
+          "max": 7.0
+        },
+        "Test": {
+          "n_events": 30,
+          "min": 1.0,
+          "q25": 1.0,
+          "median": 2.0,
+          "mean": 3.2333333333333334,
+          "q75": 4.0,
+          "max": 16.0
+        }
+      },
+      "exact_train_test_row_match_percent": {
+        "Text": 67.3076923076923,
+        "EEG spectral": 33.97435897435898,
+        "EEG time": 0.0,
+        "Physiology": 0.0,
+        "Audio": 0.0,
+        "Video": 0.0
+      },
+      "text_audit": {
+        "exact_matches": 105,
+        "query_steps": 156,
+        "matched_label_agreement": 1.0,
+        "lookup_balanced_accuracy": 0.7372881355932204
+      },
+      "quarantined_legacy_seed42_shortcut_sensitivity": {
+        "quarantined_legacy_no_text": {
+          "AUROC": 0.45518084920496243,
+          "Macro-F1": 0.427547363031234,
+          "Event mAP": 0.032356902356902355
+        },
+        "quarantined_legacy_text_enabled": {
+          "AUROC": 0.9426874017123886,
+          "Macro-F1": 0.8424242424242425,
+          "Event mAP": 0.5378612123285944
+        },
+        "private_source_sha256": {
+          "legacy_windowed_no_text": "1dc6ed62b67ffc30841ada0dab730966492e8c58adf7c97a24449882a59e121a",
+          "legacy_windowed_text_enabled": "40cd591018718dbf7fc5814b480d8c390983cfd9ed30e8d79a43ea80d6e1556a"
+        }
+      }
+    }
+  }
+}

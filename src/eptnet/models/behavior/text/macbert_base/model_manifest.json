@@ -1,0 +1,11 @@
+{
+  "name": "Chinese MacBERT-base",
+  "model_id": "hfl/chinese-macbert-base",
+  "model_revision": "a986e004d2a7f2a1c2f5a3edef4e20604a974ed1",
+  "source_repository": "https://github.com/ymcui/MacBERT",
+  "source_commit": "9a72882bf097fb2edd2ea5adeb4e0330b374ac2c",
+  "license": "Apache-2.0",
+  "frozen": true,
+  "output_dimension": 768,
+  "pooling": "attention-masked mean excluding special tokens"
+}

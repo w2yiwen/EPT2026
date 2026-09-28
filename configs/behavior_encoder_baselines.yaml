@@ -1,0 +1,39 @@
+schema_version: 1
+
+face:
+  encoder: marlin_vit_small_ytf
+  package_version: 0.3.4
+  source_commit: c9d5698f98799828b5bcd0528e408a06e3f58502
+  clip_frames: 16
+  input_size: 224
+  pooling: official_clip_mean
+  output_dim: 384
+  frozen: true
+  redistribution: cc_by_nc_4_0
+  retained_alternative: openface_2_2_0
+
+audio:
+  encoder: microsoft/wavlm-base-plus
+  revision: 4c66d4806a428f2e922ccfa1a962776e232d487b
+  sample_rate_hz: 16000
+  pooling: masked_mean_within_independent_one_second_chunks
+  output_dim: 768
+  frozen: true
+
+text:
+  encoder: hfl/chinese-macbert-base
+  revision: a986e004d2a7f2a1c2f5a3edef4e20604a974ed1
+  max_length: 128
+  pooling: masked_mean_without_special_tokens
+  output_dim: 768
+  frozen: true
+  causal_input_contract: current_bin_or_observed_prefix_only
+
+temporal_decoder:
+  name: causal_tcn
+  hidden_dim: 128
+  num_layers: 2
+  kernel_size: 3
+  dilations: [1, 2]
+  dropout: 0.2
+  shared_across_modalities: true

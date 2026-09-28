@@ -1,0 +1,7 @@
+inherits: default.yaml
+experiment:
+  name: ablation_single_scale_continuous_no_text
+  output_dir: results/ablation_single_scale_continuous_no_text
+model:
+  use_eeg_spec: false
+  use_hr: false

@@ -1,0 +1,16 @@
+inherits: eptnet_v6_marlin12_seed42.yaml
+
+# RTX 4060-isolated execution route. Model architecture and frozen encoders are
+# identical to the 4090 route; only storage and conservative extraction batching differ.
+experiment:
+  name: eptnet_v6_marlin12_4060_gated_seed42
+  output_dir: results/eptnet_v6_marlin12_4060_gated_seed42
+
+data:
+  dataset_name: bci_subjects_ept_v6_marlin4060_complete12
+  train_manifest: data/processed/bci_subjects_ept_v6_marlin4060_complete12/manifests/sessions_train.jsonl
+  val_manifest: data/processed/bci_subjects_ept_v6_marlin4060_complete12/manifests/sessions_val.jsonl
+  test_manifest: data/processed/bci_subjects_ept_v6_marlin4060_complete12/manifests/sessions_test.jsonl
+  video_dim: 384
+  audio_dim: 768
+  text_dim: 768

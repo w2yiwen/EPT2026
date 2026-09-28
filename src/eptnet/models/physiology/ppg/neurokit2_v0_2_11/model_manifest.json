@@ -1,0 +1,18 @@
+{
+  "name": "NeuroKit2 PPG Elgendi pipeline",
+  "version": "0.2.11",
+  "paper": "https://doi.org/10.3758/s13428-020-01516-y",
+  "source_repository": "https://github.com/neuropsychology/NeuroKit",
+  "source_commit": "86bb55b0062251b1c89e770cb14a56395e0050c1",
+  "source_license": "MIT",
+  "vendored_core": ["ppg_clean._ppg_clean_elgendi", "ppg_findpeaks._ppg_findpeaks_elgendi"],
+  "feature_aggregation": "EPT causal 10-second window; 20 interpretable features per channel",
+  "canonical_input": {
+    "channels": 2,
+    "sampling_rate_hz": 385,
+    "window_seconds": 10,
+    "step_seconds": 1
+  },
+  "output_dimension": 40,
+  "pretrained": false
+}

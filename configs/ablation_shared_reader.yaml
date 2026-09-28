@@ -1,0 +1,6 @@
+inherits: default.yaml
+experiment:
+  name: ablation_shared_reader_continuous_no_text
+  output_dir: results/ablation_shared_reader_continuous_no_text
+model:
+  shared_read_policy: true

@@ -1,0 +1,9 @@
+inherits: default.yaml
+experiment:
+  name: baseline_fusion_transformer_continuous_no_text
+  output_dir: results/baseline_fusion_transformer_continuous_no_text
+model:
+  name: fusion_transformer
+  # 348,046 executed parameters, within 3% of EPT-Net's 358,604.
+  # Allocated-but-disabled text branches are excluded from this fairness count.
+  hidden_dim: 88

@@ -1,0 +1,20 @@
+inherits: bci_subjects_29_session_registered_no_facial.yaml
+
+# Authoritative single-seed entry point for the current 29-session cohort.
+# It intentionally keeps facial CSV, audio, and placeholder text disabled; only
+# physically registered, quality-gated signals in the v6 manifests are consumed.
+experiment:
+  name: eptnet_v6_gated_seed42_no_text
+  seed: 42
+  output_dir: results/eptnet_v6_gated_seed42_no_text
+
+model:
+  state_update: gated
+  write_gate_bias: -1.0
+  retention_gate_bias: 2.0
+
+training:
+  epochs: 100
+  patience: 15
+  device: cuda:0
+  amp: false

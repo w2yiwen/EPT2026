@@ -1,0 +1,8 @@
+# Reproducible CPU-side dependencies. Install the CUDA-enabled PyTorch wheel
+# separately for the target GPU/driver before installing this file.
+numpy==1.26.4
+pandas==2.2.3
+pyyaml==6.0.2
+pytest==8.3.5
+tqdm==4.67.1
+matplotlib==3.8.4

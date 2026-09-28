@@ -1,0 +1,6 @@
+inherits: default.yaml
+experiment:
+  name: ablation_no_persistent_continuous_no_text
+  output_dir: results/ablation_no_persistent_continuous_no_text
+model:
+  persistent_state: false

@@ -1,0 +1,11 @@
+inherits: bci_subjects.yaml
+
+experiment:
+  name: baseline_early_fusion_gru_bci_subjects_no_text
+  output_dir: results/baseline_early_fusion_gru_bci_subjects_no_text
+
+model:
+  name: early_fusion_gru
+  # 334,682 executed parameters, within 0.04% of EPT-Net's 334,796 on this
+  # feature schema (allocated-but-masked branches are excluded).
+  hidden_dim: 124

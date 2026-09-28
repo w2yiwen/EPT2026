@@ -1,0 +1,11 @@
+inherits: bci_subjects.yaml
+
+experiment:
+  name: baseline_fusion_transformer_bci_subjects_no_text
+  output_dir: results/baseline_fusion_transformer_bci_subjects_no_text
+
+model:
+  name: fusion_transformer
+  # 343,626 executed parameters, 2.64% above EPT-Net's 334,796 on this
+  # feature schema (allocated-but-masked branches are excluded).
+  hidden_dim: 92

@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eptnet"
+version = "0.1.0"
+description = "Auditable implementation of Event-guided Persistent Temporal Network"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26,<2",
+  "pandas>=2.2,<3",
+  "PyYAML>=6,<7",
+  "tqdm>=4.66,<5",
+  "matplotlib>=3.8,<3.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "mypy==1.10.0",
+  "ruff==0.13.2",
+]
+figures = [
+  "seaborn==0.13.2",
+]
+behavior = [
+  "transformers>=4.45,<5",
+  "scipy>=1.12,<2",
+  "soundfile>=0.12,<1",
+  "librosa>=0.10.2,<1",
+  "safetensors>=0.4,<1",
+  "marlin-pytorch==0.3.4",
+  "openai-whisper==20240930",
+  "av>=14,<15",
+]
+physiology = [
+  "scipy>=1.12,<2",
+  "neurokit2==0.2.11",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = [
+  "src/eptnet/models/behavior/**/vendor/*.py",
+  "src/eptnet/models/physiology/**/vendor/*.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"

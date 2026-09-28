@@ -1,0 +1,9 @@
+# Install a CUDA-matched torch build separately; see README.md.
+transformers>=4.45,<5
+scipy>=1.12,<2
+soundfile>=0.12,<1
+librosa>=0.10.2,<1
+safetensors>=0.4,<1
+marlin-pytorch==0.3.4
+openai-whisper==20240930
+av>=14,<15

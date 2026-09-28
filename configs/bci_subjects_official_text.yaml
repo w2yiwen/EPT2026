@@ -1,0 +1,19 @@
+inherits: bci_subjects.yaml
+
+experiment:
+  name: eptnet_bci_subjects_macbert
+  output_dir: results/eptnet_bci_subjects_macbert
+
+data:
+  dataset_name: bci_subjects_ept_v2_macbert
+  train_manifest: data/processed/bci_subjects_ept_v2_macbert/manifests/train.jsonl
+  val_manifest: data/processed/bci_subjects_ept_v2_macbert/manifests/val.jsonl
+  test_manifest: data/processed/bci_subjects_ept_v2_macbert/manifests/test.jsonl
+
+model:
+  # HFL Chinese MacBERT-base revision is frozen in the prepared feature schema.
+  use_text: true
+  # Only one of 18 sessions has raw audio, so enabling audio would measure a
+  # subject/missingness shortcut rather than a defensible acoustic baseline.
+  use_audio: false
+

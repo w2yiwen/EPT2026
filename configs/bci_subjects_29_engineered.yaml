@@ -1,0 +1,19 @@
+inherits: bci_subjects.yaml
+
+experiment:
+  name: eptnet_bci_subjects_29_engineered_no_text
+  output_dir: results/eptnet_bci_subjects_29_engineered_no_text
+
+data:
+  dataset_name: bci_subjects_ept_v3_all29
+  train_manifest: data/processed/bci_subjects_ept_v3_all29/manifests/sessions_train.jsonl
+  val_manifest: data/processed/bci_subjects_ept_v3_all29/manifests/sessions_val.jsonl
+  test_manifest: data/processed/bci_subjects_ept_v3_all29/manifests/sessions_test.jsonl
+
+model:
+  # Legacy facial-action rows are observed for a subset and explicitly masked elsewhere.
+  use_video: true
+  # Audio is retained in the raw session package but has no cohort-wide frozen embedding.
+  use_audio: false
+  # Hash features are auditable preprocessing placeholders, not a publishable text baseline.
+  use_text: false
