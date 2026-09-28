@@ -2,7 +2,7 @@ version: 1
 figure_id: fig03_heldout_uncertainty
 purpose: Report held-out subject-level central estimates and uncertainty without hiding variance.
 expression: Point-range chart with 95% bootstrap confidence intervals.
-arrangement: row-2 full width
+arrangement: row_2 full width
 data:
   sources:
     - path: results/eptnet_marlin11_aligned_windowed_seed42/seed_42/test_metrics.json

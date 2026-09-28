@@ -3,12 +3,12 @@ units: mm
 publication_override: null
 source_standard: ResearchPilot-Skills/research[fig]
 rows:
-  - id: row-1
+  - id: row_1
     target_width: 190
     target_height: 90
     horizontal_gaps: [10]
     figures: [fig01_training_dynamics, fig02_model_comparison]
-  - id: row-2
+  - id: row_2
     target_width: 190
     target_height: 90
     horizontal_gaps: []
