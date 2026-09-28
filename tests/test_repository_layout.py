@@ -9,7 +9,7 @@ PROJECT_ROOT = CODE_ROOT.parent
 EXECUTABLE_SUFFIXES = {".py", ".ps1", ".sh"}
 ARTIFACT_DIRECTORIES = ("results", "figures", "logs")
 SCRIPT_ROOT = CODE_ROOT / "scripts"
-SCRIPT_RESPONSIBILITIES = {"audit", "data", "experiments", "reporting"}
+SCRIPT_RESPONSIBILITIES = {"audit", "data", "experiments", "reporting", "server"}
 
 
 def _executable_files(root: Path) -> list[Path]:

@@ -4,6 +4,7 @@ from pathlib import Path
 from types import MethodType
 
 import numpy as np
+import pytest
 import torch
 
 from eptnet.models.behavior.face.marlin import MARLIN_OUTPUT_DIM, MarlinFeatureEncoder
@@ -59,6 +60,7 @@ def test_marlin_encoder_preserves_step_contract(tmp_path: Path) -> None:
 
 
 def test_marlin_detects_each_sampled_frame_independently() -> None:
+    pytest.importorskip("cv2")
     encoder = MarlinFeatureEncoder(
         device="cpu",
         crop_face=True,

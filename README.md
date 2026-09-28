@@ -1,5 +1,7 @@
 # EPT-Net
 
+> Linux GPU 服务器的当前 11-session 全模态入口、环境门禁、续跑、评估与论文图命令见 [`README_SERVER.md`](README_SERVER.md)。该路线直接复用已对齐的 processed dataset，不会再次运行 Whisper、人脸检测或 MARLIN 特征提取。
+
 Executable research code for **Event-guided Persistent Temporal Network (EPT-Net)**. The current priority route is the 12-session cohort in which video, audio, and annotated text are all defensibly paired. A separate 29-session registered-clock no-behavior route is retained as a physiological baseline; their datasets, checkpoints, and reported results must not be mixed.
 
 ## Implemented system

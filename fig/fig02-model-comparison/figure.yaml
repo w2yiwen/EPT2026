@@ -1,0 +1,25 @@
+version: 1
+figure_id: fig02-model-comparison
+purpose: Compare the proposed model with matched neural and leakage-safe classical baselines.
+expression: Grouped bar chart.
+arrangement: row-1 right
+data:
+  sources:
+    - path: results/eptnet_v6_marlin11_4060_windowed_seed42/seed_42/test_metrics.json
+      role: proposed
+    - path: results/baseline_early_fusion_gru_marlin11_4060_windowed_seed42/seed_42/test_metrics.json
+      role: neural_baseline
+    - path: results/baselines/marlin11_classical_seed42.json
+      role: classical_baselines
+  fields: [frame.macro_f1, frame.balanced_accuracy, frame.auroc, frame.average_precision]
+  filters: [held-out test split]
+  grouping: [model]
+  aggregation: null
+  uncertainty: null
+  statistical_notes: Thresholds are selected on validation data; test data are evaluation-only.
+layout: {units: mm, width: 90, height: 90, size_source: layout_default, dpi: 500}
+style:
+  font_library: ResearchPilot-Skills/research[fig]/font-library.yaml
+  color_library: ResearchPilot-Skills/research[fig]/color-library.yaml
+  semantic_colors: {proposed: blue, gru: teal, logistic: orange, majority: charcoal}
+exceptions: []

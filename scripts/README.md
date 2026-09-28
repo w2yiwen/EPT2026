@@ -61,6 +61,14 @@ Private inputs and generated datasets stay outside public release artifacts.
 - `run_formal_experiments.ps1` / `.sh`: secondary audit matrix.
 - `run_remaining_formal.ps1`: resumable secondary matrix; accepts `-Python` and `-Device` and contains no machine-specific interpreter path.
 - `ablation.sh`: legacy ablation launcher; verify the intended protocol before use.
+- `run_marlin11_server.sh`: GPU-only Linux entry point for the current aligned
+  11-session route. It provides explicit check, smoke, train, resume, evaluate,
+  baseline, figure, and interruption-safe full-pipeline actions.
+
+## `server/` — deployment gates
+
+- `verify_marlin11_gpu.sh`: fail-closed CUDA, data-symlink, 11-session cohort,
+  and six-modality gate. It never starts training and never falls back to CPU.
 
 ## `audit/` — read-only gates
 
@@ -90,5 +98,10 @@ python scripts/reporting/gen_fig_training.py --run-dir results/<experiment>/seed
 ```
 
 No compatibility wrappers are retained at `scripts/` root. This keeps every command's ownership visible and prevents a second flat launcher layer from drifting out of sync.
+
+Current paper-figure specifications and independently reproducible plotting
+scripts live under `fig/` so their PDF/SVG/500-dpi PNG outputs and QA reports
+remain colocated, as documented in `README_SERVER.md`. Historical frozen-matrix
+release reporting remains in this directory.
 
 Generated data, metrics, figures, and logs must never be used as locations for executable source. See `../../docs/repository_layout.md` for the complete boundary policy.

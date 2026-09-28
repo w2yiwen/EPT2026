@@ -32,6 +32,83 @@ sys.modules[REPORT_SPEC.name] = REPORT
 REPORT_SPEC.loader.exec_module(REPORT)
 
 
+def _fairness_payload() -> dict:
+    sample_id = "session_fixture_window_0000"
+    digest = "0" * 64
+    reference_graph = REPORT.PRIMARY_FAIRNESS_EXPECTED["eptnet_bci_subjects_no_text"][
+        "graph_participating_parameters"
+    ]
+    records = []
+    for experiment, expected in REPORT.PRIMARY_FAIRNESS_EXPECTED.items():
+        graph = expected["graph_participating_parameters"]
+        trainable = expected["trainable_parameters"]
+        nonzero_parameters = graph - 1
+        nonzero_elements = graph - 2
+        records.append(
+            {
+                "experiment": experiment,
+                **expected,
+                "graph_participating_fraction": graph / trainable,
+                "nonzero_gradient_parameters": nonzero_parameters,
+                "nonzero_gradient_parameter_fraction": nonzero_parameters / trainable,
+                "nonzero_gradient_elements": nonzero_elements,
+                "nonzero_gradient_element_fraction": nonzero_elements / trainable,
+                "zero_gradient_graph_parameters": 1,
+                "mean_audit_loss": 1.0,
+                "audit_sample_ids": [sample_id],
+                "audit_sample_ids_sha256": digest,
+                "manifest_sha256": digest,
+                "counting_protocol": REPORT.FAIRNESS_GRAPH_COUNTING_PROTOCOL,
+                "nonzero_gradient_parameter_counting_protocol": (
+                    REPORT.FAIRNESS_NONZERO_PARAMETER_COUNTING_PROTOCOL
+                ),
+                "nonzero_gradient_element_counting_protocol": (
+                    REPORT.FAIRNESS_NONZERO_ELEMENT_COUNTING_PROTOCOL
+                ),
+                "executed_parameters": graph,
+                "executed_fraction": graph / trainable,
+                "executed_parameters_is_alias_of": "graph_participating_parameters",
+                "graph_participating_ratio_to_eptnet": graph / reference_graph,
+                "executed_parameter_ratio_to_eptnet": graph / reference_graph,
+                "nonzero_gradient_parameter_ratio_to_eptnet": (
+                    nonzero_parameters / (reference_graph - 1)
+                ),
+                "nonzero_gradient_element_ratio_to_eptnet": (
+                    nonzero_elements / (reference_graph - 2)
+                ),
+            }
+        )
+    return {
+        "reference_experiment": "eptnet_bci_subjects_no_text",
+        "device": "cpu",
+        "deterministic_model_seed": 0,
+        "selection": {
+            "selection_protocol": REPORT.FAIRNESS_SELECTION_PROTOCOL,
+            "manifest_path": "data/processed/fixture/manifests/train.jsonl",
+            "manifest_sha256": digest,
+            "selected_sample_ids": [sample_id],
+            "selected_sample_count": 1,
+            "selected_sample_ids_sha256": digest,
+            "required_cover_modalities": ["eeg_time", "eeg_spectral", "hr", "video"],
+            "enabled_but_globally_unavailable_modalities": [],
+            "selected_tensor_sha256": {sample_id: digest},
+            "selected_samples": [
+                {
+                    "sample_id": sample_id,
+                    "target_valid_steps": 1,
+                    "covered_enabled_modalities": [
+                        "eeg_time",
+                        "eeg_spectral",
+                        "hr",
+                        "video",
+                    ],
+                }
+            ],
+        },
+        "records": records,
+    }
+
+
 def test_minimal_cover_is_exact_and_lexicographically_deterministic() -> None:
     coverages = {
         "sample_d": ("eeg_time", "hr"),
@@ -85,11 +162,8 @@ def test_availability_is_counted_only_inside_target_valid_steps() -> None:
 
 
 def test_release_report_accepts_the_new_fairness_schema(tmp_path: Path) -> None:
-    source = (
-        Path(__file__).resolve().parents[1] / "results" / ("parameter_fairness_bci_subjects.json")
-    )
-    payload = json.loads(source.read_text(encoding="utf-8"))
-    output = tmp_path / source.name
+    payload = _fairness_payload()
+    output = tmp_path / "parameter_fairness_bci_subjects.json"
     output.write_text(json.dumps(payload), encoding="utf-8")
 
     records, issues = REPORT._load_parameter_fairness(tmp_path)
@@ -101,14 +175,11 @@ def test_release_report_accepts_the_new_fairness_schema(tmp_path: Path) -> None:
 def test_release_report_rejects_the_ambiguous_legacy_counting_protocol(
     tmp_path: Path,
 ) -> None:
-    source = (
-        Path(__file__).resolve().parents[1] / "results" / ("parameter_fairness_bci_subjects.json")
-    )
-    payload = json.loads(source.read_text(encoding="utf-8"))
+    payload = _fairness_payload()
     payload["records"][0]["counting_protocol"] = (
         "parameters receiving gradients from the full multitask loss"
     )
-    output = tmp_path / source.name
+    output = tmp_path / "parameter_fairness_bci_subjects.json"
     output.write_text(json.dumps(payload), encoding="utf-8")
 
     records, issues = REPORT._load_parameter_fairness(tmp_path)

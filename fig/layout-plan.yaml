@@ -1,0 +1,31 @@
+version: 1
+units: mm
+publication_override: null
+source_standard: ResearchPilot-Skills/research[fig]
+rows:
+  - id: row-1
+    target_width: 190
+    target_height: 90
+    horizontal_gaps: [10]
+    figures: [fig01-training-dynamics, fig02-model-comparison]
+  - id: row-2
+    target_width: 190
+    target_height: 90
+    horizontal_gaps: []
+    figures: [fig03-heldout-uncertainty]
+figures:
+  - id: fig01-training-dynamics
+    directory: fig/fig01-training-dynamics
+    width: 90
+    height: 90
+    size_source: layout_default
+  - id: fig02-model-comparison
+    directory: fig/fig02-model-comparison
+    width: 90
+    height: 90
+    size_source: layout_default
+  - id: fig03-heldout-uncertainty
+    directory: fig/fig03-heldout-uncertainty
+    width: 190
+    height: 90
+    size_source: layout_default

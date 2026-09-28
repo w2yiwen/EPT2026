@@ -81,6 +81,7 @@ def test_vendored_neurokit_encoder_is_causal_and_explicitly_masked() -> None:
 
 
 def test_neurokit_backend_rejects_unpinned_version(monkeypatch: pytest.MonkeyPatch) -> None:
+    pytest.importorskip("neurokit2")
     original = importlib.metadata.version
 
     def wrong_version(name: str) -> str:
