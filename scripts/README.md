@@ -1,5 +1,10 @@
 # Script entry points
 
+> The index includes historical preparation and experiment utilities. For the
+> current frozen aligned11 short-paper workflow, do **not** invoke anything in
+> `data/`; use only `experiments/preflight_marlin11_shortpaper.py` and
+> `experiments/run_marlin11_shortpaper.sh` as documented below.
+
 Run commands from `code/` unless a script explicitly says otherwise. The `scripts/` root is an index only: executable entry points live in one of four responsibility directories, while reusable model, data-contract, training, and metric logic remains under `src/eptnet/`.
 
 ## `data/` — preparation, pairing, and staging
@@ -57,25 +62,38 @@ Private inputs and generated datasets stay outside public release artifacts.
   `train.ps1 -Smoke` runs one epoch on one complete real train session plus one
   complete real validation session, writes a hardware-specific runtime estimate, and
   never reads test data. It is an engineering gate, not an experiment result.
-- `run_bci_subjects_formal.ps1` / `.sh`: authoritative primary fixed-split matrix.
+- `run_bci_subjects_formal.ps1` / `.sh`: historical fixed-split matrix outside
+  the current short-paper evidence scope.
 - `run_formal_experiments.ps1` / `.sh`: secondary audit matrix.
 - `run_remaining_formal.ps1`: resumable secondary matrix; accepts `-Python` and `-Device` and contains no machine-specific interpreter path.
 - `ablation.sh`: legacy ablation launcher; verify the intended protocol before use.
-- `run_marlin11_server.sh`: GPU-only Linux entry point for the current aligned
-  11-session route. It provides explicit check, smoke, train, resume, evaluate,
-  baseline, figure, and interruption-safe full-pipeline actions.
+- `preflight_marlin11_shortpaper.py`: read-only gate for the frozen aligned11
+  cohort, manifests, label direction, EEG/PPG/video modality contract, isolated
+  output roots, and metadata fingerprints.
+- `run_marlin11_shortpaper.sh`: current additive short-paper entry point. It
+  never calls data preparation; it provides dry-run, strict preflight, main,
+  modality, diagnostic, skip-complete, and trusted partial-resume modes.
+- `verify_marlin11_shortpaper_results.py`: read-only validator used before any
+  completed seed or aggregate is reused; it checks identity, label protocol,
+  provenance, predictions, decoded events, and exact aggregate contents.
+- `run_marlin11_server.sh`: historical six-input aligned11 launcher retained for
+  provenance only; it is not the current EEG+PPG+video short-paper workflow.
 
 ## `server/` — deployment gates
 
-- `verify_marlin11_gpu.sh`: fail-closed CUDA, data-symlink, 11-session cohort,
-  and six-modality gate. It never starts training and never falls back to CPU.
+- `verify_marlin11_gpu.sh`: historical six-input CUDA/cohort gate retained for
+  its matching launcher. Current short-paper runs use
+  `experiments/preflight_marlin11_shortpaper.py` instead.
 - `watch_training_progress.sh`: live main/GRU epoch progress, latest losses,
   active process, and RTX GPU utilization/memory dashboard.
 
 ## `audit/` — read-only gates
 
 - `audit_bci_subjects.py` and `audit_bci_session_compliance.py`: dataset and session contract gates.
-- `audit_parameter_fairness.py`: executed-parameter fairness gate.
+- `audit_parameter_fairness.py`: executed-parameter fairness gate. New reports
+  include config, implementation-source, and training-manifest fingerprints;
+  `--check-reference REPORT.json` validates them read-only before reuse, and
+  the direct `--output` path refuses to overwrite an existing report.
 - `verify_behavior_migration.py` and `verify_pretrained_extractors.py`: isolated upstream-feature checks.
 - `verify_behavior_encoder_baselines.py`: bounded real/synthetic extractor and shared
   causal-TCN verification for OpenFace, WavLM Base+, and MacBERT; it writes

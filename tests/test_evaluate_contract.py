@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from copy import deepcopy
 
+import numpy as np
 import pytest
 import torch
 
@@ -123,6 +124,32 @@ def test_protocol_documents_non_negative_ttd_and_raw_emit_step():
     assert "word-end decision time" in definition
     assert metrics["event"]["mean_detection_delay_steps"] >= 0.0
     assert metrics["latency"]["mean_detection_delay_seconds"] >= 0.0
+
+
+def test_probability_protocol_and_subject_macro_use_class_zero_event_probability():
+    config = load_config("configs/default.yaml")
+    sequence = {
+        "class_logits": torch.log(torch.tensor([[0.8, 0.2], [0.3, 0.7], [0.6, 0.4]])),
+        "boundary_logits": torch.zeros(3, 2),
+        "offsets": torch.zeros(3, 2),
+        "labels": torch.tensor([0, 1, 0]),
+        "boundaries": torch.zeros(3, 2),
+        "target_mask": torch.ones(3, dtype=torch.bool),
+    }
+
+    metrics, _, _ = evaluate_sequences([sequence], config, frame_threshold=0.5)
+
+    expected_brier = np.mean((np.array([0.8, 0.3, 0.6]) - np.array([1.0, 0.0, 1.0])) ** 2)
+    assert metrics["protocol"]["positive_class"] == 0
+    assert metrics["protocol"]["class_encoding"] == {"0": "deception", "1": "truth"}
+    assert metrics["protocol"]["probability_metrics"]["threshold_independent"] is True
+    assert metrics["frame"]["brier_score"] == pytest.approx(expected_brier)
+    assert metrics["subject_macro"]["metrics"]["frame_brier_score"]["mean"] == pytest.approx(
+        expected_brier
+    )
+    assert metrics["subject_macro"]["metrics"]["frame_negative_log_likelihood"][
+        "mean"
+    ] == pytest.approx(metrics["frame"]["negative_log_likelihood"])
 
 
 def test_evaluation_excludes_non_target_steps_and_preserves_mask_gaps():

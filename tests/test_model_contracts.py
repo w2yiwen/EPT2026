@@ -533,7 +533,7 @@ def test_decoder_contract_uses_production_positive_class():
         "offsets": torch.tensor([[[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 0.0]]]),
         "sequence_mask": torch.ones(1, 4, dtype=torch.bool),
     }
-    decoded = decode_events(outputs, positive_class=0)
+    decoded = decode_events(outputs)
     assert len(decoded) == 1 and len(decoded[0]) == 1
     assert decoded[0][0]["start"] <= decoded[0][0]["end"]
     assert decoded[0][0]["emit_step"] == 1.0

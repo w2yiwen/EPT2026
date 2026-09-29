@@ -1,4 +1,5 @@
 **/*.pdf
 **/*.svg
 **/*.png
-**/qa-report.json
+**/*qa-report.json
+/_demo/

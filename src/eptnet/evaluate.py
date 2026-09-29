@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import time
 from collections.abc import Iterable, Mapping
@@ -17,6 +16,7 @@ from .data import StitchedManifestDataset, collate_multimodal
 from .decoding import decode_events
 from .engine import move_to_device
 from .metrics import (
+    PROBABILITY_EPSILON,
     boundary_metrics,
     early_detection_recall,
     event_metrics,
@@ -24,7 +24,7 @@ from .metrics import (
     interval_iou,
 )
 from .models import build_model
-from .provenance import portable_path
+from .provenance import portable_path, training_config_fingerprint
 from .train import build_runtime_provenance, resolve_device
 
 EVENT_F1_PROPOSAL_SOURCE = "thresholded causal event decoder"
@@ -40,23 +40,9 @@ EVENT_AP_RANKING = (
 
 
 def _training_config_fingerprint(config: Mapping[str, Any]) -> str:
-    """Hash training-relevant configuration while ignoring seed/run placement/device."""
-    experiment = dict(config.get("experiment", {}))
-    experiment.pop("seed", None)
-    experiment.pop("output_dir", None)
-    training = dict(config.get("training", {}))
-    training.pop("device", None)
-    canonical = {
-        "experiment": experiment,
-        "data": config.get("data", {}),
-        "model": config.get("model", {}),
-        "loss": config.get("loss", {}),
-        "training": training,
-    }
-    encoded = json.dumps(
-        canonical, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
-    ).encode("utf-8")
-    return hashlib.sha256(encoded).hexdigest()
+    """Backward-compatible alias for the canonical provenance helper."""
+
+    return training_config_fingerprint(config)
 
 
 def _events_from_labels(
@@ -443,6 +429,8 @@ def _subject_macro_metrics(
         "frame_balanced_accuracy": [],
         "frame_auroc": [],
         "frame_average_precision": [],
+        "frame_brier_score": [],
+        "frame_negative_log_likelihood": [],
         "boundary_macro_f1": [],
         "event_f1_iou_0.5": [],
         "event_map": [],
@@ -474,6 +462,10 @@ def _subject_macro_metrics(
         collected["frame_balanced_accuracy"].append(frame["balanced_accuracy"])
         collected["frame_auroc"].append(frame["auroc"])
         collected["frame_average_precision"].append(frame["average_precision"])
+        collected["frame_brier_score"].append(frame["brier_score"])
+        collected["frame_negative_log_likelihood"].append(
+            frame["negative_log_likelihood"]
+        )
         collected["boundary_macro_f1"].append(boundary["boundary_macro_f1"])
         collected["event_f1_iou_0.5"].append(event["event_f1_iou_0.5"])
         collected["event_map"].append(event["event_map"])
@@ -553,6 +545,7 @@ def evaluate_sequences(
         "protocol": {
             "evaluation_unit": "unique chronological rows reconstructed per session",
             "positive_class": positive_class,
+            "class_encoding": {"0": "deception", "1": "truth"},
             "frame_threshold": frame_threshold,
             "boundary_threshold": boundary_threshold,
             "boundary_tolerance_steps": int(evaluation.get("boundary_tolerance_steps", 1)),
@@ -571,6 +564,16 @@ def evaluate_sequences(
                 "observes the complete interaction timeline; invalid intervals close "
                 "and cannot open decoded events"
             ),
+            "probability_metrics": {
+                "score": "softmax probability assigned to positive_class",
+                "target": "1[label == positive_class] on target-valid steps",
+                "brier_score": "mean squared error between score and binary target",
+                "negative_log_likelihood": (
+                    "binary cross-entropy of the score after clipping to "
+                    f"[{PROBABILITY_EPSILON:g}, {1.0 - PROBABILITY_EPSILON:g}]"
+                ),
+                "threshold_independent": True,
+            },
             "event_f1_protocol": {
                 "proposal_source": EVENT_F1_PROPOSAL_SOURCE,
                 "uses_frame_threshold": True,

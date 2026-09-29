@@ -1,74 +1,201 @@
-# Reproducibility and artifact policy
+# Reproducibility and frozen-evidence policy
 
-## Evidence hierarchy
+## Current executable scope
 
-The current-source primary experiment is the 18-subject `bci_subjects_ept_v1` pilot. It uses a frozen 12/2/4 train/validation/test split with no subject overlap. Deterministic exhaustive constrained stratification balances pre-model label and modality summaries; it is performed before training and never revised from model outcomes.
+The sole current executable/evaluated data artifact is
+`bci_subjects_ept_v6_marlin4060_aligned11`. It contains 11 included
+participants: `session_002`, `session_003`, `session_004`, `session_006`,
+`session_008`, `session_009`, `session_010`, `session_012`, `session_015`,
+`session_017`, and `session_018`. `session_011` is excluded and must not appear
+in any split.
 
-The older `bci_truth_deception_v1` one-participant/one-session experiment is a secondary engineering audit tied to its recorded source-tree and prepared-data fingerprints. Its chronological rows are not statistically independent subjects, and its metrics must never be merged with the primary cohort.
+Historical or broader data routes are not evidence for the current paper
+workflow. Their checkpoints, predictions, and metrics must not be pooled,
+compared as though they share a protocol, or used to expand the scope of a
+claim.
+
+## Scientific estimand
+
+The task is causal multimodal BCI temporal recognition and localization. For
+each target-valid time step, a model produces a probability for the target
+event and predicts event boundaries/intervals:
+
+```text
+inputs:  EEG + PPG-derived physiology + video
+output:  P(y_t = 0) + start/end evidence + decoded temporal intervals
+labels:  0 = deception, 1 = truth
+event:   class 0
+```
+
+The task is not reduced to one binary label per participant or session. Audio
+and text features are excluded from the short-paper configurations even if
+they are present in the stored artifact. The legacy internal key `use_hr`
+selects the PPG-derived physiology branch; it does not redefine that modality
+as an independently measured heart-rate-only input.
+
+## Immutable evidence boundary
+
+The following are immutable for all current runs:
+
+- processed tensors, sample packages, and availability masks;
+- participant IDs, inclusion/exclusion, and train/validation/test assignment;
+- manifests and complete-session ordering;
+- temporal alignment and all extracted features;
+- labels, boundary targets, and label direction;
+- existing results, checkpoints, predictions, and aggregate reports.
+
+No current reproduction step may prepare, migrate, align, relabel, resplit,
+extract, regenerate, repair, or overwrite any item above. Put the private
+artifact on storage with read-only enforcement when possible. Repository
+scripts provide fail-closed checks, but filesystem permissions remain the
+strongest protection against accidental writes.
 
 ## Trusted temporal and masking protocol
 
-Every experiment unit is a complete, de-duplicated chronological subject/session. Window files are storage shards, not independently shuffled samples. Each source row contributes once per epoch and once during evaluation.
+Every evaluation unit is a unique complete chronological session. Causal
+windows are a training protocol, not independent participants. `sequence_mask`
+identifies real timeline bins; `target_mask` identifies bins eligible for
+target-person losses, threshold selection, decoding decisions, and metrics.
+Invalid target intervals break event continuity. Availability masks represent
+missing EEG, physiology, or video observations and must never be replaced with
+fabricated measurements.
 
-For the primary cohort, `sequence_mask` identifies real timeline bins and `target_mask` identifies bins valid for target-person decisions. Interviewer/background bins remain causal context but are excluded from losses, automatic weights, threshold selection, decoding decisions, and metrics. An invalid target bin breaks event continuity. Missing EEG, physiology, and behavior streams are represented by explicit availability masks.
+Threshold selection uses validation data only. The selected threshold is then
+frozen for held-out evaluation. Thresholded event F1 and delay belong to that
+operating point. Event AP/mAP is derived from ranked dense proposals and remains
+separate from thresholded decoding.
 
-## Participant-balanced model selection
+Frame evaluation includes discrimination and probability quality. The score is
+the softmax probability assigned to class `0`, and the binary target is
+`1[label == 0]` on target-valid steps. Average precision/AUPRC measures ranking;
+Brier score and negative log-likelihood measure probability quality. These
+metrics do not by themselves establish that probabilities are calibrated.
 
-The continuous-session loader uses batch size one and visits every subject exactly once per epoch. Validation loss is an unweighted mean of the complete-subject losses, and the best checkpoint/early-stopping rule is minimum participant-mean validation total loss. Target-step-weighted losses are diagnostics only.
+Available participant-macro AP, Brier, NLL, boundary F1, event F1, and event
+mAP are the primary summaries. AUPRC, early-detection recall, and latency are
+currently emitted only as pooled fields and must be labelled accordingly.
+Participant bootstrap intervals and variation across model seeds quantify
+different uncertainties and must be reported separately. The current modality
+figure reads pooled frame AP, pooled Brier, and pooled event mAP, so it is a
+secondary diagnostic rather than the primary participant-macro table.
 
-The frame threshold is selected exclusively on the two validation subjects by maximizing mean subject-level macro-F1 over the declared grid. It is then frozen for the four held-out test subjects. A second evaluation at threshold 0.5 is reported as a sensitivity analysis and is never substituted post hoc for the selected-threshold result.
+## Configuration contract
 
-Event precision/recall/F1, early detection, and latency are operating-point metrics from the causal decoder and therefore use the selected frame threshold. Event AP/mAP is computed independently from a dense ranked proposal set: each target-valid step contributes one proposal scored by its positive-class probability, its interval is formed from predicted left/right offsets and clamped to the contiguous target-valid segment, and neither score filtering nor NMS is applied. The release gate requires event AP at every IoU and mAP to be identical in the selected-threshold and fixed-0.5 evaluations.
+The short-paper configurations inherit the frozen aligned11 paths and change
+only model/input selection and isolated result identities:
 
-Primary reporting uses subject-macro frame, boundary, and event metrics. Each model seed includes a fixed-seed, 10,000-resample percentile bootstrap over held-out subjects; pooled metrics are secondary. Because the test set contains only four subjects, these intervals are descriptive and unstable. Formal comparisons use model seeds `13`, `42`, and `73`; their standard deviation quantifies optimization variability, not population uncertainty.
+| Purpose | Configuration | Default seeds |
+|---|---|---|
+| EPT-Net main | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 |
+| Protocol-matched GRU | `configs/gru_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 |
+| Fusion Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 |
+| EEG+PPG diagnostic | `configs/eptnet_marlin11_physiology_only.yaml` | 42 |
+| Video diagnostic | `configs/eptnet_marlin11_video_only.yaml` | 42 |
+| Fixed-reader diagnostic | `configs/eptnet_marlin11_fixed_reader.yaml` | 42 |
+| No-persistent-state diagnostic | `configs/eptnet_marlin11_no_persistent.yaml` | 42 |
+
+The preflight rejects a changed dataset identity, manifest path, participant
+set, exclusion, label direction, input family, model family, or output-root
+contract. It also requires the success marker, checks the dataset summary, and
+verifies every manifest-referenced session tensor against its stored SHA-256.
+The orchestration script never calls a data-preparation command.
 
 ## Environment
 
-Install a CUDA-enabled PyTorch build compatible with the local driver, followed by the locked CPU-side dependencies:
+Use Python 3.10 or newer and install a device-compatible PyTorch build before
+the repository dependencies:
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
+python -m pip install -e .
+python -m pip check
 ```
 
-The local formal runs use an NVIDIA GeForce RTX 4060 Laptop GPU with PyTorch 2.7.1+cu118. Exact package, device, determinism, resolved-configuration, source-tree, and prepared-data fingerprints are written into machine-readable run artifacts.
-
-Behavior extraction additionally requires `requirements-behavior-lock.txt` and NumPy
-`>=1.26,<2`. Do not use an environment that mixes NumPy 2 with extensions compiled
-against NumPy 1; this workstation's base Anaconda pyarrow/scikit-learn stack fails
-that ABI check. MacBERT and WavLM model IDs and immutable revisions are written into
-the generated feature schema.
+Record the Git commit, Python/PyTorch/CUDA versions, device identity, resolved
+configuration, and preflight report with every run. Do not commit private or
+machine-specific artifacts.
 
 ## Verification and execution order
 
-From `code/`:
+From the repository root:
 
-```powershell
-$env:PYTHONPATH = (Resolve-Path .\src).Path
-python -m pytest -q
-python -m compileall -q src tests
-.\scripts\data\prepare_bci_subjects.ps1 -Source ..\BCI
-.\scripts\experiments\run_bci_subjects_formal.ps1 -Python python -Device cuda:0
+```bash
+# No private data or GPU required; validates configs and prints commands only.
+bash scripts/experiments/run_marlin11_shortpaper.sh --suite all --dry-run
+
+# Requires the authorized artifact at the declared path; records a reference.
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite all \
+  --device cuda:0 \
+  --preflight-only
+
+# Executes the declared matrix sequentially after the same preflight.
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite all \
+  --device cuda:0 \
+  --skip-existing
 ```
 
-The isolated official-text candidate has a separate preparation and verification
-path and never overwrites the original primary data:
+The structural preflight writes
+`results/marlin11_shortpaper_preflight.json`; the main suite also writes
+`results/marlin11_shortpaper_parameter_fairness.json`. Each model/seed has a
+new `results/<experiment>/seed_<seed>/` directory. The runner refuses existing
+or partial directories. `--skip-existing` recognizes only a completed run that
+passes the read-only identity, protocol, provenance, prediction, and event
+checks in `verify_marlin11_shortpaper_results.py`; compatible aggregates must
+also exactly match an in-memory recomputation. Accepted evidence is never
+overwritten. `--resume-partial`
+continues only
+an incomplete new short-paper run with no final metrics and with both its own
+`last.pt` and `best.pt`; it resumes the former while preserving best-model
+selection in the latter. The flags may be combined to skip complete seeds and
+explicitly resume eligible interrupted ones. All other pre-existing states
+fail closed, and historical frozen results remain outside this recovery
+mechanism. If the preflight record already exists, recovery modes validate the
+current frozen-evidence fingerprints against it through `--reference` and do
+not rewrite the record. They preserve an existing parameter-fairness audit only
+after `--check-reference` confirms exact resolved-config, inherited-config-file,
+implementation-source, and training-manifest fingerprints. A legacy or stale
+audit fails closed and is never silently reused.
 
-```powershell
-python -m pip install -r requirements-behavior-lock.txt
-.\scripts\data\prepare_bci_subjects_official_text.ps1 -Source ..\BCI
-python scripts\audit\verify_behavior_migration.py
-```
+The first preflight requires `_SUCCESS.json`, cross-checks the split contract
+recorded by `dataset_summary.json` and the three manifests, and recomputes the
+stored SHA-256 for every tensor referenced by those manifests. It records that
+verified structure as the local reference, and subsequent recovery runs compare
+the current evidence fields with it. The gate does not independently prove the
+artifact's authorized origin against an external canonical digest; distribution
+checksums and read-only storage remain upstream responsibilities.
 
-The matrix runner is fail-fast and sequential; it never launches competing GPU jobs. It runs the de-identified dataset audit and parameter-fairness audit before training, then trains and evaluates every declared seed before aggregation. Existing result directories are protected against silent overwrite. Smoke-test entry points are not part of this workflow.
+If the frozen data are unavailable locally, only `--dry-run` is meaningful.
+Its `passed_with_warnings` status must not be represented as a successful
+artifact verification.
 
-Source code, configurations, scripts, tests, dependencies, and package metadata are frozen before the first primary run. Any subsequent change to those inputs requires a fresh matrix rather than mixing artifacts from different source fingerprints.
+## Figure provenance
 
-## Data and release boundary
+Formal figures may read only completed measured artifacts from the same cohort,
+split, decoder, threshold policy, and seed policy. Dynamic-trace sample IDs must
+be declared before viewing candidate renderings. Figure code records input
+hashes and exports PDF, SVG, and PNG from the same canvas. Extending compact
+single-seed modality diagnostics must preserve their original aggregates and
+write matched-seed figure aggregates to a new versioned path.
 
-Participant media, annotations, raw/prepared tensors, checkpoints, per-step predictions, decoded event traces, subject-identity mappings, and machine-specific run metadata are excluded from the public release. The release may contain implementation, tests, configurations, aggregate/de-identified summaries, figure-generation code, and rendered figures only after the release gates pass. Reproducing the numerical results requires authorized access to the exact prepared-data fingerprint recorded by the artifacts.
+The `--demo` route uses deterministic synthetic fixtures solely for layout and
+export QA. Demo outputs are visibly labelled and must never appear in a result
+table, claim, abstract, or quantitative caption. Full figure contracts are in
+`fig/FIGURE_CONTRACTS.md`.
 
-The primary cohort has incomplete modalities: EEG for 5/18 subjects, paired PPG/physiology for 13/18, facial features for 17/18, and no frozen audio features. Transcript characters are uniformly interpolated inside speaker turns, and sensor timelines are duration-normalized because device clocks are inconsistent. Labels are inferred from highlighted spans belonging to the frozen target; residual non-target marks are audit-only and cannot create labels or events. Target identity is frozen before reading those marks by choosing the unique speaker with the largest total non-whitespace character count in the complete transcript; the winning share and runner-up margin are recorded, and a later 95% marked-character consistency audit fails closed without changing the speaker. This is a retrospective, label-independent conversation-structure heuristic, not supplied role metadata or online role discovery, and it still requires confirmation by the data owner. Causality claims cover the model feature stream after offline preprocessing only. These limitations preclude physical-lag claims and make missingness a possible subject-identity cue.
+## Release boundary
 
-Passing reproducibility, provenance, packaging, and release checks establishes engineering discipline only. The fixed split, two validation subjects, four test subjects, sparse modalities, approximate alignment, and small participant bootstrap do not establish top-conference-level evidence or population generalization.
+Participant media, annotations, processed tensors, manifests containing private
+references, checkpoints, per-step predictions, decoded traces, participant
+identity mappings, credentials, and machine-specific metadata remain private.
+The public release may contain implementation, tests, configurations,
+de-identified aggregate summaries, figure code, and rendered figures only after
+their release gates pass.
+
+Reproducing numerical results requires authorized access to the exact frozen
+artifact. Code tests and preflight checks establish the execution contract;
+quantitative paper claims are added only from completed, provenance-matched
+experiments. This document introduces no new experimental performance numbers.

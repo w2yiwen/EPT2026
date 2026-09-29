@@ -1,231 +1,340 @@
-# EPT-Net 服务器运行手册（11-session 全模态）
+# Linux GPU server runbook: frozen aligned11
 
-本入口用于 Linux CUDA 服务器，直接读取已经完成真实时间对齐和冻结特征提取的 11 个 session。它不会重新运行 Whisper、FaceX-Zoo、MARLIN、WavLM 或 MacBERT。训练使用视频、音频、文本、EEG 时域、EEG 频域和 HR 六个模态，并强制使用 `cuda:0`；GPU 不可见时立即退出，不会退回 CPU。
+This runbook executes the short-paper experiment matrix on the immutable
+`bci_subjects_ept_v6_marlin4060_aligned11` artifact. It reads EEG,
+PPG-derived physiology, and video features to estimate dynamic
+`P(y_t = 0)` and localize target-event intervals. Repository semantics are
+fixed: `0 = deception`, `1 = truth`, and class `0` is the positive event.
 
-## 命名规则
+The workflow never prepares data, extracts features, changes alignment,
+relabels samples, or rebuilds a split. It fails when the exact frozen artifact
+is unavailable or inconsistent.
 
-项目自有入口统一使用 `lower_snake_case`。当前实验 ID 固定采用
-`模型_数据_协议_seed`：
+## 1. Server paths and safety gate
 
-```text
-eptnet_marlin11_aligned_windowed_seed42
-gru_marlin11_aligned_windowed_seed42
-```
-
-配置文件、`results/<experiment_id>/`、日志和图件均复用同一 ID，避免把训练
-GPU 型号写进实验名。`bci_subjects_ept_v6_marlin4060_aligned11` 保持不变，
-因为它是已有 processed artifact 的身份和 provenance，而不是训练硬件声明。
-
-## 目录约定
+Example layout:
 
 ```text
-/root/EPT2026/                                      # Git 项目
-/root/EPT2026/data                                 # 软链接
-/root/autodl-tmp/.autodl/data/                     # 服务器大文件根目录
-  processed/bci_subjects_ept_v6_marlin4060_aligned11/
-    _SUCCESS.json
-    dataset_summary.json
-    manifests/sessions_train.jsonl
-    manifests/sessions_val.jsonl
-    manifests/sessions_test.jsonl
-    samples/*.pt
+/root/EPT2026/                                      # Git checkout
+/root/EPT2026/data                                 # link or read-only mount
+/root/autodl-tmp/.autodl/data/                     # authorized private store
+└── processed/bci_subjects_ept_v6_marlin4060_aligned11/
+    ├── _SUCCESS.json
+    ├── dataset_summary.json
+    ├── feature_schema.json
+    ├── normalization_stats.npz
+    ├── manifests/sessions_train.jsonl
+    ├── manifests/sessions_val.jsonl
+    ├── manifests/sessions_test.jsonl
+    ├── sessions/<included-session-id>/session_manifest.json
+    └── samples/
 ```
 
-训练和评估会生成但不会提交到 Git：
+Before connecting storage, resolve both paths and inspect any existing `data`
+entry. Do not replace a real directory or an unexpected link:
 
-```text
-results/eptnet_marlin11_aligned_windowed_seed42/seed_42/
-results/gru_marlin11_aligned_windowed_seed42/seed_42/
-results/baselines/marlin11_classical_seed42.json
-logs/
-fig/fig01_training_dynamics/*.{pdf,svg,png}
-fig/fig02_model_comparison/*.{pdf,svg,png}
-fig/fig03_heldout_uncertainty/*.{pdf,svg,png}
+```bash
+project_root=/root/EPT2026
+private_data_root=/root/autodl-tmp/.autodl/data
+
+cd "$project_root"
+test -d "$private_data_root/processed/bci_subjects_ept_v6_marlin4060_aligned11"
+
+if [ -e data ] || [ -L data ]; then
+  ls -ld data
+  readlink -f data || true
+else
+  ln -s "$private_data_root" data
+fi
+
+test "$(readlink -f data)" = "$(readlink -f "$private_data_root")"
 ```
 
-## 1. 拉取代码并连接已有数据
+A read-only bind mount or storage permission is preferred when available. Do
+not use a preparation script as a substitute for a missing artifact. The
+frozen IDs are `session_002`, `session_003`, `session_004`, `session_006`,
+`session_008`, `session_009`, `session_010`, `session_012`, `session_015`,
+`session_017`, and `session_018`; `session_011` must remain excluded.
+
+## 2. Update code without disturbing evidence
+
+Check the worktree before pulling. Stop if it contains changes you do not
+understand:
 
 ```bash
 cd /root/EPT2026
 git status --short
 git pull --ff-only origin main
-
-test -d /root/autodl-tmp/.autodl/data
-if [ -e data ] && [ ! -L data ]; then
-  echo "data exists but is not a symlink; stop and inspect it" >&2
-  exit 1
-fi
-ln -sfn /root/autodl-tmp/.autodl/data data
 ```
 
-不要把大文件复制进 Git 工作树；`data/` 只作为上述软链接存在。
+`git pull` must never include or manage the private `data/`, `results/`, or
+`logs/` trees.
 
-## 2. 环境安装
+## 3. Install the environment
 
-CUDA 版 PyTorch 应与服务器驱动匹配。当前服务器已安装 `torch 2.8.0+cu128` 时，只需安装锁定依赖和项目本身：
+Install a CUDA-enabled PyTorch build compatible with the server driver first.
+Then install the locked dependencies and editable package:
 
 ```bash
 cd /root/EPT2026
-/root/miniconda3/bin/python -m pip install -r requirements-lock.txt
-/root/miniconda3/bin/python -m pip install -e .
-/root/miniconda3/bin/python -m pip check
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-lock.txt
+python -m pip install -e .
+python -m pip install -r requirements-figures.txt
+python -m pip check
 ```
 
-论文图严格要求 Arial，不允许静默字体替换。当前服务器镜像不提供
-`ttf-mscorefonts-installer`，因此从拥有合法字体的本机 Windows 上传到该私有服务器；
-字体文件不进入 Git。在本机 PowerShell 执行：
-
-```powershell
-ssh -p 37868 root@connect.nmb1.seetacloud.com "mkdir -p /root/.local/share/fonts/arial"
-scp -P 37868 C:\Windows\Fonts\arial.ttf C:\Windows\Fonts\arialbd.ttf root@connect.nmb1.seetacloud.com:/root/.local/share/fonts/arial/
-ssh -p 37868 root@connect.nmb1.seetacloud.com "fc-cache -f"
-```
-
-回到服务器验证精确字体解析：
+Confirm the selected CUDA device:
 
 ```bash
-/root/miniconda3/bin/python - <<'PY'
-from matplotlib import font_manager
-p = font_manager.findfont("Arial", fallback_to_default=False)
-assert font_manager.FontProperties(fname=p).get_name() == "Arial", p
-print("Arial:", p)
+python - <<'PY'
+import torch
+
+assert torch.cuda.is_available(), "CUDA is unavailable"
+print(torch.cuda.get_device_name(0))
+print(torch.__version__, torch.version.cuda)
 PY
 ```
 
-## 3. GPU、数据和六模态门禁
+For paper figures, install Arial through an authorized server mechanism and
+verify exact resolution:
+
+```bash
+python - <<'PY'
+from matplotlib import font_manager
+
+path = font_manager.findfont("Arial", fallback_to_default=False)
+assert font_manager.FontProperties(fname=path).get_name() == "Arial", path
+print(path)
+PY
+```
+
+## 4. Inspect commands without running them
+
+The dry run checks all short-paper configurations, permits missing private
+data, skips the GPU gate, and prints the commands it would execute:
 
 ```bash
 cd /root/EPT2026
-chmod +x scripts/server/*.sh scripts/experiments/run_marlin11_server.sh
-./scripts/experiments/run_marlin11_server.sh check
+source .venv/bin/activate
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite all \
+  --dry-run
 ```
 
-通过时会输出 `status=PASS`、实际 GPU 名称、CUDA 版本、11 人 cohort 和六个已启用模态。以下任一情况都会阻止训练：GPU 未挂载、CUDA 不可用、数据集没有 `_SUCCESS.json`、session 数量不是 11、任一模态被关闭或 split/cohort 不一致。
+This is not a data-integrity pass and not an experiment.
 
-可额外观察 GPU：
+## 5. Structural preflight and reference fingerprint
 
-```bash
-watch -n 1 nvidia-smi
-```
-
-前台训练会直接显示 epoch、train batch 和 validation batch 三层进度条。后台
-训练时，另开一个 SSH 窗口运行规范化监视器：
+Run the structural gate before allocating a long GPU job:
 
 ```bash
 cd /root/EPT2026
-./scripts/server/watch_training_progress.sh main
-# GRU 改为：./scripts/server/watch_training_progress.sh gru
+source .venv/bin/activate
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite all \
+  --device cuda:0 \
+  --preflight-only
 ```
 
-## 4. 只做最小 smoke（当前建议）
+The gate validates the declared dataset name, participant set, manifest
+locations, split disjointness, excluded participant, label direction,
+EEG/PPG/video selection, disabled audio/text branches, and isolated result
+paths. It requires `_SUCCESS.json`, cross-checks `dataset_summary.json`, and
+recomputes every manifest-referenced session tensor's stored SHA-256. On its
+first pass it records these fingerprints in
+`results/marlin11_shortpaper_preflight.json`. The main suite also records the
+executed parameter comparison in
+`results/marlin11_shortpaper_parameter_fairness.json`.
 
-这一步不属于正式实验，只验证一轮真实数据、反向传播、CUDA 和写盘链路：
+Later recovery runs compare current evidence fields with the saved preflight.
+They also validate the saved fairness audit against the exact current resolved
+configs, inherited config files, implementation source, and training manifest.
+Any warning, legacy fingerprint omission, drift, or failure is a stop condition.
+Do not regenerate the data artifact to make the gate pass.
+
+The standalone gate creates protected preflight and fairness-audit files.
+Include `--skip-existing` in subsequent runner commands so they are checked and
+preserved rather than treated as overwrite targets.
+
+## 6. Run the experiment matrix
+
+The default main comparison uses seeds `13`, `42`, and `73`; compact modality
+and mechanism diagnostics use seed `42`.
+
+Foreground commands:
+
+```bash
+# Three-model main comparison
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite main \
+  --device cuda:0 \
+  --skip-existing
+
+# EEG+PPG and video diagnostics
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite modalities \
+  --device cuda:0 \
+  --skip-existing
+
+# Fixed reader and no persistent state
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite diagnostics \
+  --device cuda:0 \
+  --skip-existing
+```
+
+For a single sequential background job:
 
 ```bash
 cd /root/EPT2026
-./scripts/experiments/run_marlin11_server.sh smoke-main
+source .venv/bin/activate
+mkdir -p logs
+nohup bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite all \
+  --device cuda:0 \
+  --skip-existing \
+  > logs/marlin11_shortpaper.log 2>&1 &
+job_pid=$!
+echo "$job_pid" > logs/marlin11_shortpaper.pid
+echo "PID=$job_pid"
 ```
 
-若同名 smoke 目录已经存在，训练器会保护旧产物并拒绝覆盖。先检查其内容；确认是可删除的 smoke 产物后再执行：
+Monitor without modifying the run:
 
 ```bash
-rm -rf -- /root/EPT2026/results/smoke/eptnet_marlin11_aligned_windowed_seed42_smoke
-./scripts/experiments/run_marlin11_server.sh smoke-main
-```
-
-不要在 GPU 门禁失败时启动完整实验。
-
-## 5. 单独运行主模型
-
-首次训练：
-
-```bash
-cd /root/EPT2026
-./scripts/experiments/run_marlin11_server.sh train-main
-```
-
-中断后续跑（读取可信的 `last.pt`）：
-
-```bash
-cd /root/EPT2026
-./scripts/experiments/run_marlin11_server.sh resume-main
-```
-
-训练完成后评估最佳 checkpoint：
-
-```bash
-./scripts/experiments/run_marlin11_server.sh eval-main
-```
-
-## 6. 完整实验命令（暂不执行）
-
-`full` 会依次完成：GPU/数据门禁 → Majority/Logistic → EPT-Net 训练与评估 → matched Early-Fusion GRU 训练与评估 → 三幅论文图。若主模型或 GRU 已有 `last.pt`，它会自动续跑；若已有 `test_metrics.json`，它会跳过该完成项。
-
-```bash
-cd /root/EPT2026
-nohup ./scripts/experiments/run_marlin11_server.sh full \
-  > logs/eptnet_marlin11_aligned_windowed_seed42_full.log 2>&1 &
-echo $! > logs/eptnet_marlin11_aligned_windowed_seed42_full.pid
-tail -f logs/eptnet_marlin11_aligned_windowed_seed42_full.log
-```
-
-停止跟踪日志用 `Ctrl+C`，不会终止后台训练。检查进程和 GPU：
-
-```bash
-cat logs/eptnet_marlin11_aligned_windowed_seed42_full.pid
-ps -fp "$(cat logs/eptnet_marlin11_aligned_windowed_seed42_full.pid)"
+tail -f logs/marlin11_shortpaper.log
+ps -fp "$(cat logs/marlin11_shortpaper.pid)"
 nvidia-smi
 ```
 
-## 7. 单独运行 matched GRU 和经典基线
+Each run writes to an isolated
+`results/<experiment>/seed_<seed>/` directory. The runner refuses to overwrite
+an existing or partial directory. `--skip-existing` accepts only runs that pass
+`verify_marlin11_shortpaper_results.py`: config/experiment identity,
+protocol/label direction, runtime provenance, metrics, per-step predictions,
+and decoded-event structure must agree. Existing aggregates are reused only
+when their JSON/CSV exactly match a read-only in-memory recomputation.
+`--resume-partial` is explicit permission
+to continue only a new short-paper seed directory that lacks final metrics and
+contains its own `last.pt` and `best.pt`. Resumption loads `last.pt` while
+preserving the prior best-model selection in `best.pt`; any other partial state
+remains a manual-review failure. The two flags can be combined after an
+interrupted matrix:
 
 ```bash
-cd /root/EPT2026
-./scripts/experiments/run_marlin11_server.sh classical
-./scripts/experiments/run_marlin11_server.sh smoke-gru
-./scripts/experiments/run_marlin11_server.sh train-gru
-./scripts/experiments/run_marlin11_server.sh eval-gru
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite all \
+  --device cuda:0 \
+  --skip-existing \
+  --resume-partial
 ```
 
-GRU 中断后改用：
+This resumes the trusted checkpoint in place; it never deletes, moves, or
+rebuilds the directory and must not be used on historical frozen results. If a
+preflight JSON already exists, recovery modes require current frozen-evidence
+fingerprints to match it and preserve the original audit file.
 
-```bash
-./scripts/experiments/run_marlin11_server.sh resume-gru
-```
+## 7. Expected additive outputs
 
-## 8. 论文级图件
-
-绘图脚本只读取真实的 `history.json`、`test_metrics.json` 和经典基线 JSON；缺失任何输入都会失败，不会生成模拟数值。三幅图分别展示训练动态、四模型 test 指标比较、 held-out subject bootstrap 置信区间。
-
-```bash
-cd /root/EPT2026
-./scripts/experiments/run_marlin11_server.sh figures
-```
-
-每幅图都有独立的 `figure.yaml`、独立脚本和 `qa-report.json`，并从同一画布同步导出：
-
-- PDF：矢量版；
-- SVG：可编辑矢量版；
-- PNG：500 dpi；
-- QA：尺寸、像素、字体、颜色、输入文件 SHA-256 和数据范围检查。
-
-自动 QA 中 `visual_preview` 保持 `manual-required`，因为最终裁切、重叠和视觉平衡必须人工查看 PNG，不能伪装成自动通过。
-
-## 9. 清理规则
-
-源码仓库只保留运行、验证、复现和说明所需文件。以下目录属于可再生产物且已被 `.gitignore` 排除：
+The matrix writes only below new short-paper result roots:
 
 ```text
-data/  results/  logs/  figures/
-fig/**/*.pdf  fig/**/*.svg  fig/**/*.png  fig/**/qa-report.json
+results/eptnet_marlin11_eeg_ppg_video_no_text/
+results/gru_marlin11_eeg_ppg_video_no_text/
+results/transformer_marlin11_eeg_ppg_video_no_text/
+results/eptnet_marlin11_physiology_only_no_text/
+results/eptnet_marlin11_video_only_no_text/
+results/eptnet_marlin11_fixed_reader_no_text/
+results/eptnet_marlin11_no_persistent_no_text/
 ```
 
-清理 Python 缓存不会影响数据或 checkpoint：
+Each completed seed directory contains its resolved config, provenance,
+checkpoints, training history, test metrics, per-step predictions, and decoded
+events. Each experiment root receives `aggregate.json` and `aggregate.csv`.
+These new artifacts do not authorize editing any earlier result folder.
+
+## 8. Render figures from completed evidence
+
+First use the demo path only for layout/export QA; its values are synthetic and
+visibly marked:
 
 ```bash
-cd /root/EPT2026
-find src tests scripts fig -type d -name __pycache__ -prune -exec rm -rf -- {} +
-rm -rf -- .pytest_cache .mypy_cache .ruff_cache src/eptnet.egg-info
+python fig/generate_all.py --suite paper --demo
 ```
 
-不要清理 `/root/autodl-tmp/.autodl/data`，不要删除正在续跑的 `results/**/last.pt`，也不要重新运行数据对齐或视频特征提取脚本。
+Before rendering a formal trace, predeclare a held-out sample without viewing
+candidate plots. The modality panel also requires identical seeds for Full,
+EEG+PPG, and Video. Extend the compact modality runs to the main seed policy
+first:
+
+```bash
+bash scripts/experiments/run_marlin11_shortpaper.sh \
+  --suite modalities \
+  --analysis-seeds "13 42 73" \
+  --device cuda:0 \
+  --skip-existing
+```
+
+The extension preserves any existing one-seed diagnostic aggregates. Build new
+three-seed figure inputs at unused paths instead of overwriting them. Change
+the version first if `v1` already exists:
+
+```bash
+(
+set -euo pipefail
+figure_input_root=results/marlin11_shortpaper_figure_inputs_v1
+if [ -e "$figure_input_root" ]; then
+  echo "Figure-input directory already exists; choose a new version" >&2
+  exit 1
+fi
+mkdir -p "$figure_input_root"
+
+python -m eptnet.aggregate \
+  results/eptnet_marlin11_physiology_only_no_text/seed_13/test_metrics.json \
+  results/eptnet_marlin11_physiology_only_no_text/seed_42/test_metrics.json \
+  results/eptnet_marlin11_physiology_only_no_text/seed_73/test_metrics.json \
+  --output "$figure_input_root/physiology_only_3seed.json" \
+  --csv "$figure_input_root/physiology_only_3seed.csv"
+
+python -m eptnet.aggregate \
+  results/eptnet_marlin11_video_only_no_text/seed_13/test_metrics.json \
+  results/eptnet_marlin11_video_only_no_text/seed_42/test_metrics.json \
+  results/eptnet_marlin11_video_only_no_text/seed_73/test_metrics.json \
+  --output "$figure_input_root/video_only_3seed.json" \
+  --csv "$figure_input_root/video_only_3seed.csv"
+)
+```
+
+Then use matching predictions, events, metrics, and aggregates:
+
+```bash
+python fig/generate_all.py --suite paper \
+  --predictions results/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/test_predictions.jsonl \
+  --events results/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/test_events.json \
+  --metrics results/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/test_metrics.json \
+  --sample-id '<predeclared-held-out-sample-id>' \
+  --modality-aggregate 'Full=results/eptnet_marlin11_eeg_ppg_video_no_text/aggregate.json' \
+  --modality-aggregate 'EEG+PPG=results/marlin11_shortpaper_figure_inputs_v1/physiology_only_3seed.json' \
+  --modality-aggregate 'Video=results/marlin11_shortpaper_figure_inputs_v1/video_only_3seed.json'
+```
+
+The plotting suite exports PDF, SVG, and 500-dpi PNG from one canvas and writes
+a QA report with source hashes. `visual_preview` remains a manual check. The
+dynamic renderer validates required fields and sequence alignment, while the
+modality renderer compares protocol/data-count/calibration/seed metadata and
+source/prepared-data provenance. Confirm that the dynamic trace's three files
+come from the same run before treating a render as formal evidence.
+
+## 9. Failure policy
+
+- Missing data, a changed manifest, a cohort mismatch, enabled audio/text, or
+  an incompatible device means stop and investigate.
+- Never repair a failure by rerunning alignment, preprocessing, feature
+  extraction, participant selection, or split generation.
+- Never delete, overwrite, or merge an old result directory to make room for a
+  new run.
+- Keep participant media, tensors, predictions, checkpoints, credentials, and
+  machine-specific metadata out of Git.
+- Do not report a dry run, preflight, or demo figure as an experiment.

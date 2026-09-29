@@ -1,0 +1,8 @@
+inherits: eptnet_marlin11_eeg_ppg_video.yaml
+
+experiment:
+  name: eptnet_marlin11_no_persistent_no_text
+  output_dir: results/eptnet_marlin11_no_persistent_no_text
+
+model:
+  persistent_state: false

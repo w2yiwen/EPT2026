@@ -20,7 +20,6 @@ def test_frame_metrics_support_perfect_class_zero_predictions():
         class_zero_probability,
         labels,
         np.ones_like(labels, dtype=bool),
-        positive_class=0,
     )
 
     assert metrics["true_positive"] == 3
@@ -29,12 +28,21 @@ def test_frame_metrics_support_perfect_class_zero_predictions():
     assert metrics["false_negative"] == 0
     for name in ("macro_f1", "balanced_accuracy", "auroc", "auprc", "average_precision"):
         assert metrics[name] == pytest.approx(1.0)
+    assert metrics["brier_score"] == pytest.approx(
+        np.mean((class_zero_probability - (labels == 0)) ** 2)
+    )
+    assert metrics["negative_log_likelihood"] == pytest.approx(
+        -np.mean(
+            (labels == 0) * np.log(class_zero_probability)
+            + (labels != 0) * np.log1p(-class_zero_probability)
+        )
+    )
 
 
 def test_frame_metrics_return_none_for_single_class_targets():
     metrics = frame_metrics(
         np.array([0.9, 0.8, 0.7]),
-        np.array([1, 1, 1]),
+        np.array([0, 0, 0]),
         np.ones(3, dtype=bool),
     )
 
@@ -42,6 +50,37 @@ def test_frame_metrics_return_none_for_single_class_targets():
     assert metrics["true_negative"] == 0
     for name in ("macro_f1", "balanced_accuracy", "auroc", "auprc", "average_precision"):
         assert metrics[name] is None
+    assert metrics["brier_score"] == pytest.approx(np.mean((np.array([0.9, 0.8, 0.7]) - 1) ** 2))
+    assert metrics["negative_log_likelihood"] == pytest.approx(
+        -np.mean(np.log(np.array([0.9, 0.8, 0.7])))
+    )
+
+
+def test_frame_probability_scores_follow_class_zero_semantics_and_mask():
+    scores = np.array([0.8, 0.3, 0.6, 0.99])
+    labels = np.array([0, 1, 0, 1])
+    mask = np.array([True, True, True, False])
+
+    metrics = frame_metrics(scores, labels, mask, positive_class=0)
+
+    truth = np.array([1.0, 0.0, 1.0])
+    retained = scores[:3]
+    assert metrics["num_frames"] == 3
+    assert metrics["brier_score"] == pytest.approx(np.mean((retained - truth) ** 2))
+    assert metrics["negative_log_likelihood"] == pytest.approx(
+        -np.mean(truth * np.log(retained) + (1.0 - truth) * np.log1p(-retained))
+    )
+
+
+@pytest.mark.parametrize("invalid_probability", (-0.01, 1.01))
+def test_frame_probability_scores_reject_values_outside_unit_interval(invalid_probability):
+    with pytest.raises(ValueError, match=r"within \[0, 1\]"):
+        frame_metrics(
+            np.array([invalid_probability, 0.5]),
+            np.array([0, 1]),
+            np.ones(2, dtype=bool),
+            positive_class=0,
+        )
 
 
 @pytest.mark.parametrize("threshold", (-0.1, 1.1, np.nan, np.inf))
@@ -108,7 +147,7 @@ def test_causal_decoder_rejects_invalid_probability_thresholds(threshold):
 
 def test_decode_events_replays_the_online_state_machine():
     outputs = {
-        "class_logits": torch.tensor([[[3.0, -3.0], [-3.0, 3.0], [-3.0, 3.0], [3.0, -3.0]]]),
+        "class_logits": torch.tensor([[[-3.0, 3.0], [3.0, -3.0], [3.0, -3.0], [-3.0, 3.0]]]),
         "boundary_logits": torch.tensor([[[0.0, 0.0], [5.0, 0.0], [0.0, 5.0], [10.0, 10.0]]]),
         "offsets": torch.tensor([[[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [99.0, 99.0]]]),
         "sequence_mask": torch.ones(1, 4, dtype=torch.bool),
@@ -123,7 +162,7 @@ def test_decode_events_replays_the_online_state_machine():
 def test_target_mask_gap_closes_and_splits_online_events():
     outputs = {
         "class_logits": torch.tensor(
-            [[[-3.0, 3.0], [-3.0, 3.0], [-3.0, 3.0], [-3.0, 3.0], [-3.0, 3.0]]]
+            [[[3.0, -3.0], [3.0, -3.0], [3.0, -3.0], [3.0, -3.0], [3.0, -3.0]]]
         ),
         "boundary_logits": torch.zeros(1, 5, 2),
         "offsets": torch.zeros(1, 5, 2),
@@ -144,7 +183,7 @@ def test_target_mask_gap_closes_and_splits_online_events():
 def test_target_mask_segment_clamps_large_left_offset_after_gap():
     outputs = {
         "class_logits": torch.tensor(
-            [[[3.0, -3.0], [3.0, -3.0], [-3.0, 3.0], [-3.0, 3.0], [3.0, -3.0]]]
+            [[[-3.0, 3.0], [-3.0, 3.0], [3.0, -3.0], [3.0, -3.0], [-3.0, 3.0]]]
         ),
         "boundary_logits": torch.zeros(1, 5, 2),
         "offsets": torch.tensor([[[0.0, 0.0], [0.0, 0.0], [10.0, 0.0], [10.0, 0.0], [0.0, 0.0]]]),

@@ -205,6 +205,11 @@ def main() -> None:
     parser.add_argument("inputs", nargs="+", help="Evaluation JSON paths or glob patterns")
     parser.add_argument("--output", required=True, help="Aggregate JSON output path")
     parser.add_argument("--csv", help="Optional flat CSV output path")
+    parser.add_argument(
+        "--no-overwrite",
+        action="store_true",
+        help="Fail if the JSON or CSV output already exists",
+    )
     args = parser.parse_args()
 
     paths = []
@@ -219,16 +224,33 @@ def main() -> None:
     summary = aggregate_result_files(paths)
 
     output = Path(args.output)
+    csv_path = Path(args.csv) if args.csv else None
+    if args.no_overwrite:
+        existing = [
+            path
+            for path in (output, csv_path)
+            if path is not None and (path.exists() or path.is_symlink())
+        ]
+        if existing:
+            raise FileExistsError(
+                "Refusing to overwrite aggregate output(s): "
+                + ", ".join(str(path) for path in existing)
+            )
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2, allow_nan=False),
-        encoding="utf-8",
-        newline="\n",
-    )
-    if args.csv:
-        csv_path = Path(args.csv)
+    if args.no_overwrite:
+        with output.open("x", encoding="utf-8", newline="\n") as handle:
+            handle.write(json.dumps(summary, ensure_ascii=False, indent=2, allow_nan=False))
+            handle.write("\n")
+    else:
+        output.write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2, allow_nan=False),
+            encoding="utf-8",
+            newline="\n",
+        )
+    if csv_path is not None:
         csv_path.parent.mkdir(parents=True, exist_ok=True)
-        with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        mode = "x" if args.no_overwrite else "w"
+        with csv_path.open(mode, encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(
                 handle,
                 fieldnames=["metric", "mean", "std", "min", "max", "n", "missing"],

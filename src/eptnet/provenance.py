@@ -53,6 +53,30 @@ _EXCLUDED_SOURCE_SUFFIXES = frozenset({".pyc", ".pyo"})
 _EXCLUDED_SOURCE_FILENAMES = frozenset({".DS_Store", "Thumbs.db"})
 
 
+def training_config_fingerprint(config: Mapping[str, Any]) -> str:
+    """Hash training-relevant settings while ignoring run placement and device.
+
+    Seed, output directory, and execution device identify a concrete run rather
+    than the model/training comparison.  Keeping this helper in the lightweight
+    provenance module lets evaluation and read-only artifact verification share
+    one canonical implementation.
+    """
+
+    experiment = dict(config.get("experiment", {}))
+    experiment.pop("seed", None)
+    experiment.pop("output_dir", None)
+    training = dict(config.get("training", {}))
+    training.pop("device", None)
+    canonical = {
+        "experiment": experiment,
+        "data": config.get("data", {}),
+        "model": config.get("model", {}),
+        "loss": config.get("loss", {}),
+        "training": training,
+    }
+    return _canonical_sha256(canonical)
+
+
 def portable_path(value: str | Path, root: str | Path | None = None) -> str:
     """Return a path identity without serializing machine-local parents.
 

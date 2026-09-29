@@ -13,6 +13,16 @@ rows:
     target_height: 90
     horizontal_gaps: []
     figures: [fig03_heldout_uncertainty]
+  - id: row_3
+    target_width: 190
+    target_height: 120
+    horizontal_gaps: []
+    figures: [fig04_dynamic_tracking]
+  - id: row_4
+    target_width: 90
+    target_height: 60
+    horizontal_gaps: []
+    figures: [fig05_modality_evidence]
 figures:
   - id: fig01_training_dynamics
     directory: fig/fig01_training_dynamics
@@ -29,3 +39,13 @@ figures:
     width: 190
     height: 90
     size_source: layout_default
+  - id: fig04_dynamic_tracking
+    directory: fig/fig04_dynamic_tracking
+    width: 190
+    height: 120
+    size_source: layout_default
+  - id: fig05_modality_evidence
+    directory: fig/fig05_modality_evidence
+    width: 90
+    height: 60
+    size_source: content_derived

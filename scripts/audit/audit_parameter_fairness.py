@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
+import yaml
 from torch import Tensor
 
 from eptnet.config import load_config
@@ -23,6 +24,20 @@ DEFAULT_CONFIGS = (
     "configs/baseline_early_fusion_gru.yaml",
     "configs/baseline_fusion_transformer.yaml",
 )
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+AUDIT_INPUT_SCHEMA_VERSION = 1
+AUDIT_SCRIPT = Path(__file__).resolve()
+IMPLEMENTATION_SOURCE_FILES = (
+    PROJECT_ROOT / "src/eptnet/config.py",
+    PROJECT_ROOT / "src/eptnet/data/__init__.py",
+    PROJECT_ROOT / "src/eptnet/data/dataset.py",
+    PROJECT_ROOT / "src/eptnet/data/schema.py",
+    PROJECT_ROOT / "src/eptnet/losses.py",
+    PROJECT_ROOT / "src/eptnet/train.py",
+    AUDIT_SCRIPT,
+)
+IMPLEMENTATION_SOURCE_DIRECTORIES = (PROJECT_ROOT / "src/eptnet/models",)
 
 MODALITY_ORDER = (
     "eeg_time",
@@ -79,6 +94,228 @@ def _sha256_json(value: object) -> str:
         separators=(",", ":"),
     ).encode("utf-8")
     return hashlib.sha256(serialized).hexdigest()
+
+
+def _portable_repository_path(path: Path) -> str:
+    resolved = path.expanduser().resolve()
+    try:
+        return resolved.relative_to(PROJECT_ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
+def _portable_declared_path(value: str, *, field: str) -> str:
+    """Render a declared repository path without resolving private symlink targets."""
+
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        try:
+            path = path.relative_to(PROJECT_ROOT)
+        except ValueError as error:
+            raise ValueError(
+                f"{field} must be declared as a repository-relative path; "
+                "external absolute paths are not recorded in audit artifacts"
+            ) from error
+    if ".." in path.parts:
+        raise ValueError(f"{field} must not escape the repository")
+    return path.as_posix()
+
+
+def _config_dependency_paths(path: Path, active: tuple[Path, ...] = ()) -> tuple[Path, ...]:
+    """Return the complete inheritance chain used by one YAML config."""
+
+    canonical = path.expanduser().resolve()
+    if canonical in active:
+        chain = " -> ".join(item.as_posix() for item in (*active, canonical))
+        raise ValueError(f"Cyclic config inheritance detected while hashing: {chain}")
+    if not canonical.is_file():
+        raise FileNotFoundError(canonical)
+    loaded = yaml.safe_load(canonical.read_text(encoding="utf-8"))
+    if loaded is None:
+        loaded = {}
+    if not isinstance(loaded, Mapping):
+        raise ValueError(f"Configuration at {canonical} must be a YAML mapping")
+    inherited = loaded.get("inherits")
+    if inherited is None:
+        return (canonical,)
+    if not isinstance(inherited, str) or not inherited.strip():
+        raise ValueError(f"inherits in {canonical} must be a non-empty path string")
+    parent = canonical.parent / inherited
+    dependencies = _config_dependency_paths(parent, (*active, canonical))
+    return (*dependencies, canonical)
+
+
+def _implementation_source_paths() -> tuple[Path, ...]:
+    candidates = list(IMPLEMENTATION_SOURCE_FILES)
+    for directory in IMPLEMENTATION_SOURCE_DIRECTORIES:
+        if not directory.is_dir():
+            raise FileNotFoundError(
+                f"Fairness-audit implementation directory is missing: "
+                f"{_portable_repository_path(directory)}"
+            )
+        candidates.extend(directory.rglob("*.py"))
+    paths = tuple(
+        sorted({path.resolve() for path in candidates}, key=_portable_repository_path)
+    )
+    missing = [path for path in paths if not path.is_file()]
+    if missing:
+        rendered = ", ".join(_portable_repository_path(path) for path in missing)
+        raise FileNotFoundError(f"Fairness-audit implementation source is missing: {rendered}")
+    return paths
+
+
+def _manifest_identity(configs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    if not configs:
+        raise ValueError("At least one configuration is required")
+    declared_paths = [str(config["data"]["train_manifest"]) for config in configs]
+    portable_paths = [
+        _portable_declared_path(path, field="data.train_manifest") for path in declared_paths
+    ]
+    if any(path != portable_paths[0] for path in portable_paths[1:]):
+        raise ValueError(
+            "All compared configurations must declare the same portable train manifest"
+        )
+    resolved_paths = [Path(path).expanduser().resolve() for path in declared_paths]
+    if any(path != resolved_paths[0] for path in resolved_paths[1:]):
+        raise ValueError("All compared configurations must resolve to one train manifest")
+    manifest_path = resolved_paths[0]
+    if not manifest_path.is_file():
+        raise FileNotFoundError(manifest_path)
+    return {
+        "path": portable_paths[0],
+        "sha256": _sha256_file(manifest_path),
+    }
+
+
+def _build_audit_inputs(
+    config_paths: Sequence[str], configs: Sequence[Mapping[str, Any]]
+) -> dict[str, Any]:
+    if len(config_paths) != len(configs):
+        raise ValueError("Configuration paths and resolved configurations must align")
+    config_records: list[dict[str, Any]] = []
+    for config_path, config in zip(config_paths, configs, strict=True):
+        portable_config_path = _portable_declared_path(config_path, field="config path")
+        path = Path(config_path).expanduser().resolve()
+        dependencies = _config_dependency_paths(path)
+        try:
+            path.relative_to(PROJECT_ROOT)
+            for dependency in dependencies:
+                dependency.relative_to(PROJECT_ROOT)
+        except ValueError as error:
+            raise ValueError(
+                "Config files and their inheritance dependencies must remain inside "
+                "the repository"
+            ) from error
+        dependency_hashes = {
+            _portable_repository_path(dependency): _sha256_file(dependency)
+            for dependency in dependencies
+        }
+        config_records.append(
+            {
+                "path": portable_config_path,
+                "file_sha256": _sha256_file(path),
+                "dependency_file_sha256": dependency_hashes,
+                "resolved_config_sha256": _sha256_json(config),
+            }
+        )
+
+    source_hashes = {
+        _portable_repository_path(path): _sha256_file(path)
+        for path in _implementation_source_paths()
+    }
+    payload: dict[str, Any] = {
+        "schema_version": AUDIT_INPUT_SCHEMA_VERSION,
+        "configs": config_records,
+        "implementation_source_sha256": source_hashes,
+        "implementation_source_bundle_sha256": _sha256_json(source_hashes),
+        "train_manifest": _manifest_identity(configs),
+    }
+    return {**payload, "bundle_sha256": _sha256_json(payload)}
+
+
+def _validate_identity_bundle(identity: Mapping[str, Any]) -> None:
+    stored = identity.get("bundle_sha256")
+    if not isinstance(stored, str) or len(stored) != 64:
+        raise ValueError("Parameter-fairness reference lacks a valid audit-input bundle hash")
+    payload = {key: value for key, value in identity.items() if key != "bundle_sha256"}
+    if _sha256_json(payload) != stored:
+        raise ValueError("Parameter-fairness reference audit-input bundle is internally invalid")
+
+
+def assert_audit_reference_matches(
+    reference: Mapping[str, Any], current_inputs: Mapping[str, Any]
+) -> None:
+    """Fail closed unless an existing audit was built from the exact current inputs."""
+
+    reference_inputs = reference.get("audit_inputs")
+    if not isinstance(reference_inputs, Mapping):
+        raise ValueError(
+            "Parameter-fairness reference has no audit_inputs fingerprint; "
+            "legacy or incomplete reports cannot be reused"
+        )
+    _validate_identity_bundle(reference_inputs)
+    _validate_identity_bundle(current_inputs)
+    if reference_inputs != current_inputs:
+        keys = sorted(
+            key
+            for key in set(reference_inputs).union(current_inputs)
+            if reference_inputs.get(key) != current_inputs.get(key)
+        )
+        raise ValueError(
+            "Parameter-fairness reference does not match current inputs: " + ", ".join(keys)
+        )
+
+    manifest = reference_inputs.get("train_manifest")
+    if not isinstance(manifest, Mapping) or not isinstance(manifest.get("sha256"), str):
+        raise ValueError("Parameter-fairness reference lacks a valid manifest fingerprint")
+    selection = reference.get("selection")
+    if not isinstance(selection, Mapping):
+        raise ValueError("Parameter-fairness reference lacks its sample selection")
+    if selection.get("manifest_sha256") != manifest["sha256"]:
+        raise ValueError(
+            "Parameter-fairness reference manifest hashes disagree between inputs and selection"
+        )
+    records = reference.get("records")
+    if not isinstance(records, list) or not records:
+        raise ValueError("Parameter-fairness reference has no audit records")
+    config_records = reference_inputs.get("configs")
+    if not isinstance(config_records, list) or len(records) != len(config_records):
+        raise ValueError(
+            "Parameter-fairness reference record count does not match its config fingerprints"
+        )
+    expected_config_paths = [record.get("path") for record in config_records]
+    actual_config_paths = [
+        record.get("config") if isinstance(record, Mapping) else None for record in records
+    ]
+    if actual_config_paths != expected_config_paths:
+        raise ValueError(
+            "Parameter-fairness reference record configs do not match its config fingerprints"
+        )
+    if any(
+        not isinstance(record, Mapping)
+        or record.get("manifest_sha256") != manifest["sha256"]
+        for record in records
+    ):
+        raise ValueError("Parameter-fairness record manifest hashes are inconsistent")
+
+
+def check_audit_reference(config_paths: Sequence[str], reference_path: Path) -> dict[str, Any]:
+    """Read and validate an audit reference without loading tensors or writing files."""
+
+    if not reference_path.is_file():
+        raise FileNotFoundError(reference_path)
+    reference = json.loads(reference_path.read_text(encoding="utf-8"))
+    if not isinstance(reference, Mapping):
+        raise ValueError("Parameter-fairness reference must be a JSON object")
+    configs = [load_config(path) for path in config_paths]
+    current_inputs = _build_audit_inputs(config_paths, configs)
+    assert_audit_reference_matches(reference, current_inputs)
+    return {
+        "status": "matched",
+        "reference": reference_path.as_posix(),
+        "audit_input_bundle_sha256": current_inputs["bundle_sha256"],
+        "manifest_sha256": current_inputs["train_manifest"]["sha256"],
+    }
 
 
 def _enabled_modalities(config: Mapping[str, Any]) -> tuple[str, ...]:
@@ -331,7 +568,7 @@ def parameter_record(
 
     selected_ids = list(selection["selected_sample_ids"])
     return {
-        "config": Path(config_path).as_posix(),
+        "config": _portable_repository_path(Path(config_path)),
         "experiment": config["experiment"]["name"],
         "model": config["model"]["name"],
         "allocated_parameters": allocated,
@@ -362,11 +599,16 @@ def parameter_record(
 
 def build_audit(config_paths: Sequence[str], device: torch.device) -> dict[str, Any]:
     configs = [load_config(path) for path in config_paths]
+    audit_inputs = _build_audit_inputs(config_paths, configs)
     samples, selection = _shared_audit_samples(configs, config_paths)
+    if selection["manifest_sha256"] != audit_inputs["train_manifest"]["sha256"]:
+        raise ValueError("Training manifest changed while the parameter audit was starting")
     records = [
         parameter_record(config, path, samples, selection, device)
         for path, config in zip(config_paths, configs, strict=True)
     ]
+    if _build_audit_inputs(config_paths, configs) != audit_inputs:
+        raise ValueError("Audit inputs changed while the parameter audit was running")
     reference_graph = int(records[0]["graph_participating_parameters"])
     reference_nonzero_parameters = int(records[0]["nonzero_gradient_parameters"])
     reference_nonzero_elements = int(records[0]["nonzero_gradient_elements"])
@@ -386,6 +628,7 @@ def build_audit(config_paths: Sequence[str], device: torch.device) -> dict[str, 
         "reference_experiment": records[0]["experiment"],
         "device": str(device),
         "deterministic_model_seed": 0,
+        "audit_inputs": audit_inputs,
         "selection": selection,
         "records": records,
     }
@@ -398,17 +641,31 @@ def main() -> None:
     parser.add_argument("configs", nargs="*", default=list(DEFAULT_CONFIGS))
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--output", default="results/parameter_fairness.json")
+    parser.add_argument(
+        "--check-reference",
+        help=(
+            "read-only validation of an existing audit against the exact current "
+            "config, implementation-source, and train-manifest fingerprints"
+        ),
+    )
     args = parser.parse_args()
 
+    if args.check_reference:
+        result = check_audit_reference(args.configs, Path(args.check_reference))
+        print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
+        return
+
+    output = Path(args.output)
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(
+            f"Refusing to overwrite existing parameter-fairness audit: {output}"
+        )
     device = resolve_device(args.device)
     payload = build_audit(args.configs, device)
-    output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False),
-        encoding="utf-8",
-        newline="\n",
-    )
+    with output.open("x", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False))
+        handle.write("\n")
     print(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False))
 
 

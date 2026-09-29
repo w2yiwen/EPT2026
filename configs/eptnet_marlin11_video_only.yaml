@@ -1,0 +1,14 @@
+inherits: eptnet_marlin11_eeg_ppg_video.yaml
+
+experiment:
+  name: eptnet_marlin11_video_only_no_text
+  output_dir: results/eptnet_marlin11_video_only_no_text
+
+model:
+  use_behavior_context: true
+  use_video: true
+  use_audio: false
+  use_text: false
+  use_eeg_time: false
+  use_eeg_spec: false
+  use_hr: false

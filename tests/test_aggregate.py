@@ -180,3 +180,45 @@ def test_aggregate_cli_writes_json_and_csv_with_lf_only(tmp_path: Path, monkeypa
         payload = path.read_bytes()
         assert b"\n" in payload
         assert b"\r" not in payload
+
+
+def test_aggregate_cli_no_overwrite_refuses_existing_output(tmp_path: Path, monkeypatch):
+    metrics = _write(tmp_path / "seed_1.json", _payload(seed=1))
+    output = tmp_path / "aggregate.json"
+    output.write_text("protected\n", encoding="utf-8")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eptnet.aggregate",
+            str(metrics),
+            "--output",
+            str(output),
+            "--no-overwrite",
+        ],
+    )
+
+    with pytest.raises(FileExistsError, match="Refusing to overwrite"):
+        aggregate_module.main()
+    assert output.read_text(encoding="utf-8") == "protected\n"
+
+
+def test_aggregate_cli_no_overwrite_refuses_broken_symlink(tmp_path: Path, monkeypatch):
+    metrics = _write(tmp_path / "seed_1.json", _payload(seed=1))
+    output = tmp_path / "aggregate.json"
+    output.symlink_to(tmp_path / "missing-target.json")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eptnet.aggregate",
+            str(metrics),
+            "--output",
+            str(output),
+            "--no-overwrite",
+        ],
+    )
+
+    with pytest.raises(FileExistsError, match="Refusing to overwrite"):
+        aggregate_module.main()
+    assert output.is_symlink()

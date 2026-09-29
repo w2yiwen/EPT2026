@@ -1,5 +1,10 @@
 # RTX 4060：11-session MARLIN 全模态真实对齐实验
 
+> **历史准备记录，不是当前执行入口。** 当前短论文流程只读已经冻结的
+> `bci_subjects_ept_v6_marlin4060_aligned11`，不得重新运行本文中的对齐、
+> 特征提取、数据准备或覆盖命令。请使用根目录 [`README.md`](README.md) 和
+> [`README_SERVER.md`](README_SERVER.md) 中的 additive experiment workflow。
+
 这是 RTX 4060 专用、与 RTX 4090 路线完全隔离的入口。原始候选 cohort 有 12 个 session；`session_011` 的 Whisper/标注精确字符覆盖率只有 0.975%，因此 4060 正式入口将它作为对齐质量排除项，最终使用其余 11 人。路线使用冻结模型、逐采样帧 FaceX-Zoo 检测，并把行为编码 batch 固定为 4。
 
 ```text

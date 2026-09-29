@@ -1,0 +1,21 @@
+inherits: eptnet_marlin11_aligned_windowed_seed42.yaml
+
+# Paper-facing tri-modal view of the frozen aligned11 artifact. The stored audio
+# and text features remain untouched but are excluded from this experiment.
+experiment:
+  name: eptnet_marlin11_eeg_ppg_video_no_text
+  output_dir: results/eptnet_marlin11_eeg_ppg_video_no_text
+
+model:
+  use_behavior_context: true
+  use_video: true
+  use_audio: false
+  use_text: false
+  use_eeg_time: true
+  use_eeg_spec: true
+  # Backward-compatible code name for the PPG-derived physiology branch.
+  use_hr: true
+
+evaluation:
+  # Immutable repository semantics: 0=deception/target event, 1=truth.
+  positive_class: 0

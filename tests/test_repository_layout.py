@@ -38,6 +38,9 @@ def test_project_root_contains_no_ad_hoc_launchers() -> None:
 
 def test_data_root_is_not_traversed_and_has_no_top_level_source() -> None:
     data_root = CODE_ROOT / "data"
+    # Public/source-only clones intentionally omit the ignored private data root.
+    if not data_root.exists():
+        return
     top_level_source = sorted(
         path.name
         for path in data_root.iterdir()

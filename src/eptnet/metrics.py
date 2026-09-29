@@ -5,6 +5,12 @@ from collections.abc import Iterable, Sequence
 import numpy as np
 
 
+# Keep probability scoring finite for JSON serialization while retaining a
+# severe penalty for an exactly wrong, fully confident prediction.  This is
+# also the clipping convention recorded in the evaluation protocol.
+PROBABILITY_EPSILON = 1e-7
+
+
 def _trapezoid(y: np.ndarray, x: np.ndarray) -> float:
     """Integrate ``y`` over monotonic ``x`` without a NumPy-version dependency."""
     if x.size < 2:
@@ -52,18 +58,20 @@ def frame_metrics(
     labels: np.ndarray,
     mask: np.ndarray,
     threshold: float = 0.5,
-    positive_class: int | None = None,
+    positive_class: int | None = 0,
 ) -> dict[str, object]:
     """Compute binary frame metrics for scores of the designated positive class.
 
-    ``probabilities`` must contain the probability of the positive class. If
-    ``positive_class`` is supplied, arbitrary class labels are converted with
-    ``labels == positive_class``. If it is ``None``, ``labels`` are interpreted
-    as an already-binarized positive indicator (0/1), preserving the historical
-    class-1-positive behavior.
+    ``probabilities`` must contain the probability of the positive class. The
+    repository-wide default is class 0 (``deception``), so labels are converted
+    with ``labels == 0``. Pass another class index to evaluate that class, or
+    pass ``None`` only when ``labels`` are already a binary positive indicator.
 
-    Metrics that require both target classes are returned as ``None`` when the
-    valid targets contain only one class. Confusion counts are always returned.
+    Brier score and binary negative log-likelihood are proper scoring rules for
+    the designated positive-class probability and remain defined for a
+    single-class target set. Discrimination metrics that require both target
+    classes are returned as ``None`` when only one class is present. Confusion
+    counts are always returned.
     """
     scores = np.asarray(probabilities, dtype=np.float64)
     targets = np.asarray(labels)
@@ -77,6 +85,8 @@ def frame_metrics(
     targets = targets[valid]
     if not np.isfinite(scores).all():
         raise ValueError("probabilities contain non-finite values")
+    if np.any((scores < 0.0) | (scores > 1.0)):
+        raise ValueError("probabilities must lie within [0, 1]")
     threshold = float(threshold)
     if not np.isfinite(threshold) or not 0.0 <= threshold <= 1.0:
         raise ValueError("threshold must be a finite probability within [0, 1]")
@@ -104,6 +114,27 @@ def frame_metrics(
         "true_negative": true_negative,
         "false_negative": false_negative,
     }
+
+    if truth.size:
+        binary_truth = truth.astype(np.float64, copy=False)
+        clipped_scores = np.clip(
+            scores,
+            PROBABILITY_EPSILON,
+            1.0 - PROBABILITY_EPSILON,
+        )
+        result.update(
+            {
+                "brier_score": float(np.mean((scores - binary_truth) ** 2)),
+                "negative_log_likelihood": float(
+                    -np.mean(
+                        binary_truth * np.log(clipped_scores)
+                        + (1.0 - binary_truth) * np.log1p(-clipped_scores)
+                    )
+                ),
+            }
+        )
+    else:
+        result.update({"brier_score": None, "negative_log_likelihood": None})
 
     positives = true_positive + false_negative
     negatives = true_negative + false_positive

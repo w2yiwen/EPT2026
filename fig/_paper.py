@@ -19,10 +19,15 @@ COLORS = {
     "grid_grey": "#D9DEE6",
     "blue": "#526FB4",
     "blue_dark": "#304F8C",
+    "blue_light": "#AFC0E1",
+    "slate": "#71869C",
     "teal": "#3F929C",
+    "teal_light": "#A8D0D3",
     "coral": "#D46B5F",
+    "coral_light": "#E8B3AD",
     "orange": "#D4934B",
     "purple": "#7968A8",
+    "rose": "#B66B87",
     "green": "#618E79",
 }
 
@@ -111,7 +116,7 @@ def export_and_check(
     output_stem.parent.mkdir(parents=True, exist_ok=True)
     expected_inches = canvas_inches(width_mm, height_mm)
     actual_inches = tuple(float(value) for value in figure.get_size_inches())
-    if any(abs(a - b) > 1e-6 for a, b in zip(actual_inches, expected_inches, strict=True)):
+    if any(abs(a - b) > 1e-6 for a, b in zip(actual_inches, expected_inches)):
         raise RuntimeError(f"Canvas size {actual_inches} != required {expected_inches}")
 
     outputs = {suffix: output_stem.with_suffix(f".{suffix}") for suffix in ("pdf", "svg", "png")}
@@ -136,7 +141,7 @@ def export_and_check(
     if match is None:
         raise RuntimeError("Could not verify PDF MediaBox")
     pdf_points = tuple(float(value) for value in match.groups())
-    if any(abs(a - b) > 0.06 for a, b in zip(pdf_points, expected_points, strict=True)):
+    if any(abs(a - b) > 0.06 for a, b in zip(pdf_points, expected_points)):
         raise RuntimeError(f"PDF size {pdf_points} pt != required {expected_points} pt")
 
     svg_root = ElementTree.parse(outputs["svg"]).getroot()
@@ -149,7 +154,7 @@ def export_and_check(
         return float(svg_match.group(1))
 
     svg_size = (svg_points("width"), svg_points("height"))
-    if any(abs(a - b) > 0.06 for a, b in zip(svg_size, expected_points, strict=True)):
+    if any(abs(a - b) > 0.06 for a, b in zip(svg_size, expected_points)):
         raise RuntimeError(f"SVG size {svg_size} pt != required {expected_points} pt")
 
     report = {
@@ -174,11 +179,12 @@ def export_and_check(
         },
         "exceptions": [],
     }
-    report_path = output_stem.parent / "qa-report.json"
+    # Keep demo and formal provenance records independent even when both are
+    # rendered in the same figure directory.
+    report_path = output_stem.with_name(f"{output_stem.name}.qa-report.json")
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
         encoding="utf-8",
-        newline="\n",
     )
     return report
 

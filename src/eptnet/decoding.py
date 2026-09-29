@@ -175,7 +175,7 @@ class CausalEventDecoder:
 @torch.no_grad()
 def decode_events(
     outputs: dict[str, Tensor],
-    positive_class: int = 1,
+    positive_class: int = 0,
     frame_threshold: float = 0.5,
     boundary_threshold: float = 0.5,
 ) -> list[list[dict[str, float]]]:

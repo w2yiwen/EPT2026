@@ -1,0 +1,15 @@
+inherits: eptnet_marlin11_eeg_ppg_video.yaml
+
+experiment:
+  name: eptnet_marlin11_physiology_only_no_text
+  output_dir: results/eptnet_marlin11_physiology_only_no_text
+
+model:
+  # EEG time, EEG spectrum, and PPG-derived physiology only.
+  use_behavior_context: false
+  use_video: false
+  use_audio: false
+  use_text: false
+  use_eeg_time: true
+  use_eeg_spec: true
+  use_hr: true
