@@ -43,7 +43,7 @@ def test_modality_aggregates_require_one_source_and_data_provenance(tmp_path: Pa
         _write_aggregate(path, provenance_sha256=digest, seeds=seeds)
         paths.append(path)
 
-    records, sources, seeds = FIGURE._records_from_aggregates(
+    records, sources, seeds, provenance = FIGURE._records_from_aggregates(
         [
             f"Full={paths[0]}",
             f"Video={paths[1]}",
@@ -53,6 +53,7 @@ def test_modality_aggregates_require_one_source_and_data_provenance(tmp_path: Pa
     assert len(records) == 6
     assert sources == paths
     assert seeds == {"Full": [13], "Video": [42]}
+    assert provenance == {"Full": digest, "Video": digest}
 
 
 def test_modality_aggregates_reject_provenance_drift(tmp_path: Path) -> None:

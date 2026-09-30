@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "EPT-Net: Event-guided Persistent Temporal Network"
+message: "If you use this repository, please cite the associated paper."
+type: software
+authors:
+  - family-names: Yiwen
+    given-names: Wang
+repository-code: "https://github.com/w2yiwen/EPT2026"
+license: "NOASSERTION"
+version: "0.1.0"

@@ -41,6 +41,9 @@ physiology = [
   "neurokit2==0.2.11",
 ]
 
+[project.scripts]
+ept = "eptnet.cli.main:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

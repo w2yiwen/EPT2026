@@ -128,6 +128,7 @@ def _records_from_aggregates(
     seeds_by_configuration: dict[str, list[int]] = {}
     provenance_by_configuration: dict[str, str] = {}
     reference_signature: dict[str, Any] | None = None
+    reference_provenance: str | None = None
     for specification in specifications:
         if "=" not in specification:
             raise ValueError("--aggregate must use LABEL=PATH syntax")
@@ -158,6 +159,12 @@ def _records_from_aggregates(
         if not isinstance(provenance_sha256, str) or len(provenance_sha256) != 64:
             raise ValueError(f"{path} has an invalid provenance_sha256")
         provenance_by_configuration[configuration] = provenance_sha256
+        if reference_provenance is None:
+            reference_provenance = provenance_sha256
+        elif provenance_sha256 != reference_provenance:
+            raise ValueError(
+                f"{path} does not use the same source/data provenance as the other configurations"
+            )
         if reference_signature is None:
             reference_signature = signature
         elif signature != reference_signature:

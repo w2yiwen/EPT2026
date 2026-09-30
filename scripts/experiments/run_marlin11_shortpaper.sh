@@ -5,7 +5,11 @@ project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$project_root"
 export PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}"
 
-python_bin="${PYTHON_BIN:-python3}"
+default_python="$project_root/.venv/bin/python"
+if [[ ! -x "$default_python" ]]; then
+  default_python="python3"
+fi
+python_bin="${PYTHON_BIN:-$default_python}"
 device="${DEVICE:-cuda:0}"
 suite="all"
 primary_seed_string="13 42 73"
@@ -30,7 +34,7 @@ Options:
   --eptnet-seeds "13"      EPT-Net main seeds (default: same as --seeds)
   --analysis-seeds "42"    Modality/diagnostic seeds
   --device DEVICE          Training device (default: cuda:0)
-  --python PATH            Python executable (default: $PYTHON_BIN or python3)
+  --python PATH            Python executable (default: $PYTHON_BIN or .venv/bin/python)
   --dry-run                Validate configs without data/GPU and print commands
   --preflight-only         Verify and fingerprint frozen inputs, then exit
   --skip-existing          Reuse only runs with metrics, predictions, and events

@@ -27,6 +27,21 @@ bci_subjects_ept_v6_marlin4060_aligned11
 
 ## 1. 一次性配置环境
 
+安装完成后，所有常用动作也可以通过统一的 `ept` 入口调用：
+
+```bash
+ept doctor --config configs/experiments/aligned11_eptnet.yaml --data-root /root/data
+ept resolve-config --config configs/experiments/aligned11_eptnet.yaml \
+  --output results/aligned11_eptnet/resolved.yaml
+ept train --config configs/experiments/aligned11_eptnet.yaml --device cuda:0
+ept evaluate --help
+```
+
+`ept train` 和 `ept evaluate` 使用新的 `eptnet.training` / `eptnet.evaluation`
+域模块；旧的 `python -m eptnet.train`、`python -m eptnet.evaluate` 命令仍由
+兼容门面支持。目录边界和复现记录见 [`docs/architecture.md`](docs/architecture.md)
+与 [`docs/reproducibility.md`](docs/reproducibility.md)。
+
 服务器基础环境已带 CUDA PyTorch。项目虚拟环境复用该 PyTorch，只在 `.venv` 内安装仓库锁定依赖。基础环境原有 SciPy 二进制存在运行时不一致，因此最后一条安装命令会在 `.venv` 中重装同版本 NumPy/SciPy；版本没有改变。
 
 ```bash
