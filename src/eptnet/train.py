@@ -38,6 +38,7 @@ CAUSAL_WINDOW_PROTOCOL = "causal_windows"
 def validate_training_cohort(config: Mapping[str, Any]) -> dict[str, Any]:
     """Fail before training unless manifests match the declared aligned cohort."""
     data = config.get("data", {})
+    cohort_policy = str(data.get("cohort_policy", "subject_disjoint"))
     expected = data.get("expected_session_ids")
     if expected is None:
         return {"status": "not_declared"}
@@ -69,15 +70,38 @@ def validate_training_cohort(config: Mapping[str, Any]) -> dict[str, Any]:
             raise ValueError(f"Duplicate sessions in {split} manifest: {ids}")
         split_ids[split] = ids
         all_ids.extend(ids)
-    if len(all_ids) != len(set(all_ids)):
-        raise ValueError(f"A session occurs in multiple splits: {all_ids}")
-    actual_ids = set(all_ids)
-    if actual_ids != expected_ids:
-        raise ValueError(
-            "Prepared cohort does not match data.expected_session_ids; "
-            f"missing={sorted(expected_ids - actual_ids)}, "
-            f"unexpected={sorted(actual_ids - expected_ids)}"
-        )
+    if cohort_policy == "all_sessions_training":
+        train_ids = set(split_ids["train"])
+        if train_ids != expected_ids:
+            raise ValueError(
+                "All-session training manifest does not match data.expected_session_ids; "
+                f"missing={sorted(expected_ids - train_ids)}, "
+                f"unexpected={sorted(train_ids - expected_ids)}"
+            )
+        evaluation_ids = set(split_ids["val"]).union(split_ids["test"])
+        if not evaluation_ids.issubset(expected_ids):
+            raise ValueError(
+                "Evaluation manifests contain sessions outside the all-session training cohort"
+            )
+        evaluation_overlap = set(split_ids["val"]).intersection(split_ids["test"])
+        if evaluation_overlap:
+            raise ValueError(
+                "Validation and test evaluation views overlap: "
+                f"{sorted(evaluation_overlap)}"
+            )
+        actual_ids = train_ids
+    elif cohort_policy == "subject_disjoint":
+        if len(all_ids) != len(set(all_ids)):
+            raise ValueError(f"A session occurs in multiple splits: {all_ids}")
+        actual_ids = set(all_ids)
+        if actual_ids != expected_ids:
+            raise ValueError(
+                "Prepared cohort does not match data.expected_session_ids; "
+                f"missing={sorted(expected_ids - actual_ids)}, "
+                f"unexpected={sorted(actual_ids - expected_ids)}"
+            )
+    else:
+        raise ValueError(f"Unsupported data.cohort_policy: {cohort_policy!r}")
     leaked = actual_ids.intersection(excluded_ids)
     if leaked:
         raise ValueError(f"Explicitly excluded sessions reached training: {sorted(leaked)}")
@@ -136,6 +160,7 @@ def validate_training_cohort(config: Mapping[str, Any]) -> dict[str, Any]:
             video_alignment_methods[session_id] = video_method
     return {
         "status": "passed",
+        "cohort_policy": cohort_policy,
         "session_count": len(actual_ids),
         "session_ids": sorted(actual_ids),
         "excluded_session_ids": sorted(excluded_ids),

@@ -132,8 +132,7 @@ Evidence: Table 2, Figure 2, and the optional supplemental reliability plot.
 | CL-01 | The frozen pipeline aligns EEG, PPG-derived physiology, video, and event supervision on one temporal index. | Supported by the frozen data/config contract; numerical metadata must still come from the server artifact. | `dataset_summary.json`, manifests, preflight fingerprints | Fig. 1, Table 1, Task/Data |
 | CL-02 | The task output is a time-varying class-0 target-event probability, not a session-level binary decision. | Supported by model/evaluation code. | `positive_probability`, `positive_class=0`, masks | Task, Method, Fig. 2 |
 | CL-03 | The system converts continuous evidence into causal localized intervals. | Implemented; empirical quality awaits the formal run. | predictions JSONL, events JSON, event AP/F1/delay | Fig. 2, Table 2 |
-| CL-04 | EPT-Net is competitive with causal GRU and Transformer references. | Needs evidence. | three-seed main matrix under the identical frozen protocol | Table 2 |
-| CL-05 | EEG+PPG and video provide complementary evidence. | Needs evidence; wording is conditional on Fig. 3. | Full, EEG+PPG, and Video runs using the same split and seed policy | Fig. 3 |
+| CL-04 | EPT-Net is competitive with causal GRU and Transformer references. | Needs evidence. | declared single-run matrix under the identical frozen protocol, with true seeds reported | Table 2 |
 | CL-06 | The reported probability is numerically reliable. | Partially supported only by Brier/NLL implementation; a calibration adjective needs a reliability analysis. | Brier, NLL, optional reliability diagram; validation-only calibration if later added | Table 2, supplement |
 | CL-07 | Adaptive reading or persistent state explains the main result. | Optional and needs evidence. | fixed-reader and no-persistent diagnostics | Supplement only |
 | CL-08 | The method generalizes to the population or is state of the art. | Outside the current evidence contract. | Requires independent supporting evidence | Do not write |
@@ -153,11 +152,10 @@ manifest path, label direction, or enabled audio/text branch before training.
 | Experiment | Config and formal seeds | Scientific question | Primary outputs | Claim gate |
 |---|---|---|---|---|
 | Data/protocol audit | `scripts/experiments/preflight_marlin11_shortpaper.py`; no training seed | Is every result tied to the same 11-participant artifact, split, and class mapping? | preflight JSON, metadata hashes, manifest IDs | Mandatory for every figure/table |
-| Full EPT-Net | `configs/eptnet_marlin11_eeg_ppg_video.yaml`; 13, 42, 73 | How well does the proposed realization rank frames, score probabilities, and localize events? | per-seed metrics/predictions/events plus `aggregate.json` | Main EPT result |
-| Protocol-matched causal GRU | `configs/gru_marlin11_eeg_ppg_video.yaml`; 13, 42, 73 | Does the result require more than conventional early recurrent fusion under the same inputs? | per-seed metrics and aggregate | Table 2 reference |
-| Protocol-matched causal Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml`; 13, 42, 73 | How does EPT compare with causal attention-based fusion? | per-seed metrics and aggregate | Table 2 reference |
-| EEG+PPG only | `configs/eptnet_marlin11_physiology_only.yaml`; 42 by default, 13/42/73 for formal Fig. 3 | What is contributed by brain/body physiology without video? | per-seed metrics; preserved diagnostic aggregate; versioned matched-seed figure aggregate | Fig. 3 modality evidence |
-| Video only | `configs/eptnet_marlin11_video_only.yaml`; 42 by default, 13/42/73 for formal Fig. 3 | What is contributed by behavioral video without physiology? | per-seed metrics; preserved diagnostic aggregate; versioned matched-seed figure aggregate | Fig. 3 modality evidence |
+| Full EPT-Net | `configs/eptnet_marlin11_eeg_ppg_video.yaml`; 13 | How well does the proposed realization rank frames, score probabilities, and localize events? | per-seed metrics/predictions/events plus `aggregate.json` | Main EPT result |
+| Protocol-matched causal GRU | `configs/gru_marlin11_eeg_ppg_video.yaml`; 42 | Does the result require more than conventional early recurrent fusion under the same inputs? | per-seed metrics and aggregate | Table 2 reference |
+| Protocol-matched causal Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml`; 42 | How does EPT compare with causal attention-based fusion? | per-seed metrics and aggregate | Table 2 reference |
+| Video only | `configs/eptnet_marlin11_video_only.yaml`; 42 | How does the model behave with behavioral video alone? | per-seed metrics and diagnostic aggregate | Optional input diagnostic |
 | Fixed reader | `configs/eptnet_marlin11_fixed_reader.yaml`; 42 | Does adaptive temporal reading add useful behavior under the fixed protocol? | metrics and aggregate | Optional targeted diagnostic |
 | No persistent state | `configs/eptnet_marlin11_no_persistent.yaml`; 42 | Does persistent updating add useful behavior under the fixed protocol? | metrics and aggregate | Optional targeted diagnostic |
 | Dynamic trace | seed-42 full EPT-Net artifacts; one predeclared held-out `sample_id` | Does the output behave as a temporal probability and localization trace? | paper Figure 2 / repository `fig04` | Qualitative mechanism evidence, not aggregate proof |
@@ -176,24 +174,14 @@ manifest path, label direction, or enabled audio/text branch before training.
   threshold-free proposal ranking distinct from thresholded event F1.
 - Report the validation-selected operating threshold and detection delay. Test
   labels must never select a threshold.
-- Main model comparisons use seeds 13/42/73. Modality and mechanism analyses
-  default to seed 42. A formal modality figure extends both input-family
-  variants to the main three-seed policy and writes new versioned aggregates;
-  mechanism diagnostics remain single-seed evidence.
+- The declared seed policy is recorded by the executable runner. Video-only and
+  mechanism analyses are single-seed diagnostics.
 - Participant-bootstrap intervals describe uncertainty under the held-out
   split. Seed dispersion measures optimization variability; report the two
   quantities separately.
 
 ### Decision rules for result language
 
-- **Strong modality complementarity:** Full exceeds both EEG+PPG and Video on
-  frame AP and event mAP without worsening Brier. State this directly.
-- **Metric-dependent complementarity:** Full improves localization or AP while
-  one unimodal family has better Brier. Describe the observed trade-off; do not
-  declare uniform superiority.
-- **No complementarity evidence:** Full does not improve the task metrics.
-  Keep Fig. 3 as a modality analysis, but remove complementarity from the title,
-  abstract, and contribution list.
 - **Mechanism evidence:** mention adaptive reading or persistent state as an
   empirical contribution only if the corresponding diagnostic supports it.
   Otherwise keep the mechanism descriptive and move the comparison out of the
@@ -212,7 +200,7 @@ or principal evidence.
 | 2. Related Work | 0.45 | folded into Introduction | Multimodal physiological/BCI datasets; online temporal localization; probability assessment |
 | 3. Task, Data, and Annotation | 1.10 | 0.75 | EEG--PPG--video alignment, post-event interval supervision, masks, label semantics, frozen split; Fig. 1 and Table 1 |
 | 4. Reference Temporal Model | 0.80 | 0.50 | Inputs, modality encoders, adaptive reader/persistent fusion, probability/boundary heads, causal decoding |
-| 5. Experiments and Results | 2.10 | 1.55 | Protocol, baselines, metrics, Table 2, Fig. 2, Fig. 3, result interpretation |
+| 5. Experiments and Results | 2.10 | 1.55 | Protocol, baselines, metrics, Table 2, Fig. 2, result interpretation |
 | 6. Discussion and Conclusion | 0.55 | 0.30 | What the temporal formulation enables and the evidence-supported conclusion |
 
 ### Section-level writing plan
@@ -272,9 +260,7 @@ Organize by research question:
 
 - **RQ1:** Can the system jointly recognize and localize target events?
   Answer with Table 2 and Figure 2.
-- **RQ2:** Do physiology and video contribute complementary evidence?
-  Answer with Figure 3.
-- **RQ3, optional:** Do adaptive reading and persistent state help under the
+- **RQ2, optional:** Do adaptive reading and persistent state help under the
   same protocol? Answer only in the supplement or one sentence if supported.
 
 Interpret each result immediately after presenting it. Do not narrate the order
@@ -299,8 +285,6 @@ and measured evidence establish.
   together with start/end evidence and interval offsets."
 - "On the frozen held-out protocol, the full configuration improves ..."
   followed by exact results.
-- "The result provides evidence of modality complementarity under this
-  protocol" when the Fig. 3 decision rule is met.
 
 ### Prohibited or evidence-dependent
 

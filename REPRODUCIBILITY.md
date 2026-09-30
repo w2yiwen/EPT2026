@@ -1,5 +1,10 @@
 # Reproducibility and frozen-evidence policy
 
+> Current user-selected cohort policy: all 11 aligned sessions in
+> `sessions_all.jsonl` participate in training. The frozen validation/test
+> manifests remain fixed evaluation views, but are not held out from training.
+> Results from this route must not be described as independent generalization.
+
 ## Current executable scope
 
 The sole current executable/evaluated data artifact is
@@ -60,8 +65,8 @@ Invalid target intervals break event continuity. Availability masks represent
 missing EEG, physiology, or video observations and must never be replaced with
 fabricated measurements.
 
-Threshold selection uses validation data only. The selected threshold is then
-frozen for held-out evaluation. Thresholded event F1 and delay belong to that
+Threshold selection uses the fixed validation view only. The selected threshold is then
+frozen for the fixed test view. Thresholded event F1 and delay belong to that
 operating point. Event AP/mAP is derived from ranked dense proposals and remains
 separate from thresholded decoding.
 
@@ -89,7 +94,6 @@ only model/input selection and isolated result identities:
 | EPT-Net main | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 |
 | Protocol-matched GRU | `configs/gru_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 |
 | Fusion Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 |
-| EEG+PPG diagnostic | `configs/eptnet_marlin11_physiology_only.yaml` | 42 |
 | Video diagnostic | `configs/eptnet_marlin11_video_only.yaml` | 42 |
 | Fixed-reader diagnostic | `configs/eptnet_marlin11_fixed_reader.yaml` | 42 |
 | No-persistent-state diagnostic | `configs/eptnet_marlin11_no_persistent.yaml` | 42 |

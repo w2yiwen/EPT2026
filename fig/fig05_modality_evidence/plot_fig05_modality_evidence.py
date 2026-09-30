@@ -25,14 +25,13 @@ from _paper import (  # noqa: E402
 
 WIDTH_MM = 90.0
 HEIGHT_MM = 60.0
-CONFIGURATIONS = ("Full", "EEG+PPG", "Video")
+CONFIGURATIONS = ("Full", "Video")
 METRICS = ("AP", "Brier", "Event mAP")
 CONFIG_COLORS = {
     "Full": COLORS["blue"],
-    "EEG+PPG": COLORS["teal"],
     "Video": COLORS["coral"],
 }
-CONFIG_MARKERS = {"Full": "o", "EEG+PPG": "s", "Video": "^"}
+CONFIG_MARKERS = {"Full": "o", "Video": "^"}
 
 
 def _resolve(path: str | Path) -> Path:
@@ -55,15 +54,12 @@ def _configuration(value: Any) -> str:
         "full": "Full",
         "all": "Full",
         "eegppgvideo": "Full",
-        "eegppg": "EEG+PPG",
-        "physiology": "EEG+PPG",
-        "physiologyonly": "EEG+PPG",
         "video": "Video",
         "videoonly": "Video",
     }
     if normalized not in aliases:
         raise ValueError(
-            f"Unknown configuration {value!r}; expected Full, EEG+PPG, or Video"
+            f"Unknown configuration {value!r}; expected Full or Video"
         )
     return aliases[normalized]
 
@@ -124,9 +120,13 @@ def _records_from_combined(path: Path) -> list[dict[str, Any]]:
     )
 
 
-def _records_from_aggregates(specifications: Sequence[str]) -> tuple[list[dict[str, Any]], list[Path]]:
+def _records_from_aggregates(
+    specifications: Sequence[str],
+) -> tuple[list[dict[str, Any]], list[Path], dict[str, list[int]], dict[str, str]]:
     records: list[dict[str, Any]] = []
     sources: list[Path] = []
+    seeds_by_configuration: dict[str, list[int]] = {}
+    provenance_by_configuration: dict[str, str] = {}
     reference_signature: dict[str, Any] | None = None
     for specification in specifications:
         if "=" not in specification:
@@ -143,23 +143,27 @@ def _records_from_aggregates(specifications: Sequence[str]) -> tuple[list[dict[s
             "protocol": payload.get("protocol"),
             "data": payload.get("data"),
             "calibration_protocol": payload.get("calibration_protocol"),
-            "seeds": payload.get("seeds"),
-            "provenance_sha256": payload.get("provenance_sha256"),
         }
         if any(value is None for value in signature.values()):
             raise ValueError(
-                f"{path} is missing aggregate protocol/data/seed/provenance metadata"
+                f"{path} is missing aggregate protocol/data/provenance metadata"
             )
-        provenance_sha256 = signature["provenance_sha256"]
+        seeds = payload.get("seeds")
+        if not isinstance(seeds, list) or not seeds or not all(
+            isinstance(seed, int) and not isinstance(seed, bool) for seed in seeds
+        ):
+            raise ValueError(f"{path} has invalid aggregate seed metadata")
+        seeds_by_configuration[configuration] = list(seeds)
+        provenance_sha256 = payload.get("provenance_sha256")
         if not isinstance(provenance_sha256, str) or len(provenance_sha256) != 64:
             raise ValueError(f"{path} has an invalid provenance_sha256")
+        provenance_by_configuration[configuration] = provenance_sha256
         if reference_signature is None:
             reference_signature = signature
         elif signature != reference_signature:
             raise ValueError(
                 f"{path} does not use the same evaluation protocol, data scope, "
-                "calibration policy, seeds, and source/data provenance as the other "
-                "modality configurations"
+                "and calibration policy as the other configurations"
             )
         for key, value in aggregate.items():
             try:
@@ -176,7 +180,7 @@ def _records_from_aggregates(specifications: Sequence[str]) -> tuple[list[dict[s
                     "n": value.get("n"),
                 }
             )
-    return records, sources
+    return records, sources, seeds_by_configuration, provenance_by_configuration
 
 
 def _normalize(records: Sequence[Mapping[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
@@ -229,13 +233,10 @@ def _write_demo_input() -> Path:
         "warning": "Synthetic values for layout QA only; never cite as experimental results.",
         "records": [
             {"configuration": "Full", "metric": "AP", "mean": 0.76, "lower": 0.71, "upper": 0.81},
-            {"configuration": "EEG+PPG", "metric": "AP", "mean": 0.68, "lower": 0.62, "upper": 0.74},
             {"configuration": "Video", "metric": "AP", "mean": 0.61, "lower": 0.55, "upper": 0.68},
             {"configuration": "Full", "metric": "Brier", "mean": 0.16, "lower": 0.13, "upper": 0.19},
-            {"configuration": "EEG+PPG", "metric": "Brier", "mean": 0.21, "lower": 0.18, "upper": 0.25},
             {"configuration": "Video", "metric": "Brier", "mean": 0.24, "lower": 0.20, "upper": 0.28},
             {"configuration": "Full", "metric": "Event mAP", "mean": 0.63, "lower": 0.57, "upper": 0.69},
-            {"configuration": "EEG+PPG", "metric": "Event mAP", "mean": 0.54, "lower": 0.48, "upper": 0.60},
             {"configuration": "Video", "metric": "Event mAP", "mean": 0.46, "lower": 0.40, "upper": 0.52},
         ],
     }
@@ -249,6 +250,8 @@ def generate(
     aggregate_specs: Sequence[str] = (),
     demo: bool = False,
 ) -> dict[str, Any]:
+    seeds_by_configuration: dict[str, list[int]] = {}
+    provenance_by_configuration: dict[str, str] = {}
     if demo:
         evidence_file = _write_demo_input()
         records = _records_from_combined(evidence_file)
@@ -260,9 +263,14 @@ def generate(
         records = _records_from_combined(evidence_file)
         sources = [evidence_file]
     elif aggregate_specs:
-        records, sources = _records_from_aggregates(aggregate_specs)
+        (
+            records,
+            sources,
+            seeds_by_configuration,
+            provenance_by_configuration,
+        ) = _records_from_aggregates(aggregate_specs)
     else:
-        raise ValueError("Formal rendering requires evidence_path or three aggregate_specs")
+        raise ValueError("Formal rendering requires evidence_path or two aggregate_specs")
     table = _normalize(records)
 
     configure_matplotlib()
@@ -302,7 +310,14 @@ def generate(
         axis.set_title(f"{'abc'[metric_index]}  {metric} {direction}", loc="left", pad=2.0)
         axis.grid(axis="x")
         axis.grid(axis="y", visible=False)
-    axes[0].set_yticks(y, CONFIGURATIONS)
+    y_labels = []
+    for configuration in CONFIGURATIONS:
+        seeds = seeds_by_configuration.get(configuration)
+        seed_text = ",".join(str(seed) for seed in seeds) if seeds else None
+        y_labels.append(
+            f"{configuration}\n(seed {seed_text})" if seed_text else configuration
+        )
+    axes[0].set_yticks(y, y_labels)
     axes[0].invert_yaxis()
     for tick, configuration in zip(axes[0].get_yticklabels(), CONFIGURATIONS):
         tick.set_color(CONFIG_COLORS[configuration])
@@ -331,6 +346,9 @@ def generate(
         data_summary={
             "demo": demo,
             "configurations": list(CONFIGURATIONS),
+            "seeds_by_configuration": seeds_by_configuration,
+            "provenance_sha256_by_configuration": provenance_by_configuration,
+            "seed_policy": "unmatched seeds are allowed and reported, never relabelled",
             "metrics": list(METRICS),
             "uncertainty_intervals_present": all(
                 entry["lower"] is not None for entry in table.values()
@@ -350,7 +368,7 @@ def main() -> None:
         action="append",
         default=[],
         metavar="LABEL=PATH",
-        help="aggregate.py output; repeat for Full, EEG+PPG, and Video",
+        help="aggregate.py output; repeat for Full and Video; seeds may differ",
     )
     parser.add_argument("--demo", action="store_true", help="Render clearly labelled synthetic layout QA data")
     args = parser.parse_args()

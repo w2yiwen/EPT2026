@@ -45,8 +45,7 @@ Status meanings: `present` means the implementation exists in the worktree;
 ### 2026-09-30 — Add a short-paper experiment surface
 
 - Added distinct EPT-Net, GRU, and Transformer configs for the main comparison.
-- Added physiology-only, video-only, fixed-reader, and no-persistent-state
-  diagnostic configs.
+- Added video-only, fixed-reader, and no-persistent-state diagnostic configs.
 - Added a read-only preflight and a sequential runner that never invokes data
   preparation.
 - Added explicit handling for new, completed, and checkpointed partial result
@@ -57,8 +56,8 @@ Status meanings: `present` means the implementation exists in the worktree;
 - Added probability-quality fields alongside frame discrimination, boundary,
   event, and latency outputs.
 - Kept thresholded event F1 separate from threshold-free proposal AP/mAP.
-- Added formal dynamic-tracking and input-family figure paths plus visibly
-  labelled synthetic demo fixtures for layout QA.
+- Added a formal dynamic-tracking figure path plus a visibly labelled
+  synthetic demo fixture for layout QA.
 
 ### 2026-09-30 — Rewrite documentation
 
@@ -73,7 +72,7 @@ Status meanings: `present` means the implementation exists in the worktree;
 - `git diff --check` completed without whitespace errors.
 - `bash -n scripts/experiments/run_marlin11_shortpaper.sh` completed without a
   shell syntax error.
-- The all-suite `--dry-run` validated all seven additive configs and printed
+- The all-suite `--dry-run` validated all six additive configs and printed
   the declared commands. It returned `passed_with_warnings` because the private
   frozen artifact is absent locally; no training, evaluation, aggregation, or
   strict data verification was performed.
@@ -83,7 +82,7 @@ Status meanings: `present` means the implementation exists in the worktree;
 - Python 3.12 test run: `288 passed, 9 skipped`; the skips are optional/external
   integration checks, and no GPU experiment was executed.
 - `python fig/generate_all.py --suite paper --demo` passed export and contract
-  QA for both new figures (PDF, SVG, 500-dpi PNG, and per-figure QA reports).
+  QA for the dynamic figure (PDF, SVG, 500-dpi PNG, and QA report).
 - Manual preview confirmed that every demo output is visibly marked synthetic.
 
 ## Decisions
@@ -94,10 +93,7 @@ Status meanings: `present` means the implementation exists in the worktree;
   events all exist.
 - A partial seed may resume only when it has no final metrics and retains both
   its own `last.pt` and `best.pt`; otherwise execution stops for manual review.
-- Main comparisons use repeated seeds; default single-seed modality/mechanism
-  runs are diagnostics.
-- A formal input-family figure requires identical seed policy for Full,
-  EEG+PPG, and Video aggregates.
+- Video-only and mechanism runs are diagnostics.
 - Demo figure values are never scientific evidence.
 
 ## Pending evidence

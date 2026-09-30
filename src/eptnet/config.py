@@ -31,6 +31,7 @@ _SECTION_KEYS = {
             "expected_session_ids",
             "excluded_session_ids",
             "require_aligned_behavior_modalities",
+            "cohort_policy",
         }
     ),
     "model": frozenset(
@@ -118,6 +119,7 @@ _OPTIONAL_SECTION_KEYS = {
             "expected_session_ids",
             "excluded_session_ids",
             "require_aligned_behavior_modalities",
+            "cohort_policy",
         }
     ),
     "training": frozenset(
@@ -309,6 +311,13 @@ def _validate_config(config: Mapping[str, Any]) -> None:
                 raise ValueError(f"data.{key} must be a unique list of non-empty strings")
     if "require_aligned_behavior_modalities" in data:
         _require_bool(data, "require_aligned_behavior_modalities", "data")
+    if "cohort_policy" in data:
+        cohort_policy = _require_string(data, "cohort_policy", "data")
+        if cohort_policy not in {"subject_disjoint", "all_sessions_training"}:
+            raise ValueError(
+                "data.cohort_policy must be 'subject_disjoint' or "
+                "'all_sessions_training'"
+            )
     expected_sessions = set(data.get("expected_session_ids", []))
     excluded_sessions = set(data.get("excluded_session_ids", []))
     overlap = expected_sessions.intersection(excluded_sessions)

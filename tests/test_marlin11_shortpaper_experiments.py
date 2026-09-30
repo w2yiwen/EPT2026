@@ -27,10 +27,6 @@ CONFIGS = {
         "fusion_transformer",
         (True, True, True, True),
     ),
-    "configs/eptnet_marlin11_physiology_only.yaml": (
-        "eptnet",
-        (True, True, True, False),
-    ),
     "configs/eptnet_marlin11_video_only.yaml": (
         "eptnet",
         (False, False, False, True),

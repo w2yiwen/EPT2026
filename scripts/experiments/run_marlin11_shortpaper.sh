@@ -9,6 +9,7 @@ python_bin="${PYTHON_BIN:-python3}"
 device="${DEVICE:-cuda:0}"
 suite="all"
 primary_seed_string="13 42 73"
+eptnet_seed_string=""
 analysis_seed_string="42"
 dry_run=0
 preflight_only=0
@@ -19,12 +20,14 @@ usage() {
   cat <<'EOF'
 Usage: scripts/experiments/run_marlin11_shortpaper.sh [options]
 
-Read-only experiment orchestration over the frozen aligned11 artifact. Main
-comparisons use seeds 13/42/73; modality and mechanism diagnostics use seed 42.
+Read-only experiment orchestration over the frozen aligned11 artifact. By
+default, main comparisons use seeds 13/42/73; the video-only and mechanism
+diagnostics use seed 42. EPT-Net main seeds can be overridden independently.
 
 Options:
   --suite NAME             all, main, modalities, or diagnostics (default: all)
   --seeds "13 42 73"       Main-comparison seeds
+  --eptnet-seeds "13"      EPT-Net main seeds (default: same as --seeds)
   --analysis-seeds "42"    Modality/diagnostic seeds
   --device DEVICE          Training device (default: cuda:0)
   --python PATH            Python executable (default: $PYTHON_BIN or python3)
@@ -44,6 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --seeds)
       primary_seed_string="$2"
+      shift 2
+      ;;
+    --eptnet-seeds)
+      eptnet_seed_string="$2"
       shift 2
       ;;
     --analysis-seeds)
@@ -95,12 +102,18 @@ case "$suite" in
 esac
 
 read -r -a primary_seeds <<<"$primary_seed_string"
+if [[ -z "$eptnet_seed_string" ]]; then
+  eptnet_seed_string="$primary_seed_string"
+fi
+read -r -a eptnet_seeds <<<"$eptnet_seed_string"
 read -r -a analysis_seeds <<<"$analysis_seed_string"
-if [[ ${#primary_seeds[@]} -eq 0 || ${#analysis_seeds[@]} -eq 0 ]]; then
+if [[ ${#primary_seeds[@]} -eq 0 \
+      || ${#eptnet_seeds[@]} -eq 0 \
+      || ${#analysis_seeds[@]} -eq 0 ]]; then
   echo "Seed lists must not be empty" >&2
   exit 2
 fi
-for seed in "${primary_seeds[@]}" "${analysis_seeds[@]}"; do
+for seed in "${primary_seeds[@]}" "${eptnet_seeds[@]}" "${analysis_seeds[@]}"; do
   if [[ ! "$seed" =~ ^[0-9]+$ ]]; then
     echo "Seeds must be non-negative integers; got: $seed" >&2
     exit 2
@@ -113,7 +126,6 @@ main_matrix=(
   "configs/transformer_marlin11_eeg_ppg_video.yaml|transformer_marlin11_eeg_ppg_video_no_text|main"
 )
 modality_matrix=(
-  "configs/eptnet_marlin11_physiology_only.yaml|eptnet_marlin11_physiology_only_no_text|analysis"
   "configs/eptnet_marlin11_video_only.yaml|eptnet_marlin11_video_only_no_text|analysis"
 )
 diagnostic_matrix=(
@@ -269,7 +281,11 @@ run_one() {
 for entry in "${selected[@]}"; do
   IFS='|' read -r config experiment group <<<"$entry"
   if [[ "$group" == "main" ]]; then
-    seeds=("${primary_seeds[@]}")
+    if [[ "$experiment" == "eptnet_marlin11_eeg_ppg_video_no_text" ]]; then
+      seeds=("${eptnet_seeds[@]}")
+    else
+      seeds=("${primary_seeds[@]}")
+    fi
   else
     seeds=("${analysis_seeds[@]}")
   fi

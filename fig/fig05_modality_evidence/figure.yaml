@@ -1,11 +1,11 @@
 version: 1
 figure_id: fig05_modality_evidence
-purpose: Test whether EEG+PPG physiology and video provide complementary evidence by comparing the full system with physiology-only and video-only inputs.
+purpose: Exploratory two-group comparison of the full system and video-only diagnostic while reporting their actual, potentially unmatched seeds.
 expression: Three-panel horizontal point plot; one metric per panel with optional explicitly supplied uncertainty intervals.
 arrangement: row_4 single column
 data:
   sources:
-    - path: CLI --evidence combined JSON/CSV, or three --aggregate LABEL=aggregate.json inputs
+    - path: CLI --evidence combined JSON/CSV, or two --aggregate LABEL=aggregate.json inputs
       role: aggregated_evaluation
   fields:
     - configuration
@@ -13,15 +13,15 @@ data:
     - mean or value
     - lower and upper (optional)
   filters:
-    - configurations exactly Full, EEG+PPG, Video
+    - configurations exactly Full, Video
     - metrics exactly AP, Brier, Event mAP after documented alias normalization
   grouping: [configuration, metric]
   aggregation: supplied by upstream experiment aggregation; no aggregation is performed in the plotting script
   uncertainty: optional lower/upper interval supplied by source; absent intervals are not fabricated
-  statistical_notes: AP and Event mAP are higher-is-better; Brier is lower-is-better. All configurations must use the same held-out protocol and evaluation cohort.
+  statistical_notes: AP and Event mAP are higher-is-better; Brier is lower-is-better. Seeds may differ and must be displayed using their true aggregate metadata; this is not a seed-matched ablation.
 layout: {units: mm, width: 90, height: 60, size_source: content_derived, dpi: 500}
 style:
   font_library: ResearchPilot-Skills/research[fig]/font-library.yaml
   color_library: ResearchPilot-Skills/research[fig]/color-library.yaml
-  semantic_colors: {full: blue, eeg_ppg: teal, video: coral}
+  semantic_colors: {full: blue, video: coral}
 exceptions: []

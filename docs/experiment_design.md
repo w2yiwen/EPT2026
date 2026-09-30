@@ -25,7 +25,7 @@ focus.
 | Dataset | `bci_subjects_ept_v6_marlin4060_aligned11` |
 | Included IDs | `session_002`, `session_003`, `session_004`, `session_006`, `session_008`, `session_009`, `session_010`, `session_012`, `session_015`, `session_017`, `session_018` |
 | Excluded ID | `session_011` |
-| Splits | Existing `sessions_train.jsonl`, `sessions_val.jsonl`, and `sessions_test.jsonl`; participant-disjoint and immutable |
+| Cohort policy | `sessions_all.jsonl` trains on all 11 aligned sessions; existing validation/test manifests remain fixed in-training evaluation views |
 | Inputs | EEG time, EEG spectrum, PPG-derived physiology, video |
 | Disabled inputs | Audio and text |
 | Labels | `0 = deception`, `1 = truth`; positive event is class `0` |
@@ -40,7 +40,7 @@ overwritten. All experiments below read the same frozen manifests.
 ### RQ1 — Dynamic recognition and localization
 
 Can a causal multimodal model rank target-event time steps, assign useful
-probabilities, and localize target-event intervals on the frozen held-out
+probabilities, and localize target-event intervals on the frozen evaluation
 participants?
 
 > Evidence: participant-macro frame AP, Brier score, negative log likelihood,
@@ -58,16 +58,7 @@ under the same inputs, manifests, losses, decoder, and evaluation code?
 > per-seed results and aggregate mean/sample standard deviation. The parameter
 > audit is a prerequisite, not a performance result.
 
-### RQ3 — Input-family contribution
-
-What evidence is available from EEG+PPG-derived physiology and from video when
-each family is evaluated under the same temporal protocol?
-
-> Evidence: Full, EEG+PPG, and Video configurations. A complementarity claim is
-> permitted only if the measured full model supports it; merely accepting
-> multiple inputs is not evidence of complementarity.
-
-### RQ4 — Read/update mechanism
+### RQ3 — Read/update mechanism
 
 Are adaptive temporal reading and persistent state update useful components of
 the EPT-Net realization?
@@ -90,19 +81,14 @@ training/evaluation interfaces, and event decoder constant while comparing
 three temporal fusion strategies. `audit_parameter_fairness.py` records the
 executed parameter counts for the exact configs before training.
 
-### 4.2 Compact input-family analysis
+### 4.2 Video-only input diagnostic
 
 | Variant | Configuration | Default seed | Question |
 |---|---|---|---|
-| EEG+PPG | `configs/eptnet_marlin11_physiology_only.yaml` | 42 | What temporal evidence is available without video? |
 | Video | `configs/eptnet_marlin11_video_only.yaml` | 42 | What temporal evidence is available without physiology? |
 
-**Why this design:** the pair gives a compact comparison of the paper-facing
-input families without changing data or labels. Seed `42` is a diagnostic
-default. A formal cross-seed modality figure must extend both variants to the
-same seed set as Full; it must not compare a three-seed Full aggregate with
-single-seed variants. Existing one-seed diagnostic aggregates remain immutable;
-the matched-seed figure inputs are written to a new versioned result directory.
+**Why this design:** this run is a single-seed diagnostic of model behavior
+with behavioral video alone.
 
 ### 4.3 Targeted mechanism diagnostics
 
@@ -138,8 +124,8 @@ would require an explicit calibration analysis.
   proposals independently of the frame threshold.
 - Mean detection delay and early-detection recall as causal decoder outcomes.
 
-Threshold selection uses validation participants only and is frozen before
-test evaluation. Fixed-threshold evaluation is sensitivity analysis, not an
+Threshold selection uses the fixed validation view and is frozen before the
+fixed test view. Fixed-threshold evaluation is sensitivity analysis, not an
 alternative chosen after seeing test results.
 
 ### 5.3 Aggregation and uncertainty
@@ -152,11 +138,6 @@ alternative chosen after seeing test results.
 - Report main-model variation across seeds separately from participant
   bootstrap intervals.
 - Do not convert seed variation into a population uncertainty statement.
-
-The current Fig. 5 aggregate route reads pooled `frame.average_precision`,
-`frame.brier_score`, and `event.event_map` from each seed before cross-seed
-aggregation. It is therefore a secondary pooled modality view, not the primary
-participant-macro result table.
 
 ## 6. Execution order and fail-closed gates
 
@@ -186,16 +167,15 @@ and training-manifest fingerprints.
 |---|---|---|
 | Main result table | Three main configs, matched seeds | Protocol-matched model comparison on frozen aligned11 |
 | Compact diagnostic rows | Fixed reader, no persistent state | Component-level evidence, explicitly diagnostic |
-| Dynamic trace figure | Predeclared held-out sample; matching predictions/events/metrics | Example of temporal probability, decoded intervals, and reader behavior |
-| Input-family figure | Full, EEG+PPG, Video aggregates with identical seed policy | Observed input-family differences; complementarity only if supported |
+| Dynamic trace figure | Predeclared evaluation-view sample; matching predictions/events/metrics | Example of temporal probability, decoded intervals, and reader behavior |
 
 ## 8. Evidence-linked language
 
 All quantitative statements remain tied to the frozen protocol. Use `causal`
 for the current inference path, `probability quality` for Brier/NLL evidence,
 and `model-behavior diagnostic` for reader traces. Use stronger language about
-deployment, calibration, modality complementarity, physiological mechanism, or
-external generalization only when the corresponding measured evidence exists.
+deployment, calibration, physiological mechanism, or external generalization
+only when the corresponding measured evidence exists.
 
 ## 9. Result status
 

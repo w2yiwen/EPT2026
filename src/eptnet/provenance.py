@@ -192,7 +192,11 @@ def _iter_directory_files(directory: Path) -> Iterable[Path]:
         kept_directories = []
         for name in sorted(directory_names):
             child = current_path / name
-            if name.casefold() in _EXCLUDED_SOURCE_DIRECTORIES:
+            normalized_name = name.casefold()
+            if (
+                normalized_name in _EXCLUDED_SOURCE_DIRECTORIES
+                or normalized_name.endswith(".egg-info")
+            ):
                 continue
             if child.is_symlink():
                 raise ValueError(f"Source-tree inputs must not contain symbolic links: {child}")

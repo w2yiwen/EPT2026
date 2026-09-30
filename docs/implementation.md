@@ -32,7 +32,6 @@ EPT2026/
 │   ├── eptnet_marlin11_eeg_ppg_video.yaml
 │   ├── gru_marlin11_eeg_ppg_video.yaml
 │   ├── transformer_marlin11_eeg_ppg_video.yaml
-│   ├── eptnet_marlin11_physiology_only.yaml
 │   ├── eptnet_marlin11_video_only.yaml
 │   ├── eptnet_marlin11_fixed_reader.yaml
 │   └── eptnet_marlin11_no_persistent.yaml
@@ -66,7 +65,7 @@ EPT2026/
 | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | Full paper-facing EPT-Net input selection | Frozen base config | No files |
 | `configs/gru_marlin11_eeg_ppg_video.yaml` | Protocol-matched GRU input/output contract | Frozen GRU config | No files |
 | `configs/transformer_marlin11_eeg_ppg_video.yaml` | Fusion-Transformer comparison | Full paper config | No files |
-| `configs/eptnet_marlin11_{physiology_only,video_only}.yaml` | Compact input-family diagnostics | Full paper config | No files |
+| `configs/eptnet_marlin11_video_only.yaml` | Video-only input diagnostic | Full paper config | No files |
 | `configs/eptnet_marlin11_{fixed_reader,no_persistent}.yaml` | Targeted mechanism diagnostics | Full paper config | No files |
 | `scripts/experiments/preflight_marlin11_shortpaper.py` | Validate and fingerprint the frozen contract | Configs, manifests, metadata | Optional additive preflight JSON |
 | `scripts/experiments/run_marlin11_shortpaper.sh` | Sequential preflight/train/evaluate/aggregate orchestration | Frozen data and selected configs | New result/log artifacts only |
@@ -234,21 +233,17 @@ evaluation signatures before calculating summaries.
 
 - Fig. 4: dynamic `P(y_t = 0)`, reference/predicted intervals, boundary
   evidence, and EEG-time/EEG-spectrum/PPG reader traces for a predeclared
-  sample;
-- Fig. 5: Full versus EEG+PPG versus Video pooled AP, Brier, and Event mAP from
-  upstream aggregates with matching protocol/data-count/calibration/seed
-  metadata.
+  sample.
+- Fig. 5: exploratory Full-versus-Video AP, Brier, and Event mAP comparison;
+  unmatched seeds are allowed but displayed using true aggregate metadata.
 
 The dynamic renderer checks required fields, probability bounds, sample ID,
 threshold presence, and positional sequence alignment. It does not compare a
-run/provenance fingerprint across predictions, events, and metrics. The
-modality renderer checks the nine cells plus protocol, data-count, calibration,
-seed, and source/prepared-data provenance metadata. Same-run identity for the
-three dynamic-trace inputs must therefore be established upstream. `--demo`
+run/provenance fingerprint across predictions, events, and metrics. Same-run
+identity for the three dynamic-trace inputs must therefore be established
+upstream. `--demo`
 uses labelled synthetic fixtures only. PDF, SVG, and 500-dpi PNG are rendered
-from one canvas, and QA records source hashes and dimensions. If a one-seed
-modality aggregate already exists, matched-seed figure inputs are aggregated to
-a new versioned directory; the diagnostic aggregate is not overwritten.
+from one canvas, and QA records source hashes and dimensions.
 
 ## 10. Implementation order and verification state
 

@@ -9,7 +9,10 @@ experiment:
 
 data:
   dataset_name: bci_subjects_ept_v6_marlin4060_aligned11
-  train_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_train.jsonl
+  # User-selected protocol: every aligned session participates in training.
+  # Validation/test manifests remain fixed evaluation views, not held-out cohorts.
+  cohort_policy: all_sessions_training
+  train_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_all.jsonl
   val_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_val.jsonl
   test_manifest: data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_test.jsonl
   video_dim: 384

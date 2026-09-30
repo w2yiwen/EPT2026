@@ -729,6 +729,11 @@ def main() -> None:
     parser.add_argument("--events-output")
     parser.add_argument("--device", help="Override evaluation device")
     parser.add_argument("--no-calibration", action="store_true")
+    parser.add_argument(
+        "--skip-provenance-check",
+        action="store_true",
+        help="Skip checkpoint provenance matching; both checkpoint and evaluation hashes are recorded",
+    )
     args = parser.parse_args()
 
     requested_config = load_config(args.config)
@@ -751,7 +756,23 @@ def main() -> None:
         }
     )
     provenance = build_runtime_provenance(config)
-    _validate_checkpoint_provenance(checkpoint, provenance)
+    checkpoint_provenance = checkpoint.get("provenance")
+    if args.skip_provenance_check:
+        if not isinstance(checkpoint_provenance, Mapping):
+            raise ValueError("Checkpoint is missing the provenance record required for audit")
+        print(
+            "WARNING: explicitly skipping checkpoint provenance hash matching; "
+            f"checkpoint={checkpoint_provenance.get('provenance_sha256')} "
+            f"evaluation={provenance['provenance_sha256']}"
+        )
+        provenance["checkpoint_compatibility"] = {
+            "provenance_check_skipped": True,
+            "checkpoint_provenance_sha256": checkpoint_provenance.get("provenance_sha256"),
+            "evaluation_provenance_sha256": provenance["provenance_sha256"],
+            "reason": "explicit --skip-provenance-check CLI option",
+        }
+    else:
+        _validate_checkpoint_provenance(checkpoint, provenance)
 
     model = build_model(config).to(device)
     model.load_state_dict(checkpoint["model"], strict=True)
@@ -829,6 +850,11 @@ def main() -> None:
         "seed": int(checkpoint_config["experiment"]["seed"]),
         "experiment": checkpoint_config["experiment"]["name"],
         "training_config_sha256": _training_config_fingerprint(checkpoint_config),
+        "training_provenance_sha256": (
+            checkpoint_provenance.get("provenance_sha256")
+            if isinstance(checkpoint_provenance, Mapping)
+            else None
+        ),
         "provenance_sha256": provenance["provenance_sha256"],
     }
     metrics["calibration"] = calibration

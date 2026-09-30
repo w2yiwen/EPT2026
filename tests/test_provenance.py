@@ -96,6 +96,25 @@ def test_source_tree_is_portable_deterministic_and_allowlisted(tmp_path: Path) -
     assert source_tree_fingerprint(first)["sha256"] == baseline["sha256"]
 
 
+def test_source_tree_ignores_editable_install_metadata(tmp_path: Path) -> None:
+    root = tmp_path / "project"
+    _write_source_tree(root)
+    baseline = source_tree_fingerprint(root)
+
+    egg_info = root / "src" / "eptnet.egg-info"
+    egg_info.mkdir()
+    (egg_info / "PKG-INFO").write_text("Version: 0.1.0\n", encoding="utf-8")
+    (egg_info / "SOURCES.txt").write_text("src/eptnet/model.py\n", encoding="utf-8")
+
+    after_install = source_tree_fingerprint(root)
+    assert after_install == baseline
+
+    (egg_info / "SOURCES.txt").write_text(
+        "src/eptnet/model.py\ntests/test_smoke.py\n", encoding="utf-8"
+    )
+    assert source_tree_fingerprint(root) == baseline
+
+
 @pytest.mark.parametrize(
     "relative_path",
     [

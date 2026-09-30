@@ -1,5 +1,11 @@
 # Linux GPU server runbook: frozen aligned11
 
+> **Current training policy:** `sessions_all.jsonl` supplies all 11 aligned
+> sessions to training. The frozen validation and test manifests remain fixed
+> evaluation views so the existing evaluation and figure pipeline is unchanged,
+> but those sessions are not held out from training and must not be described as
+> independent generalization evidence.
+
 This runbook executes the short-paper experiment matrix on the immutable
 `bci_subjects_ept_v6_marlin4060_aligned11` artifact. It reads EEG,
 PPG-derived physiology, and video features to estimate dynamic
@@ -23,6 +29,7 @@ Example layout:
     ├── dataset_summary.json
     ├── feature_schema.json
     ├── normalization_stats.npz
+    ├── manifests/sessions_all.jsonl
     ├── manifests/sessions_train.jsonl
     ├── manifests/sessions_val.jsonl
     ├── manifests/sessions_test.jsonl
@@ -138,8 +145,8 @@ bash scripts/experiments/run_marlin11_shortpaper.sh \
   --preflight-only
 ```
 
-The gate validates the declared dataset name, participant set, manifest
-locations, split disjointness, excluded participant, label direction,
+The gate validates the declared dataset name, the all-11 training cohort,
+fixed evaluation views, manifest locations, excluded participant, label direction,
 EEG/PPG/video selection, disabled audio/text branches, and isolated result
 paths. It requires `_SUCCESS.json`, cross-checks `dataset_summary.json`, and
 recomputes every manifest-referenced session tensor's stored SHA-256. On its
@@ -160,8 +167,8 @@ preserved rather than treated as overwrite targets.
 
 ## 6. Run the experiment matrix
 
-The default main comparison uses seeds `13`, `42`, and `73`; compact modality
-and mechanism diagnostics use seed `42`.
+The default full EPT-Net run uses seed `13`. GRU, Transformer, video-only, and
+mechanism-diagnostic runs use seed `42`.
 
 Foreground commands:
 
@@ -169,10 +176,12 @@ Foreground commands:
 # Three-model main comparison
 bash scripts/experiments/run_marlin11_shortpaper.sh \
   --suite main \
+  --eptnet-seeds "13" \
+  --seeds "42" \
   --device cuda:0 \
   --skip-existing
 
-# EEG+PPG and video diagnostics
+# Video-only diagnostic
 bash scripts/experiments/run_marlin11_shortpaper.sh \
   --suite modalities \
   --device cuda:0 \
@@ -244,7 +253,6 @@ The matrix writes only below new short-paper result roots:
 results/eptnet_marlin11_eeg_ppg_video_no_text/
 results/gru_marlin11_eeg_ppg_video_no_text/
 results/transformer_marlin11_eeg_ppg_video_no_text/
-results/eptnet_marlin11_physiology_only_no_text/
 results/eptnet_marlin11_video_only_no_text/
 results/eptnet_marlin11_fixed_reader_no_text/
 results/eptnet_marlin11_no_persistent_no_text/
@@ -255,77 +263,33 @@ checkpoints, training history, test metrics, per-step predictions, and decoded
 events. Each experiment root receives `aggregate.json` and `aggregate.csv`.
 These new artifacts do not authorize editing any earlier result folder.
 
-## 8. Render figures from completed evidence
+## 8. Render the formal dynamic-tracking figure
 
-First use the demo path only for layout/export QA; its values are synthetic and
+Use the demo path only for layout/export QA; its values are synthetic and
 visibly marked:
 
 ```bash
 python fig/generate_all.py --suite paper --demo
 ```
 
-Before rendering a formal trace, predeclare a held-out sample without viewing
-candidate plots. The modality panel also requires identical seeds for Full,
-EEG+PPG, and Video. Extend the compact modality runs to the main seed policy
-first:
-
-```bash
-bash scripts/experiments/run_marlin11_shortpaper.sh \
-  --suite modalities \
-  --analysis-seeds "13 42 73" \
-  --device cuda:0 \
-  --skip-existing
-```
-
-The extension preserves any existing one-seed diagnostic aggregates. Build new
-three-seed figure inputs at unused paths instead of overwriting them. Change
-the version first if `v1` already exists:
-
-```bash
-(
-set -euo pipefail
-figure_input_root=results/marlin11_shortpaper_figure_inputs_v1
-if [ -e "$figure_input_root" ]; then
-  echo "Figure-input directory already exists; choose a new version" >&2
-  exit 1
-fi
-mkdir -p "$figure_input_root"
-
-python -m eptnet.aggregate \
-  results/eptnet_marlin11_physiology_only_no_text/seed_13/test_metrics.json \
-  results/eptnet_marlin11_physiology_only_no_text/seed_42/test_metrics.json \
-  results/eptnet_marlin11_physiology_only_no_text/seed_73/test_metrics.json \
-  --output "$figure_input_root/physiology_only_3seed.json" \
-  --csv "$figure_input_root/physiology_only_3seed.csv"
-
-python -m eptnet.aggregate \
-  results/eptnet_marlin11_video_only_no_text/seed_13/test_metrics.json \
-  results/eptnet_marlin11_video_only_no_text/seed_42/test_metrics.json \
-  results/eptnet_marlin11_video_only_no_text/seed_73/test_metrics.json \
-  --output "$figure_input_root/video_only_3seed.json" \
-  --csv "$figure_input_root/video_only_3seed.csv"
-)
-```
-
-Then use matching predictions, events, metrics, and aggregates:
+Before rendering the formal trace, predeclare a fixed evaluation-view sample
+without viewing candidate plots, then use matching predictions, events, and
+metrics from the same full-model run:
 
 ```bash
 python fig/generate_all.py --suite paper \
-  --predictions results/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/test_predictions.jsonl \
-  --events results/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/test_events.json \
-  --metrics results/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/test_metrics.json \
-  --sample-id '<predeclared-held-out-sample-id>' \
+  --predictions results/eptnet_marlin11_eeg_ppg_video_no_text/seed_13/test_predictions.jsonl \
+  --events results/eptnet_marlin11_eeg_ppg_video_no_text/seed_13/test_events.json \
+  --metrics results/eptnet_marlin11_eeg_ppg_video_no_text/seed_13/test_metrics.json \
+  --sample-id '<predeclared-evaluation-sample-id>' \
   --modality-aggregate 'Full=results/eptnet_marlin11_eeg_ppg_video_no_text/aggregate.json' \
-  --modality-aggregate 'EEG+PPG=results/marlin11_shortpaper_figure_inputs_v1/physiology_only_3seed.json' \
-  --modality-aggregate 'Video=results/marlin11_shortpaper_figure_inputs_v1/video_only_3seed.json'
+  --modality-aggregate 'Video=results/eptnet_marlin11_video_only_no_text/aggregate.json'
 ```
 
 The plotting suite exports PDF, SVG, and 500-dpi PNG from one canvas and writes
-a QA report with source hashes. `visual_preview` remains a manual check. The
-dynamic renderer validates required fields and sequence alignment, while the
-modality renderer compares protocol/data-count/calibration/seed metadata and
-source/prepared-data provenance. Confirm that the dynamic trace's three files
-come from the same run before treating a render as formal evidence.
+QA reports with source hashes. Confirm that the trace's three input files come
+from the same run. The Full/Video panel permits unmatched seeds but displays
+their true aggregate seed lists and is interpreted as exploratory evidence.
 
 ## 9. Failure policy
 

@@ -9,8 +9,10 @@ substituting another font.
 The figure suite has two layers:
 
 - `fig01`–`fig03` are legacy optimization/comparison diagnostics.
-- `fig04`–`fig05` are the short-paper evidence figures: continuous event
-  tracking/localization and multimodal complementarity.
+- `fig04` is the short-paper evidence figure for continuous event
+  tracking/localization.
+- `fig05` is an exploratory Full-versus-Video comparison. Different seeds are
+  allowed, but the real seed metadata is displayed and retained in QA output.
 
 From the project root:
 
@@ -37,27 +39,12 @@ python fig/generate_all.py --suite paper \
   --events results/<full-run>/test_metrics_events.json \
   --metrics results/<full-run>/test_metrics.json \
   --sample-id '<predeclared-sample-id>' \
-  --modality-evidence results/paper/modality_evidence.json
-```
-
-Instead of one combined modality file, the three seed-aggregate artifacts from
-`python -m eptnet.aggregate` can be supplied directly:
-
-```bash
-python fig/generate_all.py --suite paper \
-  --predictions results/<full-run>/test_metrics_predictions.jsonl \
-  --events results/<full-run>/test_metrics_events.json \
-  --metrics results/<full-run>/test_metrics.json \
-  --sample-id '<predeclared-sample-id>' \
-  --modality-aggregate 'Full=results/<full>/aggregate.json' \
-  --modality-aggregate 'EEG+PPG=results/<physiology>/aggregate.json' \
-  --modality-aggregate 'Video=results/<video>/aggregate.json'
+  --modality-aggregate 'Full=results/eptnet_marlin11_eeg_ppg_video_no_text/aggregate.json' \
+  --modality-aggregate 'Video=results/eptnet_marlin11_video_only_no_text/aggregate.json'
 ```
 
 The full data contracts and selection safeguards are in
-[`FIGURE_CONTRACTS.md`](FIGURE_CONTRACTS.md). The formal scripts reject missing
-cells, duplicate aggregates, out-of-range probabilities, mismatched event
-sequence counts, undeclared qualitative sample IDs, and missing thresholds.
-Same-run identity for the dynamic trace must be confirmed upstream. Aggregate-mode
-modality rendering additionally requires matching source/prepared-data
-provenance SHA values.
+[`FIGURE_CONTRACTS.md`](FIGURE_CONTRACTS.md). The formal script rejects
+out-of-range probabilities, mismatched event sequence counts, undeclared
+qualitative sample IDs, and missing thresholds. Same-run identity for the
+dynamic trace must be confirmed upstream.

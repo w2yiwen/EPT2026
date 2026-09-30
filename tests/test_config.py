@@ -156,6 +156,8 @@ def test_seed42_marlin11_aligned_config_declares_exact_cohort() -> None:
     assert "session_011" not in expected
     assert config["data"]["excluded_session_ids"] == ["session_011"]
     assert config["data"]["require_aligned_behavior_modalities"] is True
+    assert config["data"]["cohort_policy"] == "all_sessions_training"
+    assert config["data"]["train_manifest"].endswith("/manifests/sessions_all.jsonl")
     assert config["data"]["dataset_name"] == "bci_subjects_ept_v6_marlin4060_aligned11"
     assert config["experiment"]["output_dir"] == (
         "results/eptnet_marlin11_aligned_seed42"

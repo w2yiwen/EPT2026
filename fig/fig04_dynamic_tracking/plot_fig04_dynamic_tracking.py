@@ -516,7 +516,9 @@ def main() -> None:
     parser.add_argument("--predictions", help="evaluate.py *_predictions.jsonl")
     parser.add_argument("--events", help="evaluate.py *_events.json")
     parser.add_argument("--metrics", help="evaluate.py test_metrics.json")
-    parser.add_argument("--sample-id", help="Predeclared held-out sample identifier")
+    parser.add_argument(
+        "--sample-id", help="Predeclared fixed evaluation-view sample identifier"
+    )
     parser.add_argument("--frame-threshold", type=float, help="Explicit threshold if metrics is omitted")
     parser.add_argument("--demo", action="store_true", help="Render clearly labelled synthetic layout QA data")
     args = parser.parse_args()

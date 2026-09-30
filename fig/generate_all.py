@@ -30,13 +30,12 @@ def main() -> None:
     parser.add_argument("--metrics", help="evaluate.py test_metrics.json")
     parser.add_argument("--sample-id", help="Predeclared held-out sample for the trace figure")
     parser.add_argument("--frame-threshold", type=float)
-    parser.add_argument("--modality-evidence", help="Combined modality evidence JSON/CSV")
     parser.add_argument(
         "--modality-aggregate",
         action="append",
         default=[],
         metavar="LABEL=PATH",
-        help="aggregate.py output; repeat for Full, EEG+PPG, Video",
+        help="aggregate.py output; repeat for Full and Video; seeds may differ",
     )
     args = parser.parse_args()
 
@@ -71,13 +70,7 @@ def main() -> None:
                 demo=args.demo,
             )
         )
-        reports.append(
-            modality(
-                evidence_path=args.modality_evidence,
-                aggregate_specs=args.modality_aggregate,
-                demo=args.demo,
-            )
-        )
+        reports.append(modality(aggregate_specs=args.modality_aggregate, demo=args.demo))
     print(json.dumps({"status": "PASS", "figures": reports}, ensure_ascii=False, indent=2))
 
 

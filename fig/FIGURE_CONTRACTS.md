@@ -41,8 +41,9 @@ the model implementation: EEG time, EEG spectrum, PPG-derived physiology
 (internally named `hr`). Centers and widths are normalized cache coordinates.
 
 **Selection safeguard.** `--sample-id` is mandatory for formal rendering. The
-sample should be fixed before viewing this plot—for example, the first eligible
-sample in a protocol-defined list or a prespecified median-performance case.
+evaluation-view sample should be fixed before viewing this plot—for example,
+the first eligible sample in a protocol-defined list. Under the current all-11
+training policy it is not a held-out sample.
 The script never searches for a favorable example.
 
 **Visual encoding.** Coral denotes reference intervals, blue denotes decoded
@@ -50,64 +51,19 @@ intervals and event probability, teal/orange denote start/end evidence, and
 blue/purple/teal denote EEG-time/EEG-spectrum/PPG reader traces. Grey bands are
 non-target intervals. All colors come from the ResearchPilot color library.
 
-## Fig. 5 — Multimodal evidence
-
-**Claim tested.** EEG+PPG physiology and video are complementary if the Full
-configuration improves AP and Event mAP and/or reduces Brier relative to both
-single-family configurations. The caption must describe the observed result;
-the script does not assume that complementarity is present.
-
-**Required matrix.** Exactly nine aggregate cells:
-
-```text
-Configurations: Full, EEG+PPG, Video
-Metrics:        AP, Brier, Event mAP
-```
-
-All cells must come from the same held-out cohort, split manifest, event
-decoder, threshold-selection protocol, and seed policy. For three
-`aggregate.py` inputs, the script verifies equality of their protocol, data,
-calibration-policy, seed records, and source/prepared-data provenance SHA. A
-custom combined JSON/CSV must establish all compatibility upstream.
-
-A combined CSV uses one row per cell:
-
-```csv
-configuration,metric,mean,lower,upper,n
-Full,AP,...,...,...,...
-```
-
-`value` may replace `mean`; `lower`/`upper` are optional but must appear
-together. A combined JSON may contain `records` with the same fields, or:
-
-```json
-{
-  "configurations": [
-    {
-      "name": "Full",
-      "metrics": {
-        "AP": {"mean": 0.0, "lower": 0.0, "upper": 0.0},
-        "Brier": {"mean": 0.0},
-        "Event mAP": {"mean": 0.0}
-      }
-    }
-  ]
-}
-```
-
-The zeros above document structure only and are not experimental values.
-Alternatively, pass three `aggregate.py` JSON files as `LABEL=PATH`. Their
-`aggregate.frame.average_precision`, `aggregate.frame.brier_score`, and
-`aggregate.event.event_map` means are read directly. No uncertainty bars are
-drawn for those files unless explicit lower/upper bounds are provided through
-the combined format; standard deviation is not silently presented as a
-confidence interval. These keys are pooled evaluation metrics, not
-`subject_macro.metrics.*` fields, so this panel is a secondary pooled modality
-diagnostic.
-
 ## Export and QA
 
-Both scripts use exact Arial, the shared color library, fixed physical canvas
+The formal script uses exact Arial, the shared color library, fixed physical canvas
 sizes, and one Matplotlib canvas for PDF/SVG/PNG. PNG output is 500 dpi. The QA
 report records input SHA-256 hashes, dimensions, pixel size, sample/metric
 scope, and whether visual preview still requires manual inspection.
+
+## Fig. 5 — Full versus Video exploratory evidence
+
+The figure contains exactly two configurations, Full and Video, and reports AP,
+Brier, and Event mAP from their upstream aggregates. The two aggregates may use
+different seeds. Their actual seed lists must be read from aggregate metadata,
+displayed in the figure, and recorded in the QA report; seed identities must
+never be rewritten. Protocol, data scope, calibration policy, and provenance
+must still match. Because the seed policy is unmatched, this figure is an
+exploratory comparison rather than a seed-matched ablation.

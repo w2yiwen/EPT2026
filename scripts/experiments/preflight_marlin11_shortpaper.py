@@ -13,10 +13,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FROZEN_DATASET = "bci_subjects_ept_v6_marlin4060_aligned11"
 FROZEN_DATA_ROOT = PROJECT_ROOT / "data" / "processed" / FROZEN_DATASET
 FROZEN_MANIFESTS = {
-    "train": f"data/processed/{FROZEN_DATASET}/manifests/sessions_train.jsonl",
+    "train": f"data/processed/{FROZEN_DATASET}/manifests/sessions_all.jsonl",
     "val": f"data/processed/{FROZEN_DATASET}/manifests/sessions_val.jsonl",
     "test": f"data/processed/{FROZEN_DATASET}/manifests/sessions_test.jsonl",
 }
+FROZEN_COHORT_POLICY = "all_sessions_training"
 FROZEN_SESSION_IDS = (
     "session_002",
     "session_003",
@@ -45,10 +46,6 @@ CONFIG_CONTRACTS = {
     "transformer_marlin11_eeg_ppg_video.yaml": {
         "model": "fusion_transformer",
         "modalities": {"eeg_time", "eeg_spectral", "ppg", "video"},
-    },
-    "eptnet_marlin11_physiology_only.yaml": {
-        "model": "eptnet",
-        "modalities": {"eeg_time", "eeg_spectral", "ppg"},
     },
     "eptnet_marlin11_video_only.yaml": {
         "model": "eptnet",
@@ -298,6 +295,8 @@ def validate_configs(
         }
         if actual_manifests != FROZEN_MANIFESTS:
             raise ValueError(f"{path.name} changes one or more frozen manifest paths")
+        if data.get("cohort_policy") != FROZEN_COHORT_POLICY:
+            raise ValueError(f"{path.name} changes the all-session training policy")
         if tuple(data.get("expected_session_ids", ())) != FROZEN_SESSION_IDS:
             raise ValueError(f"{path.name} changes the frozen aligned11 cohort")
         if tuple(data.get("excluded_session_ids", ())) != FROZEN_EXCLUDED_IDS:
@@ -360,8 +359,8 @@ def validate_configs(
                 known_tensor_fingerprints[str(tensor["path"])] = tensor
 
     manifests: dict[str, Any] = {}
-    session_tensors: list[dict[str, Any]] = []
-    observed_ids: list[str] = []
+    session_tensors_by_path: dict[str, dict[str, Any]] = {}
+    observed_ids: dict[str, list[str]] = {}
     data_complete = True
     for split, relative in FROZEN_MANIFESTS.items():
         path = _resolve_project_path(relative)
@@ -382,8 +381,9 @@ def validate_configs(
             dataset_root=FROZEN_DATA_ROOT,
             known_fingerprints=known_tensor_fingerprints,
         )
-        observed_ids.extend(ids)
-        session_tensors.extend(tensor_fingerprints)
+        observed_ids[split] = ids
+        for record in tensor_fingerprints:
+            session_tensors_by_path[str(record["path"])] = record
         manifests[split] = {
             "path": relative,
             "present": True,
@@ -392,15 +392,19 @@ def validate_configs(
             "session_ids": ids,
         }
     if data_complete:
-        if len(observed_ids) != len(set(observed_ids)):
-            raise ValueError("A frozen session occurs in more than one split")
-        if set(observed_ids) != set(FROZEN_SESSION_IDS):
+        train_ids = set(observed_ids["train"])
+        if train_ids != set(FROZEN_SESSION_IDS):
             raise ValueError(
-                "Frozen manifest cohort mismatch; "
-                f"missing={sorted(set(FROZEN_SESSION_IDS) - set(observed_ids))}, "
-                f"unexpected={sorted(set(observed_ids) - set(FROZEN_SESSION_IDS))}"
+                "Frozen all-session training manifest mismatch; "
+                f"missing={sorted(set(FROZEN_SESSION_IDS) - train_ids)}, "
+                f"unexpected={sorted(train_ids - set(FROZEN_SESSION_IDS))}"
             )
-        if set(observed_ids).intersection(FROZEN_EXCLUDED_IDS):
+        evaluation_ids = set(observed_ids["val"]).union(observed_ids["test"])
+        if not evaluation_ids.issubset(train_ids):
+            raise ValueError("Evaluation manifests escape the all-session training cohort")
+        if set(observed_ids["val"]).intersection(observed_ids["test"]):
+            raise ValueError("Frozen validation and test evaluation views overlap")
+        if train_ids.intersection(FROZEN_EXCLUDED_IDS):
             raise ValueError("An explicitly excluded session occurs in the frozen manifests")
 
     metadata_files: list[dict[str, Any]] = []
@@ -436,15 +440,26 @@ def validate_configs(
                 split: [str(value) for value in split_sessions.get(split, [])]
                 for split in ("train", "val", "test")
             }
-            for split, values in normalized_splits.items():
+            for split in ("val", "test"):
+                values = normalized_splits[split]
                 if values != manifests[split]["session_ids"]:
                     raise ValueError(
                         f"dataset_summary split_sessions disagrees with {split} manifest"
                     )
+            artifact_ids = {
+                value for values in normalized_splits.values() for value in values
+            }
+            if artifact_ids != set(FROZEN_SESSION_IDS):
+                raise ValueError("dataset_summary does not cover the frozen 11-session cohort")
             summary_contract = {
                 "dataset": FROZEN_DATASET,
                 "num_subjects": len(FROZEN_SESSION_IDS),
-                "split_sessions": normalized_splits,
+                "artifact_split_sessions": normalized_splits,
+                "training_cohort_policy": FROZEN_COHORT_POLICY,
+                "training_session_ids": manifests["train"]["session_ids"],
+                "evaluation_views": {
+                    split: manifests[split]["session_ids"] for split in ("val", "test")
+                },
             }
         if data_complete:
             if strict_provenance is None:
@@ -476,12 +491,15 @@ def validate_configs(
         "dataset": FROZEN_DATASET,
         "label_mapping": {"0": "deception", "1": "truth"},
         "positive_class": 0,
+        "cohort_policy": FROZEN_COHORT_POLICY,
         "expected_session_ids": list(FROZEN_SESSION_IDS),
         "excluded_session_ids": list(FROZEN_EXCLUDED_IDS),
         "resolved_device": None if device is None else _resolve_device(device),
         "configs": records,
         "manifests": manifests,
-        "session_tensors": session_tensors,
+        "session_tensors": [
+            session_tensors_by_path[path] for path in sorted(session_tensors_by_path)
+        ],
         "dataset_summary_contract": summary_contract,
         "runtime_provenance": runtime_provenance,
         "metadata_files": metadata_files,
@@ -498,6 +516,7 @@ def assert_frozen_evidence_matches(
         "dataset",
         "label_mapping",
         "positive_class",
+        "cohort_policy",
         "expected_session_ids",
         "excluded_session_ids",
         "manifests",
