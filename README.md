@@ -99,18 +99,7 @@ The entry point performs the following operations in order:
 
 A qualitative sample identifier is declared before training and stored in `results/marlin11_shortpaper_figure_sample_id.txt`. Repeated runs must reuse the same identifier, preventing post-hoc selection based on visual appearance.
 
-### Experiment matrix
 
-| Group | Model / diagnostic | Modalities | Configuration |
-|---|---|---|---:|---|
-| Main | EPT-Net | EEG + PPG + video |[`eptnet_marlin11_eeg_ppg_video.yaml`](configs/eptnet_marlin11_eeg_ppg_video.yaml) |
-| Main | Early-fusion GRU | EEG + PPG + video | [`gru_marlin11_eeg_ppg_video.yaml`](configs/gru_marlin11_eeg_ppg_video.yaml) |
-| Main | Fusion Transformer | EEG + PPG + video | [`transformer_marlin11_eeg_ppg_video.yaml`](configs/transformer_marlin11_eeg_ppg_video.yaml) |
-| Input diagnostic | EPT-Net, video only | video |  [`eptnet_marlin11_video_only.yaml`](configs/eptnet_marlin11_video_only.yaml) |
-| Mechanism diagnostic | EPT-Net, fixed reader | EEG + PPG + video | [`eptnet_marlin11_fixed_reader.yaml`](configs/eptnet_marlin11_fixed_reader.yaml) |
-| Mechanism diagnostic | EPT-Net, no persistent state | EEG + PPG + video | [`eptnet_marlin11_no_persistent.yaml`](configs/eptnet_marlin11_no_persistent.yaml) |
-
-All configurations use the same frozen 11-session training cohort. Audio and text are disabled in every paper-facing run.
 
 ### Evaluation
 
