@@ -173,7 +173,7 @@ def validate_training_cohort(config: Mapping[str, Any]) -> dict[str, Any]:
 def build_runtime_provenance(config: Mapping[str, Any]) -> dict[str, Any]:
     """Fingerprint executable source and every prepared split tensor."""
 
-    project_root = Path(__file__).resolve().parents[2]
+    project_root = Path(__file__).resolve().parents[3]
     manifest_paths: list[Path] = []
     for key in ("train_manifest", "val_manifest", "test_manifest"):
         value = config.get("data", {}).get(key)

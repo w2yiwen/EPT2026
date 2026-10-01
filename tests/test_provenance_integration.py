@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 import torch
 
 from eptnet.engine import Trainer
 from eptnet.evaluate import _validate_checkpoint_provenance
+from eptnet.training import trainer as trainer_module
 
 
 def _provenance(
@@ -105,3 +107,27 @@ def test_checkpoint_schema_v3_persists_an_independent_provenance_record():
     assert payload["schema_version"] == Trainer.CHECKPOINT_SCHEMA_VERSION == 3
     assert payload["provenance"] == trainer.provenance
     assert payload["provenance"] is not trainer.provenance
+
+
+def test_training_provenance_uses_repository_root(tmp_path, monkeypatch):
+    manifests = tmp_path / "dataset" / "manifests"
+    manifests.mkdir(parents=True)
+    paths = {}
+    for split in ("train", "val", "test"):
+        path = manifests / f"{split}.jsonl"
+        path.write_text("{}\n", encoding="utf-8")
+        paths[f"{split}_manifest"] = str(path)
+
+    observed = {}
+
+    def capture(project_root, dataset_root, **kwargs):
+        observed["project_root"] = Path(project_root)
+        observed["dataset_root"] = Path(dataset_root)
+        return {"status": "captured"}
+
+    monkeypatch.setattr(trainer_module, "build_provenance_fingerprint", capture)
+    result = trainer_module.build_runtime_provenance({"data": paths})
+
+    assert result == {"status": "captured"}
+    assert observed["project_root"] == Path(__file__).resolve().parents[1]
+    assert observed["dataset_root"] == manifests.parent
