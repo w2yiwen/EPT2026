@@ -1,6 +1,0 @@
-inherits: default.yaml
-experiment:
-  name: ablation_no_latest_bypass_continuous_no_text
-  output_dir: results/ablation_no_latest_bypass_continuous_no_text
-model:
-  latest_state_bypass: false

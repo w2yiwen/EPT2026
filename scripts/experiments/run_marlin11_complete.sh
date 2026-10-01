@@ -6,7 +6,7 @@ cd "$project_root"
 
 mode="${1:-formal}"
 python_bin="${PYTHON_BIN:-$project_root/.venv/bin/python}"
-device="${DEVICE:-cuda:0}"
+device="${DEVICE:-cpu}"
 eptnet_seeds="${EPTNET_SEEDS:-13}"
 comparison_seeds="${COMPARISON_SEEDS:-42}"
 modality_seeds="${MODALITY_SEEDS:-42}"
@@ -18,7 +18,7 @@ usage() {
   cat <<'EOF'
 Usage: scripts/experiments/run_marlin11_complete.sh [validate|formal]
 
-validate  Run tests, strict frozen-data preflight, one-session CUDA smoke for
+validate  Run tests, strict frozen-data preflight, one-session smoke for
           every declared configuration, and DEMO-only figure export. It never
           reads the test split and never starts a full experiment.
 
@@ -27,7 +27,7 @@ formal    Run the complete declared experiment matrix, evaluation, aggregation,
 
 Environment overrides:
   PYTHON_BIN       Python executable (default: .venv/bin/python)
-  DEVICE           Training device (default: cuda:0)
+  DEVICE           Training device (default: cpu; PyTorch device syntax)
   EPTNET_SEEDS     Full EPT-Net seeds (default: "13")
   COMPARISON_SEEDS GRU/Transformer seeds (default: "42")
   MODALITY_SEEDS   Video-only diagnostic seeds (default: "42")
@@ -69,13 +69,7 @@ echo "[START] mode=$mode device=$device python=$python_bin"
 "$python_bin" - <<'PY'
 import torch
 
-assert torch.cuda.is_available(), "CUDA is unavailable"
-print(
-    "[ENV]",
-    f"torch={torch.__version__}",
-    f"cuda={torch.version.cuda}",
-    f"gpu={torch.cuda.get_device_name(0)}",
-)
+print("[ENV]", f"torch={torch.__version__}", f"device_backend={torch.get_default_device()}")
 PY
 
 echo "[CHECK] Python test suite"
@@ -125,7 +119,7 @@ if [[ "$mode" == "validate" ]]; then
   exit 0
 fi
 
-test_manifest="data/processed/bci_subjects_ept_v6_marlin4060_aligned11/manifests/sessions_test.jsonl"
+test_manifest="data/processed/bci_subjects_ept_v6_aligned11/manifests/sessions_test.jsonl"
 selection_file="results/marlin11_shortpaper_figure_sample_id.txt"
 sample_id="$("$python_bin" -c 'import json, sys; row=json.loads(next(line for line in open(sys.argv[1], encoding="utf-8") if line.strip())); print(row.get("metadata", {}).get("session_id") or row["sample_id"])' "$test_manifest")"
 if [[ -f "$selection_file" ]]; then

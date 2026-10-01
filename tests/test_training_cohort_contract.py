@@ -33,7 +33,7 @@ def _write_contract_fixture(root: Path) -> dict:
                     "availability_steps": {"video": 5, "audio": 5, "text": 4},
                     "alignment": {
                         "whisper_alignment": {"status": "complete"},
-                        "video_feature_alignment_method": "legacy_embedding_time_remap_v1",
+                        "video_feature_alignment_method": "direct_real_time_frame_sampling_v2",
                     },
                 }
             ),
@@ -63,7 +63,7 @@ def test_training_cohort_contract_accepts_exact_aligned_sessions(tmp_path: Path)
     assert report["session_count"] == 3
     assert report["excluded_session_ids"] == ["session_011"]
     assert set(report["video_alignment_methods"].values()) == {
-        "legacy_embedding_time_remap_v1"
+        "direct_real_time_frame_sampling_v2"
     }
 
 

@@ -5,7 +5,7 @@ Every formal run must record:
 1. the resolved YAML configuration;
 2. the Git commit and source-tree fingerprint;
 3. manifest fingerprints and the declared cohort policy;
-4. Python, NumPy, PyTorch, CUDA, and device metadata;
+4. Python, NumPy, PyTorch, platform, and resolved-device metadata;
 5. deterministic settings, seed, checkpoint provenance, metrics, and figure inputs.
 
 Use the public entry point for environment checks and config validation:

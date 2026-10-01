@@ -5,12 +5,12 @@ EPT-Net 用因果 EEG、PPG 生理信号和视频历史持续估计目标事件�
 当前唯一可执行和可报告的主路线使用冻结数据集：
 
 ```text
-bci_subjects_ept_v6_marlin4060_aligned11
+bci_subjects_ept_v6_aligned11
 ```
 
 它包含 11 个 session，`session_011` 被明确排除。按当前指定协议，`sessions_all.jsonl` 中的 11 个 session 全部参与训练；原 validation/test manifest 保持不变并用于固定评估视图。由于这些评估 session 已参与训练，输出属于训练内评估，不是 held-out 泛化结果。该路线只读取已完成的对齐和特征，不会重新运行 Whisper、MARLIN、重对齐或重标注。
 
-## 已验证的服务器环境
+## 已验证的运行环境
 
 以下配置已在 2026-09-30 的目标 AutoDL 实例上验证：
 
@@ -18,12 +18,10 @@ bci_subjects_ept_v6_marlin4060_aligned11
 |---|---|
 | 项目目录 | `/root/EPT2026` |
 | 数据入口 | `/root/EPT2026/data -> /root/autodl-tmp/.autodl/data` |
-| 冻结数据 | `/root/data/processed/bci_subjects_ept_v6_marlin4060_aligned11` |
-| GPU | NVIDIA GeForce RTX 4090，24 GB |
+| 冻结数据 | `/root/data/processed/bci_subjects_ept_v6_aligned11` |
 | Python | 3.12.3 |
-| PyTorch | 2.8.0+cu128 |
+| PyTorch | 2.8.0 |
 | 字体 | Arial 已安装并可被 Matplotlib 精确解析 |
-| 验证提交 | `ea4555e69af489573081689b9d922afd6fb8ec51` |
 
 ## 1. 一次性配置环境
 
@@ -33,7 +31,7 @@ bci_subjects_ept_v6_marlin4060_aligned11
 ept doctor --config configs/experiments/aligned11_eptnet.yaml --data-root /root/data
 ept resolve-config --config configs/experiments/aligned11_eptnet.yaml \
   --output results/aligned11_eptnet/resolved.yaml
-ept train --config configs/experiments/aligned11_eptnet.yaml --device cuda:0
+ept train --config configs/experiments/aligned11_eptnet.yaml --device cpu
 ept evaluate --help
 ```
 
@@ -42,7 +40,7 @@ ept evaluate --help
 兼容门面支持。目录边界和复现记录见 [`docs/architecture.md`](docs/architecture.md)
 与 [`docs/reproducibility.md`](docs/reproducibility.md)。
 
-服务器基础环境已带 CUDA PyTorch。项目虚拟环境复用该 PyTorch，只在 `.venv` 内安装仓库锁定依赖。基础环境原有 SciPy 二进制存在运行时不一致，因此最后一条安装命令会在 `.venv` 中重装同版本 NumPy/SciPy；版本没有改变。
+项目只声明 Python、PyTorch 和 Python 依赖，不绑定具体加速器、驱动或云平台。训练设备通过配置中的 `training.device` 或 CLI 参数选择，并由 PyTorch 的设备抽象处理。
 
 ```bash
 cd /root/EPT2026
@@ -59,7 +57,7 @@ test -x .venv/bin/python || \
   numpy==1.26.4 scipy==1.16.3
 
 .venv/bin/python -m pip check
-.venv/bin/python -c "import torch, scipy, seaborn; assert torch.cuda.is_available(); print(torch.__version__, torch.version.cuda, torch.cuda.get_device_name(0)); print(scipy.__version__, seaborn.__version__)"
+.venv/bin/python -c "import torch, scipy, seaborn; print(torch.__version__); print(scipy.__version__, seaborn.__version__)"
 ```
 
 ## 2. 验证完整链路，但不跑完整实验
@@ -67,9 +65,9 @@ test -x .venv/bin/python || \
 下面的命令是本次配置确认所使用的入口。它会执行：
 
 - 全部单元测试；
-- 七个正式配置的命令 dry-run；
-- 冻结数据、all-11 训练 manifest、固定评估 manifest、session tensor SHA-256、GPU 和参数公平性预检；
-- 七个配置各 1 epoch、1 个完整训练 session、1 个完整验证 session 的 CUDA smoke；
+- 六个正式配置的命令 dry-run；
+- 冻结数据、all-11 训练 manifest、固定评估 manifest、session tensor SHA-256、运行设备和参数公平性预检；
+- 六个配置各 1 epoch、1 个完整训练 session、1 个完整验证 session 的 smoke；
 - DEMO 图片的 PDF/SVG/500 dpi PNG 导出与 QA。
 
 它不会读取 test 指标，也不会启动完整实验：
@@ -119,7 +117,6 @@ echo $! | tee logs/marlin11_complete.pid
 ```bash
 tail -f /root/EPT2026/logs/marlin11_complete.log
 ps -fp "$(cat /root/EPT2026/logs/marlin11_complete.pid)"
-nvidia-smi
 ```
 
 若任务被正常中断，重新执行同一条 `formal` 命令即可。入口会严格验证并复用已完成 run，只对同时存在可信 `last.pt` 和 `best.pt` 且尚无最终指标的当前短论文 run 执行续跑。它不会删除或静默覆盖旧结果。
@@ -185,7 +182,7 @@ fig/fig05_modality_evidence/
 - 不得删除或覆盖已有正式 result 目录来绕过失败。
 - 只有 `test_metrics.json`、逐步预测、事件结果和通过身份校验的 aggregate 才能进入正式结果与图片。
 - `0 = deception`、`1 = truth` 和正类 `0` 是全仓库固定语义。
-- 模型随机性与跨 participant 不确定性必须分开报告。
+- 模型随机性与跨 session 变异必须分开报告。
 
 ## 7. 手动入口与详细协议
 
@@ -200,7 +197,7 @@ fig/generate_all.py
 
 需要拆分运行、审查恢复条件或查看图形数据契约时，参阅：
 
-- [`README_SERVER.md`](README_SERVER.md)：服务器逐步操作和故障策略；
-- [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md)：冻结证据与复现协议；
+- [`docs/reproducibility.md`](docs/reproducibility.md)：冻结证据与复现协议；
+- [`docs/architecture.md`](docs/architecture.md)：最终源码边界与目录职责；
 - [`fig/FIGURE_CONTRACTS.md`](fig/FIGURE_CONTRACTS.md)：正式图片输入、样本选择和 QA 契约；
 - [`docs/experiment_design.md`](docs/experiment_design.md)：研究问题与实验设计。

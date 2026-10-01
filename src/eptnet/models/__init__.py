@@ -1,18 +1,5 @@
 from .baselines import EarlyFusionGRU, FusionTransformer
-from .behavior import (
-    CausalTCNDecoder,
-    MacBERTBaseEncoder,
-    OpenFaceFeatureEncoder,
-    WavLMBasePlusEncoder,
-)
 from .eptnet import EPTNet, EPTNetConfig
-from .physiology import (
-    EEGNetFeatureEncoder,
-    EEGNetPreprocessor,
-    EEGNetV4,
-    NeuroKitPPGEncoder,
-    PPGEncodedSequence,
-)
 
 
 def build_model(config):
@@ -33,13 +20,4 @@ __all__ = [
     "EarlyFusionGRU",
     "FusionTransformer",
     "build_model",
-    "CausalTCNDecoder",
-    "MacBERTBaseEncoder",
-    "OpenFaceFeatureEncoder",
-    "WavLMBasePlusEncoder",
-    "EEGNetFeatureEncoder",
-    "EEGNetPreprocessor",
-    "EEGNetV4",
-    "NeuroKitPPGEncoder",
-    "PPGEncodedSequence",
 ]

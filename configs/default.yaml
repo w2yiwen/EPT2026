@@ -4,11 +4,11 @@ experiment:
   output_dir: results/eptnet_continuous_no_text
 
 data:
-  dataset_name: bci_truth_deception_v1
+  dataset_name: bci_subjects_ept_v6_aligned11
   input_mode: precomputed_features
-  train_manifest: data/processed/bci_truth_deception_v1/manifests/train.jsonl
-  val_manifest: data/processed/bci_truth_deception_v1/manifests/val.jsonl
-  test_manifest: data/processed/bci_truth_deception_v1/manifests/test.jsonl
+  train_manifest: data/processed/bci_subjects_ept_v6_aligned11/manifests/sessions_all.jsonl
+  val_manifest: data/processed/bci_subjects_ept_v6_aligned11/manifests/sessions_val.jsonl
+  test_manifest: data/processed/bci_subjects_ept_v6_aligned11/manifests/sessions_test.jsonl
   eeg_time_dim: 8
   eeg_spectral_dim: 40
   physiology_dim: 40
@@ -17,10 +17,25 @@ data:
   eeg_samples_per_step: 128
   hr_channels: 1
   hr_samples_per_step: 16
-  video_dim: 324
-  audio_dim: 50
+  video_dim: 384
+  audio_dim: 768
   text_dim: 768
   num_classes: 2
+  cohort_policy: all_sessions_training
+  expected_session_ids:
+    - session_002
+    - session_003
+    - session_004
+    - session_006
+    - session_008
+    - session_009
+    - session_010
+    - session_012
+    - session_015
+    - session_017
+    - session_018
+  excluded_session_ids: [session_011]
+  require_aligned_behavior_modalities: true
 
 model:
   name: eptnet

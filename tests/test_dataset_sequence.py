@@ -3,17 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 import pytest
 import torch
 from torch.utils.data import SequentialSampler
 
 from eptnet.data import CausalTrainingWindowDataset, StitchedManifestDataset, collate_multimodal
-from eptnet.data.prepare_bci import (
-    discover_feature_groups,
-    excluded_eeg_features,
-    snap_split_boundary,
-)
 from eptnet.train import (
     _build_causal_window_loader,
     _build_continuous_session_loader,
@@ -273,33 +267,3 @@ def test_automatic_loss_weights_count_each_overlapping_row_once(tmp_path: Path):
     assert statistics["boundary_positive_counts"] == [2, 2]
     assert statistics["class_weights"] == pytest.approx([5 / 6, 5 / 4])
     assert statistics["boundary_pos_weight"] == pytest.approx([3 / 2, 3 / 2])
-
-
-def test_event_safe_split_snaps_to_nearest_complete_event_boundary():
-    labels = np.array([1, 1, 0, 0, 0, 1, 1, 0, 0, 1])
-    assert snap_split_boundary(labels, 4, 1, 8, event_label=0) == 5
-    assert snap_split_boundary(labels, 8, 1, 9, event_label=0) == 7
-
-
-def test_feature_discovery_excludes_unverified_supervised_eeg_features():
-    columns = (
-        ["Word", "Start_Time", "End_Time", "Label"]
-        + ["duration"]
-        + [f"audio_{index}" for index in range(49)]
-        + ["Landmark_1_X_mean"]
-        + [f"video_{index}" for index in range(323)]
-        + ["0"]
-        + [str(index) for index in range(1, 768)]
-        + ["HR_Mean"]
-        + [f"physiology_{index}" for index in range(39)]
-        + [f"EEG_Channel_{index}" for index in range(1, 9)]
-        + [f"EEG_Advanced_{index}" for index in range(1, 41)]
-        + [f"EEG_CSP_{index}" for index in range(1, 7)]
-        + ["EEG_LDA_1"]
-    )
-    groups = discover_feature_groups(columns)
-    excluded = excluded_eeg_features(columns)
-    assert len(groups["eeg"]) == 48
-    assert groups["eeg"][:8] == [f"EEG_Channel_{index}" for index in range(1, 9)]
-    assert groups["eeg"][8:] == [f"EEG_Advanced_{index}" for index in range(1, 41)]
-    assert excluded == [f"EEG_CSP_{index}" for index in range(1, 7)] + ["EEG_LDA_1"]

@@ -20,9 +20,9 @@ from eptnet.models import build_model
 from eptnet.train import resolve_device
 
 DEFAULT_CONFIGS = (
-    "configs/default.yaml",
-    "configs/baseline_early_fusion_gru.yaml",
-    "configs/baseline_fusion_transformer.yaml",
+    "configs/eptnet_marlin11_eeg_ppg_video.yaml",
+    "configs/gru_marlin11_eeg_ppg_video.yaml",
+    "configs/transformer_marlin11_eeg_ppg_video.yaml",
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

@@ -1,3 +1,2 @@
 # Canonical public entry point for the all-session aligned11 protocol.
-# The historical filename remains as a compatibility target for old scripts.
 inherits: ../eptnet_marlin11_aligned_seed42.yaml

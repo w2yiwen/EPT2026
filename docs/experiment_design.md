@@ -12,8 +12,8 @@ intervals. Repository labels are immutable: `0 = deception`, `1 = truth`, and
 class `0` is the positive event. The unit of inference is a target-valid time
 step within a complete chronological session, not one binary session label.
 
-The executable evidence uses the frozen 11-participant artifact
-`bci_subjects_ept_v6_marlin4060_aligned11`. Audio and text are excluded from
+The executable evidence uses the frozen 11-session artifact
+`bci_subjects_ept_v6_aligned11`. Audio and text are excluded from
 the paper-facing experiments. EPT-Net is the reference realization; the task,
 dataset protocol, and multimodal temporal evidence are the paper's broader
 focus.
@@ -22,7 +22,7 @@ focus.
 
 | Item | Contract |
 |---|---|
-| Dataset | `bci_subjects_ept_v6_marlin4060_aligned11` |
+| Dataset | `bci_subjects_ept_v6_aligned11` |
 | Included IDs | `session_002`, `session_003`, `session_004`, `session_006`, `session_008`, `session_009`, `session_010`, `session_012`, `session_015`, `session_017`, `session_018` |
 | Excluded ID | `session_011` |
 | Cohort policy | `sessions_all.jsonl` trains on all 11 aligned sessions; existing validation/test manifests remain fixed in-training evaluation views |
@@ -40,10 +40,10 @@ overwritten. All experiments below read the same frozen manifests.
 ### RQ1 — Dynamic recognition and localization
 
 Can a causal multimodal model rank target-event time steps, assign useful
-probabilities, and localize target-event intervals on the frozen evaluation
-participants?
+probabilities, and localize target-event intervals on the fixed
+training-included evaluation sessions?
 
-> Evidence: participant-macro frame AP, Brier score, negative log likelihood,
+> Evidence: session-macro frame AP, Brier score, negative log likelihood,
 > boundary F1, event F1 at IoU 0.5, and event mAP, plus pooled frame AUPRC,
 > early-detection recall, and detection delay. No single metric is treated as
 > sufficient.
@@ -54,9 +54,8 @@ Does EPT-Net improve temporal probability and localization outcomes relative
 to parameter-audited causal early-fusion GRU and fusion-Transformer baselines
 under the same inputs, manifests, losses, decoder, and evaluation code?
 
-> Evidence: the three-model main matrix over the same seeds, reported as
-> per-seed results and aggregate mean/sample standard deviation. The parameter
-> audit is a prerequisite, not a performance result.
+> Evidence: the three-model main matrix with each run's declared seed. The
+> parameter audit is a prerequisite, not a performance result.
 
 ### RQ3 — Read/update mechanism
 
@@ -72,11 +71,11 @@ the EPT-Net realization?
 
 | Model | Configuration | Seeds | Difference and purpose |
 |---|---|---|---|
-| EPT-Net | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 | Adaptive branch-specific temporal reading plus persistent multimodal state |
-| Early-Fusion GRU | `configs/gru_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 | Recurrent causal baseline without EPT-Net's read/update mechanism |
-| Fusion Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml` | 13, 42, 73 | Attention-based causal fusion baseline using the same input families |
+| EPT-Net | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | 13 | Adaptive branch-specific temporal reading plus persistent multimodal state |
+| Early-Fusion GRU | `configs/gru_marlin11_eeg_ppg_video.yaml` | 42 | Recurrent causal baseline without EPT-Net's read/update mechanism |
+| Fusion Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml` | 42 | Attention-based causal fusion baseline using the same input families |
 
-**Why this design:** it holds the artifact, participant split, modalities,
+**Why this design:** it holds the artifact, all-session training policy, modalities,
 training/evaluation interfaces, and event decoder constant while comparing
 three temporal fusion strategies. `audit_parameter_fairness.py` records the
 executed parameter counts for the exact configs before training.
@@ -106,7 +105,8 @@ and must be labelled as such.
 ### 5.1 Frame and probability outcomes
 
 - Average precision for ranking class-0 target steps, available both pooled and
-  participant-macro; AUPRC is currently a pooled supporting field.
+  session-macro (stored under the evaluator's `subject_macro` compatibility
+  key); AUPRC is currently a pooled supporting field.
 - Brier score for squared error of `P(y_t = 0)`.
 - Binary negative log likelihood with the clipping convention recorded in the
   evaluation artifact.
@@ -130,14 +130,14 @@ alternative chosen after seeing test results.
 
 ### 5.3 Aggregation and uncertainty
 
-- Use available participant-macro AP, Brier, NLL, boundary F1, event F1, and
+- Use available session-macro AP, Brier, NLL, boundary F1, event F1, and
   event mAP as primary summaries.
 - Keep pooled time-step metrics secondary because session length differs.
   AUPRC, early-detection recall, and detection delay currently have no
-  participant-macro field and must be labelled pooled.
-- Report main-model variation across seeds separately from participant
-  bootstrap intervals.
-- Do not convert seed variation into a population uncertainty statement.
+  session-macro field and must be labelled pooled.
+- Report the seed attached to every run and never present unmatched default
+  seeds as a seed-matched uncertainty analysis.
+- Do not convert within-cohort variation into a population uncertainty statement.
 
 ## 6. Execution order and fail-closed gates
 
@@ -165,7 +165,7 @@ and training-manifest fingerprints.
 
 | Artifact | Source | Allowed interpretation |
 |---|---|---|
-| Main result table | Three main configs, matched seeds | Protocol-matched model comparison on frozen aligned11 |
+| Main result table | Three main configs with declared seeds | Protocol-matched model comparison on frozen aligned11 |
 | Compact diagnostic rows | Fixed reader, no persistent state | Component-level evidence, explicitly diagnostic |
 | Dynamic trace figure | Predeclared evaluation-view sample; matching predictions/events/metrics | Example of temporal probability, decoded intervals, and reader behavior |
 

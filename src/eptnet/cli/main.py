@@ -68,8 +68,7 @@ def _doctor(config_path: str | None, data_root: Path | None) -> int:
 
         report["numpy"] = np.__version__
         report["torch"] = torch.__version__
-        report["cuda_available"] = bool(torch.cuda.is_available())
-        report["cuda_device"] = torch.cuda.get_device_name(0) if torch.cuda.is_available() else None
+        report["default_device"] = str(torch.get_default_device())
     except ImportError as exc:
         report["dependency_error"] = str(exc)
     if config_path:

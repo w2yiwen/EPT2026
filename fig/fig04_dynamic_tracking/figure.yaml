@@ -1,6 +1,6 @@
 version: 1
 figure_id: fig04_dynamic_tracking
-purpose: Show that the model produces a continuous target-event probability trace, causal localized intervals, boundary evidence, and modality-specific temporal reads on one predeclared held-out sequence.
+purpose: Show that the model produces a continuous target-event probability trace, causal localized intervals, boundary evidence, and modality-specific temporal reads on one predeclared fixed-evaluation sequence.
 expression: Four aligned temporal panels (intervals, event probability, boundary probabilities, reader centers with width ribbons).
 arrangement: row_3 full width
 data:

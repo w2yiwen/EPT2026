@@ -1,6 +1,0 @@
-inherits: default.yaml
-experiment:
-  name: ablation_no_eeg_spectral_continuous_no_text
-  output_dir: results/ablation_no_eeg_spectral_continuous_no_text
-model:
-  use_eeg_spec: false

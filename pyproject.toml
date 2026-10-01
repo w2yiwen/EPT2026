@@ -15,6 +15,7 @@ dependencies = [
   "scipy>=1.12,<2",
   "tqdm>=4.66,<5",
   "matplotlib>=3.8,<3.9",
+  "torch>=2.3,<3",
 ]
 
 [project.optional-dependencies]
@@ -26,20 +27,6 @@ dev = [
 figures = [
   "seaborn==0.13.2",
 ]
-behavior = [
-  "transformers>=4.45,<5",
-  "scipy>=1.12,<2",
-  "soundfile>=0.12,<1",
-  "librosa>=0.10.2,<1",
-  "safetensors>=0.4,<1",
-  "marlin-pytorch==0.3.4",
-  "openai-whisper==20240930",
-  "av>=14,<15",
-]
-physiology = [
-  "scipy>=1.12,<2",
-  "neurokit2==0.2.11",
-]
 
 [project.scripts]
 ept = "eptnet.cli.main:main"
@@ -50,10 +37,6 @@ where = ["src"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-extend-exclude = [
-  "src/eptnet/models/behavior/**/vendor/*.py",
-  "src/eptnet/models/physiology/**/vendor/*.py",
-]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

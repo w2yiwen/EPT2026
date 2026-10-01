@@ -7,22 +7,22 @@ figures.
 ```text
 src/eptnet/
   config.py                 strict YAML loading and validation
-  data/                     manifests, schemas, preparation, feature readers
-  models/                   EPT-Net, baselines, and modality encoders
+  data/                     frozen-manifest readers and tensor schemas
+  models/                   EPT-Net and paper baselines
   training/                 training loop, loss, and trainer CLI
   evaluation/              decoder, metrics, evaluator, aggregation
   provenance.py             source/config/data fingerprints
   cli/                      public `ept` command
 configs/                    experiment specifications
-scripts/                    auditable data, experiment, reporting utilities
+scripts/                    experiment, audit, and reporting entry points
 fig/                        paper figure contracts and generators
 tests/                      unit, contract, integration, and reproducibility tests
 ```
 
-`eptnet.train`, `eptnet.evaluate`, `eptnet.aggregate`, and the old top-level
-metric/decoder modules remain small compatibility facades. New code should use
+`eptnet.train`, `eptnet.evaluate`, `eptnet.aggregate`, and the top-level
+metric/decoder modules are small stable command facades. New code should use
 the domain paths under `training/` and `evaluation/`; the facades are retained
-so previously recorded commands and checkpoints remain executable.
+so recorded commands and checkpoints remain executable.
 
 The canonical aligned11 entry point is
 `configs/experiments/aligned11_eptnet.yaml`. It preserves the declared

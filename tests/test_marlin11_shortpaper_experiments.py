@@ -471,7 +471,7 @@ def test_aggregate_verifier_recomputes_without_writing(tmp_path):
         )
 
 
-def test_runner_dry_run_requires_no_local_dataset_or_gpu():
+def test_runner_dry_run_requires_no_local_dataset_or_accelerator():
     runner = Path("scripts/experiments/run_marlin11_shortpaper.sh")
     completed = subprocess.run(
         [

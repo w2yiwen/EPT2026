@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-FROZEN_DATASET = "bci_subjects_ept_v6_marlin4060_aligned11"
+FROZEN_DATASET = "bci_subjects_ept_v6_aligned11"
 FROZEN_DATA_ROOT = PROJECT_ROOT / "data" / "processed" / FROZEN_DATASET
 FROZEN_MANIFESTS = {
     "train": f"data/processed/{FROZEN_DATASET}/manifests/sessions_all.jsonl",
@@ -537,7 +537,7 @@ def assert_frozen_evidence_matches(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("configs", nargs="+", type=Path)
-    parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--device", default="cpu")
     parser.add_argument("--skip-device-check", action="store_true")
     parser.add_argument("--allow-missing-data", action="store_true")
     parser.add_argument("--output", type=Path)

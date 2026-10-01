@@ -8,7 +8,6 @@ import torch
 import eptnet.engine as engine_module
 import eptnet.train as train_module
 from eptnet.config import save_resolved_config
-from eptnet.data import prepare_bci_subjects
 from eptnet.evaluate import _write_events, _write_predictions
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -18,13 +17,8 @@ PUBLISHED_WRITER_SOURCES = (
     PROJECT_ROOT / "src/eptnet/engine.py",
     PROJECT_ROOT / "src/eptnet/evaluate.py",
     PROJECT_ROOT / "src/eptnet/train.py",
-    PROJECT_ROOT / "src/eptnet/data/audit.py",
-    PROJECT_ROOT / "src/eptnet/data/prepare_bci.py",
-    PROJECT_ROOT / "src/eptnet/data/prepare_bci_subjects.py",
-    PROJECT_ROOT / "scripts/audit/audit_bci_subjects.py",
     PROJECT_ROOT / "scripts/audit/audit_parameter_fairness.py",
-    PROJECT_ROOT / "scripts/reporting/build_release_report.py",
-    PROJECT_ROOT / "scripts/reporting/gen_fig_experiments.py",
+    PROJECT_ROOT / "scripts/reporting/gen_fig_training.py",
 )
 
 
@@ -83,15 +77,12 @@ def test_core_json_yaml_and_manifest_writers_emit_lf_only(tmp_path: Path) -> Non
         "engine": tmp_path / "engine.json",
         "train": tmp_path / "train.json",
         "config": tmp_path / "resolved.yaml",
-        "subject_summary": tmp_path / "subject_summary.json",
     }
     payload = {"alpha": [1, 2], "unicode": "可复现"}
 
     engine_module._atomic_write_json(payload, outputs["engine"])
     train_module._atomic_write_json(payload, outputs["train"])
     save_resolved_config(payload, str(outputs["config"]))
-    prepare_bci_subjects._write_json(outputs["subject_summary"], payload)
-
     for path in outputs.values():
         _assert_lf_only(path)
 

@@ -124,7 +124,7 @@ def generate_training_artifacts(run_directory: str | Path) -> dict[str, Any]:
     """Render optimization diagnostics from the immutable JSON history.
 
     These figures describe optimization only. They do not read the test split and
-    must not be presented as held-out model-performance evidence.
+    must not be presented as independent model-performance evidence.
     """
 
     run_dir = Path(run_directory)
@@ -269,7 +269,7 @@ def generate_training_artifacts(run_directory: str | Path) -> dict[str, Any]:
         "source": {"history.json": _sha256(history_path)},
         "epochs": len(history),
         "scientific_scope": (
-            "Optimization diagnostics only; no test data or held-out performance metric is plotted."
+            "Optimization diagnostics only; no independent performance claim is plotted."
         ),
         "outputs": {
             path.name: {"bytes": path.stat().st_size, "sha256": _sha256(path)}
@@ -358,7 +358,7 @@ def estimate_full_training_runtime(
         },
         "uncertainty_fraction": uncertainty_fraction,
         "limitations": [
-            "The first CUDA epoch includes warm-up and can be slower than later epochs.",
+            "The first accelerator epoch includes warm-up and can be slower than later epochs.",
             "Session lengths and missing-modality patterns change per-step cost.",
             "Early stopping time is unknown until validation loss is observed.",
             "Evaluation and feature extraction time are not included.",

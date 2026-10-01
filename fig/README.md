@@ -6,10 +6,7 @@ canvas to PDF, SVG, and 500 dpi PNG, then checked against its `figure.yaml`.
 The scripts require an exact Arial installation and fail rather than silently
 substituting another font.
 
-The figure suite has two layers:
-
-- `fig01`–`fig03` are legacy optimization/comparison diagnostics.
-- `fig04` is the short-paper evidence figure for continuous event
+- `fig04` is the paper evidence figure for continuous event
   tracking/localization.
 - `fig05` is an exploratory Full-versus-Video comparison. Different seeds are
   allowed, but the real seed metadata is displayed and retained in QA output.
@@ -17,9 +14,6 @@ The figure suite has two layers:
 From the project root:
 
 ```bash
-# Existing diagnostics (requires their original result paths)
-python fig/generate_all.py --suite legacy
-
 # Layout and export QA only. Every output is visibly marked DEMO and reads
 # deterministic synthetic fixtures under fig/_demo/; never cite these values.
 python fig/generate_all.py --suite paper --demo
@@ -31,7 +25,7 @@ are ignored by Git because they can be reproduced from the result artifacts.
 ## Formal paper figures
 
 Select the qualitative sequence before looking at its rendered prediction
-trace (for example, from a protocol-defined participant/session list), then run:
+trace, then run:
 
 ```bash
 python fig/generate_all.py --suite paper \

@@ -1,7 +1,0 @@
-inherits: default.yaml
-experiment:
-  name: eptnet_with_text_continuous_audit
-  output_dir: results/eptnet_with_text_continuous_audit
-model:
-  # Audit-only comparison for quantifying the known text-identity shortcut.
-  use_text: true

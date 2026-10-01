@@ -9,7 +9,7 @@ PROJECT_ROOT = CODE_ROOT.parent
 EXECUTABLE_SUFFIXES = {".py", ".ps1", ".sh"}
 ARTIFACT_DIRECTORIES = ("results", "figures", "logs")
 SCRIPT_ROOT = CODE_ROOT / "scripts"
-SCRIPT_RESPONSIBILITIES = {"audit", "data", "experiments", "reporting", "server"}
+SCRIPT_RESPONSIBILITIES = {"audit", "experiments", "reporting"}
 
 
 def _executable_files(root: Path) -> list[Path]:
@@ -60,12 +60,10 @@ def test_script_root_is_an_index_only() -> None:
 
 def test_report_and_figure_generators_live_under_scripts() -> None:
     expected = {
-        SCRIPT_ROOT / "reporting" / "build_release_report.py",
-        SCRIPT_ROOT / "reporting" / "gen_fig_experiments.py",
+        SCRIPT_ROOT / "reporting" / "gen_fig_training.py",
     }
     assert all(path.is_file() for path in expected)
-    assert not (CODE_ROOT / "results" / "build_release_report.py").exists()
-    assert not (CODE_ROOT / "figures" / "gen_fig_experiments.py").exists()
+    assert not (CODE_ROOT / "results" / "gen_fig_training.py").exists()
 
 
 def test_baselines_use_one_model_per_module() -> None:

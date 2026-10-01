@@ -396,7 +396,7 @@ def _subject_summary(values: list[float | None]) -> dict[str, float | int | None
         sample_std = None
     else:
         # Fixed-seed participant-level nonparametric bootstrap.  This quantifies
-        # uncertainty across held-out subjects, not across model initializations.
+        # uncertainty across fixed evaluation sessions, not across model initializations.
         generator = np.random.default_rng(0)
         indices = generator.integers(0, observed.size, size=(10_000, observed.size))
         bootstrap_means = observed[indices].mean(axis=1)
@@ -470,7 +470,7 @@ def _subject_macro_metrics(
         collected["event_f1_iou_0.5"].append(event["event_f1_iou_0.5"])
         collected["event_map"].append(event["event_map"])
     return {
-        "unit": "held-out subject/session",
+        "unit": "fixed evaluation session",
         "num_subjects": len(sequences),
         "uncertainty": "fixed-seed 10000-resample percentile bootstrap across subjects",
         "metrics": {name: _subject_summary(values) for name, values in collected.items()},

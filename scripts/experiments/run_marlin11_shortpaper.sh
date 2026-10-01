@@ -10,7 +10,7 @@ if [[ ! -x "$default_python" ]]; then
   default_python="python3"
 fi
 python_bin="${PYTHON_BIN:-$default_python}"
-device="${DEVICE:-cuda:0}"
+device="${DEVICE:-cpu}"
 suite="all"
 primary_seed_string="13 42 73"
 eptnet_seed_string=""
@@ -33,9 +33,9 @@ Options:
   --seeds "13 42 73"       Main-comparison seeds
   --eptnet-seeds "13"      EPT-Net main seeds (default: same as --seeds)
   --analysis-seeds "42"    Modality/diagnostic seeds
-  --device DEVICE          Training device (default: cuda:0)
+  --device DEVICE          PyTorch device (default: cpu)
   --python PATH            Python executable (default: $PYTHON_BIN or .venv/bin/python)
-  --dry-run                Validate configs without data/GPU and print commands
+  --dry-run                Validate configs without data or training and print commands
   --preflight-only         Verify and fingerprint frozen inputs, then exit
   --skip-existing          Reuse only runs with metrics, predictions, and events
   --resume-partial         Resume an incomplete run with its trusted last.pt and best.pt
