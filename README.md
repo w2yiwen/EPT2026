@@ -101,7 +101,7 @@ A qualitative sample identifier is declared before training and stored in `resul
 
 ### Experiment matrix
 
-| Group | Model / diagnostic | Modalities | Seed | Configuration |
+| Group | Model / diagnostic | Modalities | Configuration |
 |---|---|---|---:|---|
 | Main | EPT-Net | EEG + PPG + video |[`eptnet_marlin11_eeg_ppg_video.yaml`](configs/eptnet_marlin11_eeg_ppg_video.yaml) |
 | Main | Early-fusion GRU | EEG + PPG + video | [`gru_marlin11_eeg_ppg_video.yaml`](configs/gru_marlin11_eeg_ppg_video.yaml) |
