@@ -1,144 +1,147 @@
-# EPT-Net：冻结 aligned11 完整实验
+# EPT-Net
 
-EPT-Net 用因果 EEG、PPG 生理信号和视频历史持续估计目标事件概率并定位事件区间。本仓库的固定标签语义是 `0 = deception`、`1 = truth`，因此正类始终为 `0`；它不是 session 级二分类任务。
+<div align="center">
 
-当前唯一可执行和可报告的主路线使用冻结数据集：
+**Event-guided Persistent Temporal Network for causal multimodal event recognition and localization**
+
+[![CI](https://github.com/w2yiwen/EPT2026/actions/workflows/ci.yml/badge.svg)](https://github.com/w2yiwen/EPT2026/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A52.3-EE4C2C?logo=pytorch&logoColor=white)](pyproject.toml)
+
+[Overview](#overview) · [Quick start](#quick-start) · [Experiments](#reproduce-the-complete-experiment) · [Documentation](#documentation) · [Citation](#citation)
+
+</div>
+
+EPT-Net is a research implementation for continuous, causal recognition and temporal localization from synchronized EEG, PPG-derived physiology, and video features. It maintains modality-specific causal memories, uses event-guided adaptive reading, and updates a persistent multimodal state to produce frame-level class probabilities and event boundaries.
+
+> [!IMPORTANT]
+> The frozen protocol trains on **all 11 sessions together**. The validation and test manifests are retained as fixed, training-included evaluation views; they are not held-out splits and must not be used to claim out-of-session or cross-subject generalization.
+
+## Overview
+
+The task is sequence-level inference rather than session-level classification. At every valid time step, the model predicts the probability of the target event and estimates its temporal extent. The repository uses the fixed label convention `0 = deception`, `1 = truth`, with class `0` treated as the positive class throughout training and evaluation.
+
+```mermaid
+flowchart LR
+    ET[EEG time features] --> MP[Modality projections]
+    ES[EEG spectral features] --> MP
+    PP[PPG-derived physiology] --> MP
+    MP --> CM[Causal modality memories]
+    CM --> ER[Event-guided adaptive reader]
+    V[Video features] --> BC[Behavior context]
+    ER --> PU[Persistent multimodal update]
+    BC --> PU
+    PU --> CP[Per-step class probability]
+    PU --> BH[Boundary prediction]
+    PU --> OH[Event offset prediction]
+```
+
+The paper-facing configuration intentionally excludes audio and text. It consumes frozen, precomputed features and does not rerun feature extraction, alignment, or annotation.
+
+## Experimental protocol
+
+The only supported paper protocol uses the frozen artifact `bci_subjects_ept_v6_aligned11`:
+
+- `session_011` is explicitly excluded from the artifact;
+- the 11 sessions listed in `sessions_all.jsonl` are all used for training;
+- `sessions_val.jsonl` and `sessions_test.jsonl` define reproducible evaluation views that overlap with training;
+- data tensors, manifests, feature schemas, and normalization statistics are treated as immutable inputs;
+- dry runs, smoke tests, and figures marked `DEMO` are validation artifacts, not scientific results.
+
+See [the experiment design](docs/experiment_design.md) for the research questions, comparison groups, metrics, and interpretation limits.
+
+## Quick start
+
+### 1. Install
+
+```bash
+git clone https://github.com/w2yiwen/EPT2026.git
+cd EPT2026
+
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-lock.txt -r requirements-figures.txt -e .
+python -m pip check
+```
+
+The project is not tied to a particular GPU, driver, or cloud provider. The available device is selected through PyTorch with `DEVICE=auto`, or can be set explicitly to `cpu` or a supported accelerator.
+
+### 2. Prepare the frozen data
+
+The dataset is not distributed in this repository. Place the frozen artifact under a data root with the following structure:
 
 ```text
-bci_subjects_ept_v6_aligned11
+data/
+└── processed/
+    └── bci_subjects_ept_v6_aligned11/
+        ├── dataset_summary.json
+        ├── feature_schema.json
+        ├── normalization_stats.npz
+        ├── manifests/
+        │   ├── sessions_all.jsonl
+        │   ├── sessions_val.jsonl
+        │   └── sessions_test.jsonl
+        └── sessions/
+            └── session_*/
+                └── timeline.pt
 ```
 
-它包含 11 个 session，`session_011` 被明确排除。按当前指定协议，`sessions_all.jsonl` 中的 11 个 session 全部参与训练；原 validation/test manifest 保持不变并用于固定评估视图。由于这些评估 session 已参与训练，输出属于训练内评估，不是 held-out 泛化结果。该路线只读取已完成的对齐和特征，不会重新运行 Whisper、MARLIN、重对齐或重标注。
+The paper configurations resolve this artifact from `data/processed/`. If the artifact is stored elsewhere, create a local `data` symlink or copy a configuration and update its manifest paths. The code reads the existing tensors and manifests but never regenerates or repairs them. Further details are in [DATA.md](DATA.md).
 
-## 已验证的运行环境
-
-以下配置已在 2026-09-30 的目标 AutoDL 实例上验证：
-
-| 项目 | 当前值 |
-|---|---|
-| 项目目录 | `/root/EPT2026` |
-| 数据入口 | `/root/EPT2026/data -> /root/autodl-tmp/.autodl/data` |
-| 冻结数据 | `/root/data/processed/bci_subjects_ept_v6_aligned11` |
-| Python | 3.12.3 |
-| PyTorch | 2.8.0 |
-| 字体 | Arial 已安装并可被 Matplotlib 精确解析 |
-
-## 1. 一次性配置环境
-
-安装完成后，所有常用动作也可以通过统一的 `ept` 入口调用：
+### 3. Validate the installation
 
 ```bash
-ept doctor --config configs/experiments/aligned11_eptnet.yaml --data-root /root/data
-ept resolve-config --config configs/experiments/aligned11_eptnet.yaml \
-  --output results/aligned11_eptnet/resolved.yaml
-ept train --config configs/experiments/aligned11_eptnet.yaml --device cpu
-ept evaluate --help
+DEVICE=auto bash scripts/experiments/run_marlin11_complete.sh validate
 ```
 
-`ept train` 和 `ept evaluate` 使用新的 `eptnet.training` / `eptnet.evaluation`
-域模块；旧的 `python -m eptnet.train`、`python -m eptnet.evaluate` 命令仍由
-兼容门面支持。目录边界和复现记录见 [`docs/architecture.md`](docs/architecture.md)
-与 [`docs/reproducibility.md`](docs/reproducibility.md)。
+This command runs the test suite, configuration dry runs, frozen-data integrity checks, six bounded smoke runs, and figure-export QA. It does **not** launch the full experiment or report smoke outputs as paper results.
 
-项目只声明 Python、PyTorch 和 Python 依赖，不绑定具体加速器、驱动或云平台。训练设备通过配置中的 `training.device` 或 CLI 参数选择，并由 PyTorch 的设备抽象处理。
+## Reproduce the complete experiment
+
+After validation succeeds, the complete training, evaluation, aggregation, and figure pipeline is one command:
 
 ```bash
-cd /root/EPT2026
-
-test -x .venv/bin/python || \
-  /root/miniconda3/bin/python -m venv --system-site-packages .venv
-
-.venv/bin/python -m pip install \
-  -r requirements-lock.txt \
-  -r requirements-figures.txt \
-  -e .
-
-.venv/bin/python -m pip install --ignore-installed --no-deps \
-  numpy==1.26.4 scipy==1.16.3
-
-.venv/bin/python -m pip check
-.venv/bin/python -c "import torch, scipy, seaborn; print(torch.__version__); print(scipy.__version__, seaborn.__version__)"
+DEVICE=auto bash scripts/experiments/run_marlin11_complete.sh formal
 ```
 
-## 2. 验证完整链路，但不跑完整实验
+The entry point performs the following operations in order:
 
-下面的命令是本次配置确认所使用的入口。它会执行：
+1. verifies the code, configuration, frozen manifests, tensor identities, cohort policy, and comparison fairness;
+2. trains the main models and diagnostic variants using the declared seeds;
+3. evaluates the selected checkpoints on the fixed training-included evaluation views;
+4. exports per-step predictions, decoded events, metrics, and cross-run aggregates;
+5. generates the declared paper figures as PDF, SVG, and 500 dpi PNG files with QA reports.
 
-- 全部单元测试；
-- 六个正式配置的命令 dry-run；
-- 冻结数据、all-11 训练 manifest、固定评估 manifest、session tensor SHA-256、运行设备和参数公平性预检；
-- 六个配置各 1 epoch、1 个完整训练 session、1 个完整验证 session 的 smoke；
-- DEMO 图片的 PDF/SVG/500 dpi PNG 导出与 QA。
+A qualitative sample identifier is declared before training and stored in `results/marlin11_shortpaper_figure_sample_id.txt`. Repeated runs must reuse the same identifier, preventing post-hoc selection based on visual appearance.
 
-它不会读取 test 指标，也不会启动完整实验：
+### Experiment matrix
 
-```bash
-cd /root/EPT2026
-bash scripts/experiments/run_marlin11_complete.sh validate
-```
+| Group | Model / diagnostic | Modalities | Seed | Configuration |
+|---|---|---|---:|---|
+| Main | EPT-Net | EEG + PPG + video | 13 | [`eptnet_marlin11_eeg_ppg_video.yaml`](configs/eptnet_marlin11_eeg_ppg_video.yaml) |
+| Main | Early-fusion GRU | EEG + PPG + video | 42 | [`gru_marlin11_eeg_ppg_video.yaml`](configs/gru_marlin11_eeg_ppg_video.yaml) |
+| Main | Fusion Transformer | EEG + PPG + video | 42 | [`transformer_marlin11_eeg_ppg_video.yaml`](configs/transformer_marlin11_eeg_ppg_video.yaml) |
+| Input diagnostic | EPT-Net, video only | video | 42 | [`eptnet_marlin11_video_only.yaml`](configs/eptnet_marlin11_video_only.yaml) |
+| Mechanism diagnostic | EPT-Net, fixed reader | EEG + PPG + video | 42 | [`eptnet_marlin11_fixed_reader.yaml`](configs/eptnet_marlin11_fixed_reader.yaml) |
+| Mechanism diagnostic | EPT-Net, no persistent state | EEG + PPG + video | 42 | [`eptnet_marlin11_no_persistent.yaml`](configs/eptnet_marlin11_no_persistent.yaml) |
 
-Smoke 产物位于 `results/validation/<UTC时间>/`。DEMO 图片带有明确的 `DEMO` 标识，不得作为实验结果。
+All configurations use the same frozen 11-session training cohort. Audio and text are disabled in every paper-facing run.
 
-## 3. 一口气跑完全部正式实验、评估和图片
+### Evaluation
 
-环境和 smoke 验证通过后，只需这一条命令：
+The pipeline reports complementary frame- and event-level metrics:
 
-```bash
-cd /root/EPT2026
-bash scripts/experiments/run_marlin11_complete.sh formal
-```
+- probability quality: average precision, Brier score, and negative log-likelihood;
+- frame classification: macro-F1, balanced accuracy, and AUROC;
+- boundary quality: boundary F1;
+- event localization: event F1 at IoU 0.5, event AP at IoU 0.3/0.5/0.7, and event mAP;
+- temporal behavior: detection delay and early-recall summaries.
 
-该入口按顺序完成：
+Because the evaluation views overlap the training cohort, these measurements characterize the fixed protocol only. They are not held-out generalization estimates.
 
-1. 再次执行测试、命令检查和冻结数据预检；
-2. EPT-Net 主模型使用 seed `13`；Early-fusion GRU 与 Fusion Transformer 使用 seed `42`；
-3. Video-only 输入诊断使用 seed `42`；
-4. Fixed-reader 与 No-persistent-state 机制诊断，seed `42`；
-5. 每个 run 的最佳 checkpoint 在固定训练内评估视图上计算指标、逐步预测、事件解码和跨 seed 聚合；
-6. 从冻结 test manifest 的首个 session 预声明定性样本；
-7. 生成正式动态跟踪图，以及 Full/Video 两组探索性对比图，包括 PDF、SVG、500 dpi PNG 与 QA 报告。对比图允许 seed 不同，但必须显示真实 seed。
+## Outputs
 
-定性样本会在训练前写入 `results/marlin11_shortpaper_figure_sample_id.txt`。重复运行必须与该记录一致，避免根据图形效果事后挑选样本。
-
-### 后台运行
-
-完整实验建议在后台运行：
-
-```bash
-cd /root/EPT2026
-mkdir -p logs
-nohup bash scripts/experiments/run_marlin11_complete.sh formal \
-  > logs/marlin11_complete.log 2>&1 &
-echo $! | tee logs/marlin11_complete.pid
-```
-
-监控：
-
-```bash
-tail -f /root/EPT2026/logs/marlin11_complete.log
-ps -fp "$(cat /root/EPT2026/logs/marlin11_complete.pid)"
-```
-
-若任务被正常中断，重新执行同一条 `formal` 命令即可。入口会严格验证并复用已完成 run，只对同时存在可信 `last.pt` 和 `best.pt` 且尚无最终指标的当前短论文 run 执行续跑。它不会删除或静默覆盖旧结果。
-
-## 4. 实验矩阵
-
-| 分组 | 配置 | Seeds |
-|---|---|---|
-| 主比较 | EPT-Net EEG+PPG+Video | 13 |
-| 主比较 | Early-fusion GRU EEG+PPG+Video | 42 |
-| 主比较 | Fusion Transformer EEG+PPG+Video | 42 |
-| 输入诊断 | EPT-Net Video only | 42 |
-| 机制 | EPT-Net Fixed reader | 42 |
-| 机制 | EPT-Net No persistent state | 42 |
-
-所有短论文配置关闭 audio 和 text。训练读取冻结特征，不重新调用大型行为编码器。
-
-每个正式 epoch 的训练 cohort 都是同一组 11 个 session。validation/test 仍沿用冻结 manifest 以保持指标和图片流水线不变，但不具备训练外独立性。
-
-## 5. 输出位置
-
-每个正式 run 写入独立目录：
+Each formal run is written to an isolated directory:
 
 ```text
 results/<experiment>/seed_<seed>/
@@ -157,47 +160,69 @@ results/<experiment>/seed_<seed>/
     └── training_figure_manifest.json
 ```
 
-各实验目录还包含 `aggregate.json` 和 `aggregate.csv`。正式论文图位于：
+Experiment directories additionally contain `aggregate.json` and `aggregate.csv`. Paper figures are exported under `fig/fig04_dynamic_tracking/` and `fig/fig05_modality_evidence/`, together with their source data and QA reports.
+
+The repository does not ship numerical paper results or pretrained checkpoints. These outputs are produced only by the formal pipeline from the frozen artifact.
+
+## Repository structure
 
 ```text
-fig/fig04_dynamic_tracking/
-├── fig04_dynamic_tracking.pdf
-├── fig04_dynamic_tracking.svg
-├── fig04_dynamic_tracking.png
-└── fig04_dynamic_tracking.qa-report.json
-
-fig/fig05_modality_evidence/
-├── fig05_modality_evidence.pdf
-├── fig05_modality_evidence.svg
-├── fig05_modality_evidence.png
-└── fig05_modality_evidence.qa-report.json
-
+EPT2026/
+├── configs/                 # Defaults and paper experiment configurations
+├── docs/                    # Architecture, protocol, and reproducibility records
+├── fig/                     # Figure contracts and deterministic generators
+├── scripts/
+│   ├── audit/               # Repository and release audits
+│   ├── experiments/         # Validation and formal experiment entry points
+│   └── reporting/           # Result aggregation and reporting utilities
+├── src/eptnet/
+│   ├── data/                # Frozen artifact readers and validation
+│   ├── evaluation/          # Metrics, event decoding, and evaluation
+│   ├── models/              # EPT-Net and comparison models
+│   ├── training/            # Training, checkpoints, and run metadata
+│   └── cli/                 # Unified `ept` command-line interface
+└── tests/                   # Unit and contract tests
 ```
 
-## 6. 安全与证据边界
+See [the architecture guide](docs/architecture.md) for ownership boundaries and the role of each module.
 
-- 不得重新生成、修改或修补冻结数据、manifest、划分、标签或对齐结果。
-- 不得把 dry-run、preflight、smoke 或 DEMO 图片报告为科学实验结果。
-- 不得把当前 validation/test 指标描述为 held-out、跨受试者泛化或独立测试结果。
-- 不得删除或覆盖已有正式 result 目录来绕过失败。
-- 只有 `test_metrics.json`、逐步预测、事件结果和通过身份校验的 aggregate 才能进入正式结果与图片。
-- `0 = deception`、`1 = truth` 和正类 `0` 是全仓库固定语义。
-- 模型随机性与跨 session 变异必须分开报告。
+## Reproducibility safeguards
 
-## 7. 手动入口与详细协议
+Every formal run is designed to preserve the evidence needed to audit its origin:
 
-统一入口内部调用：
+- resolved configuration and declared seed;
+- Git revision and source fingerprint;
+- frozen manifest and session-tensor identities;
+- cohort policy and label semantics;
+- environment, device, and determinism metadata;
+- best and last checkpoints, training history, predictions, and decoded events;
+- aggregate identities and figure input manifests;
+- fail-closed checks that prevent incompatible or partial outputs from being silently reused.
 
-```text
-scripts/experiments/run_marlin11_shortpaper.sh
-scripts/experiments/preflight_marlin11_shortpaper.py
-scripts/experiments/verify_marlin11_shortpaper_results.py
-fig/generate_all.py
-```
+The complete evidence contract is documented in [docs/reproducibility.md](docs/reproducibility.md), and figure inputs and QA requirements are defined in [fig/FIGURE_CONTRACTS.md](fig/FIGURE_CONTRACTS.md).
 
-需要拆分运行、审查恢复条件或查看图形数据契约时，参阅：
+## Release status
 
-- [`docs/reproducibility.md`](docs/reproducibility.md)：冻结证据与复现协议；
-- [`docs/architecture.md`](docs/architecture.md)：最终源码边界与目录职责；
-- [`fig/FIGURE_CONTRACTS.md`](fig/FIGURE_CONTRACTS.md)：正式图片输入、样本选择和 QA 契约；
-- [`docs/experiment_design.md`](docs/experiment_design.md)：研究问题与实验设计。
+| Artifact | Status |
+|---|---|
+| Source code and configurations | Public in this repository |
+| Paper | No public paper link is declared yet |
+| Frozen dataset | Not redistributed; no public access procedure is declared yet |
+| Pretrained checkpoints | Not released |
+| Numerical results | Not bundled; generated by the formal pipeline |
+| License | No open-source license has been selected; see [LICENSE_STATUS.md](LICENSE_STATUS.md) |
+
+Public source visibility does not by itself grant permission to copy, modify, or redistribute the code. Third-party dependency and asset boundaries are recorded in [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## Documentation
+
+- [Experiment design](docs/experiment_design.md): task definition, hypotheses, metrics, and comparison matrix.
+- [Reproducibility protocol](docs/reproducibility.md): frozen evidence, run identity, recovery, and reporting rules.
+- [Architecture](docs/architecture.md): package responsibilities and dependency boundaries.
+- [Figure contracts](fig/FIGURE_CONTRACTS.md): source-data identity, sample declaration, export, and QA.
+- [Data statement](DATA.md): expected artifact structure and redistribution status.
+- [Third-party statement](THIRD_PARTY.md): dependencies and external-asset boundary.
+
+## Citation
+
+The associated paper citation will be added when a public paper record is available. Until then, use GitHub's **Cite this repository** function, which reads the repository metadata from [CITATION.cff](CITATION.cff), when citing this software release.
