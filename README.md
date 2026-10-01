@@ -14,9 +14,6 @@
 
 EPT-Net is a research implementation for continuous, causal recognition and temporal localization from synchronized EEG, PPG-derived physiology, and video features. It maintains modality-specific causal memories, uses event-guided adaptive reading, and updates a persistent multimodal state to produce frame-level class probabilities and event boundaries.
 
-> [!IMPORTANT]
-> The frozen protocol trains on **all 11 sessions together**. The validation and test manifests are retained as fixed, training-included evaluation views; they are not held-out splits and must not be used to claim out-of-session or cross-subject generalization.
-
 ## Overview
 
 The task is sequence-level inference rather than session-level classification. At every valid time step, the model predicts the probability of the target event and estimates its temporal extent. The repository uses the fixed label convention `0 = deception`, `1 = truth`, with class `0` treated as the positive class throughout training and evaluation.
@@ -38,17 +35,6 @@ flowchart LR
 
 The paper-facing configuration intentionally excludes audio and text. It consumes frozen, precomputed features and does not rerun feature extraction, alignment, or annotation.
 
-## Experimental protocol
-
-The only supported paper protocol uses the frozen artifact `bci_subjects_ept_v6_aligned11`:
-
-- `session_011` is explicitly excluded from the artifact;
-- the 11 sessions listed in `sessions_all.jsonl` are all used for training;
-- `sessions_val.jsonl` and `sessions_test.jsonl` define reproducible evaluation views that overlap with training;
-- data tensors, manifests, feature schemas, and normalization statistics are treated as immutable inputs;
-- dry runs, smoke tests, and figures marked `DEMO` are validation artifacts, not scientific results.
-
-See [the experiment design](docs/experiment_design.md) for the research questions, comparison groups, metrics, and interpretation limits.
 
 ## Quick start
 
