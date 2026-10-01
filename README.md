@@ -190,7 +190,7 @@ Public source visibility does not by itself grant permission to copy, modify, or
 
 ## Dataset Availability
 
-The private dataset used in this study is available upon reasonable request. Researchers interested in reproducing the experiments or conducting related research may request access by contacting YOUR_EMAIL@example.com.
+The private dataset used in this study is available upon reasonable request. Researchers interested in reproducing the experiments or conducting related research may request access by contacting yw_wang@smail.nju.edu.com.
 
 Please briefly describe your affiliation and intended use of the dataset in your email.
 
