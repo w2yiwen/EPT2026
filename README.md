@@ -16,8 +16,7 @@ EPT-Net is a research implementation for continuous, causal recognition and temp
 
 ## Overview
 
-The task is sequence-level inference rather than session-level classification. At every valid time step, the model predicts the probability of the target event and estimates its temporal extent. The repository uses the fixed label convention `0 = deception`, `1 = truth`, with class `0` treated as the positive class throughout training and evaluation.
-
+The task is sequence-level inference rather than session-level classification. At every valid time step, the model predicts the probability of the target event and estimates its temporal extent.
 ```mermaid
 flowchart LR
     ET[EEG time features] --> MP[Modality projections]
