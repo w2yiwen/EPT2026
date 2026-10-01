@@ -188,6 +188,12 @@ The complete evidence contract is documented in [docs/reproducibility.md](docs/r
 
 Public source visibility does not by itself grant permission to copy, modify, or redistribute the code. Third-party dependency and asset boundaries are recorded in [THIRD_PARTY.md](THIRD_PARTY.md).
 
+## Dataset Availability
+
+The private dataset used in this study is available upon reasonable request. Researchers interested in reproducing the experiments or conducting related research may request access by contacting YOUR_EMAIL@example.com.
+
+Please briefly describe your affiliation and intended use of the dataset in your email.
+
 ## Documentation
 
 - [Experiment design](docs/experiment_design.md): task definition, hypotheses, metrics, and comparison matrix.
