@@ -23,11 +23,7 @@ from eptnet.provenance import (
     portable_path,
     portable_python_command,
 )
-from eptnet.training_artifacts import (
-    estimate_full_training_runtime,
-    generate_training_artifacts,
-    load_training_history,
-)
+from eptnet.training_artifacts import generate_training_artifacts
 from .loop import Trainer
 from .losses import EPTNetLoss
 
@@ -563,48 +559,9 @@ def _resolve_automatic_loss_weights(
     }
 
 
-def _dataset_step_count(dataset: Dataset) -> int:
-    total = 0
-    for index in range(len(dataset)):
-        sample = dataset[index]
-        labels = sample.get("labels")
-        if not isinstance(labels, torch.Tensor) or labels.ndim != 1:
-            raise ValueError(f"Dataset item {index} has no rank-1 labels tensor")
-        total += int(labels.shape[0])
-    if total <= 0:
-        raise ValueError("Dataset contains no temporal steps")
-    return total
-
-
-def _manifest_step_count(path: str | Path) -> int:
-    total = 0
-    sessions: set[str] = set()
-    with Path(path).open("r", encoding="utf-8") as handle:
-        for line_number, line in enumerate(handle, 1):
-            if not line.strip():
-                continue
-            record = json.loads(line)
-            metadata = record.get("metadata", {})
-            session_id = str(metadata.get("session_id", "")).strip()
-            if not session_id:
-                raise ValueError(f"Manifest line {line_number} has no metadata.session_id")
-            if session_id in sessions:
-                raise ValueError(
-                    "Runtime estimation requires one complete-session record per manifest line"
-                )
-            sessions.add(session_id)
-            steps = metadata.get("num_steps")
-            if isinstance(steps, bool) or not isinstance(steps, int) or steps <= 0:
-                raise ValueError(f"Manifest line {line_number} has invalid metadata.num_steps")
-            total += steps
-    if total <= 0:
-        raise ValueError(f"Manifest contains no sessions: {path}")
-    return total
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train EPT-Net")
-    parser.add_argument("--config", default="configs/default.yaml")
+    parser.add_argument("--config", default="configs/main.yaml")
     parser.add_argument("--seed", type=int, help="Override experiment.seed")
     parser.add_argument("--output-dir", help="Override the base experiment output directory")
     parser.add_argument("--device", help="Override training.device (for example cuda:0 or cpu)")
@@ -615,27 +572,11 @@ def main() -> None:
         default=None,
         help="Show nested epoch/train/validation progress bars (default: auto-detect terminal)",
     )
-    parser.add_argument(
-        "--smoke",
-        action="store_true",
-        help=(
-            "Run one epoch on one complete real train session and one complete real "
-            "validation session; never reads the test split or reports performance"
-        ),
-    )
     args = parser.parse_args()
 
     config = load_config(args.config)
     experiment = config["experiment"]
     settings = config["training"]
-    configured_maximum_epochs = int(settings["epochs"])
-    configured_patience = int(settings["patience"])
-    if args.smoke:
-        if args.resume:
-            raise ValueError("--smoke cannot be combined with --resume")
-        experiment["name"] = f"{experiment['name']}_smoke"
-        settings["epochs"] = 1
-        settings["patience"] = 1
     if args.seed is not None:
         experiment["seed"] = args.seed
     if args.device is not None:
@@ -643,8 +584,6 @@ def main() -> None:
     seed = int(experiment["seed"])
     if args.output_dir:
         base_output_dir = args.output_dir
-    elif args.smoke:
-        base_output_dir = Path("results") / "smoke" / str(experiment["name"])
     else:
         base_output_dir = experiment["output_dir"]
     output_dir = _seed_output_dir(base_output_dir, seed)
@@ -687,7 +626,7 @@ def main() -> None:
             positive_class=int(config["evaluation"]["positive_class"]),
             device=device,
             seed=seed,
-            maximum_sessions=1 if args.smoke else None,
+            maximum_sessions=None,
         )
     else:
         train_dataset, train_loader = _build_continuous_session_loader(
@@ -695,7 +634,7 @@ def main() -> None:
             settings=settings,
             device=device,
             seed=seed,
-            maximum_sessions=1 if args.smoke else None,
+            maximum_sessions=None,
         )
         train_unique_dataset = train_dataset
     validation_settings = {**settings, "sequence_protocol": CONTINUOUS_SESSION_PROTOCOL}
@@ -704,7 +643,7 @@ def main() -> None:
         settings=validation_settings,
         device=device,
         seed=(seed + 1) % 2**32,
-        maximum_sessions=1 if args.smoke else None,
+        maximum_sessions=None,
     )
     target_statistics = _resolve_automatic_loss_weights(config, train_unique_dataset)
     post_materialization_provenance = build_runtime_provenance(config)
@@ -736,17 +675,7 @@ def main() -> None:
         "requested": args.progress,
         "mode": "explicit" if args.progress is not None else "terminal_auto_detection",
     }
-    metadata["run_kind"] = "real_session_smoke" if args.smoke else "formal_training"
-    if args.smoke:
-        metadata["smoke_contract"] = {
-            "epochs": 1,
-            "train_sessions": 1,
-            "validation_sessions": 1,
-            "complete_sessions_not_truncated": True,
-            "test_split_accessed": False,
-            "full_experiment_started": False,
-            "scientific_scope": "engineering execution and timing only",
-        }
+    metadata["run_kind"] = "training"
     metadata_path = output_dir / "run_metadata.json"
     _atomic_write_json(metadata, metadata_path)
 
@@ -764,20 +693,6 @@ def main() -> None:
         result = trainer.fit(resume_from=args.resume)
         training_artifacts = generate_training_artifacts(output_dir)
         result["training_artifacts"] = training_artifacts
-        if args.smoke:
-            history = load_training_history(output_dir / "history.json")
-            runtime_estimate = estimate_full_training_runtime(
-                history,
-                observed_train_steps=_dataset_step_count(train_unique_dataset),
-                observed_val_steps=_dataset_step_count(val_dataset),
-                full_train_steps=_manifest_step_count(train_manifest),
-                full_val_steps=_manifest_step_count(val_manifest),
-                maximum_epochs=configured_maximum_epochs,
-                patience=configured_patience,
-            )
-            runtime_estimate["device"] = _device_metadata(device)
-            _atomic_write_json(runtime_estimate, output_dir / "runtime_estimate.json")
-            result["runtime_estimate"] = runtime_estimate
     except BaseException as error:
         metadata.update(
             {

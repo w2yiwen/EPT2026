@@ -1,0 +1,12 @@
+inherits: main.yaml
+
+experiment:
+  name: gatehub
+  output_dir: results/final/gatehub
+
+model:
+  name: gatehub
+  gatehub_present_steps: 8
+  gatehub_latent_size: 16
+  gatehub_history_layers: 2
+  gatehub_decoder_layers: 2

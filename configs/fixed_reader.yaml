@@ -1,0 +1,8 @@
+inherits: main.yaml
+
+experiment:
+  name: fixed_reader
+  output_dir: results/final/fixed_reader
+
+model:
+  adaptive_reader: false

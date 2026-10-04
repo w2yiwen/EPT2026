@@ -1,0 +1,8 @@
+inherits: main.yaml
+
+experiment:
+  name: no_persistent
+  output_dir: results/final/no_persistent
+
+model:
+  persistent_state: false

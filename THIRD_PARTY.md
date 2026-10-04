@@ -1,8 +1,7 @@
 # Third-party components
 
-Runtime dependencies are declared in `pyproject.toml` and pinned in the lock
-files. Frozen feature tensors remain external data; their provenance is checked
-by the experiment preflight. No pretrained weights are vendored.
+Runtime dependencies are declared in `pyproject.toml` and pinned in
+`requirements-lock.txt`. Frozen feature tensors remain external data.
 
 The baseline temporal modules are clean in-repository adaptations of these
 official open-source implementations. They reuse EPT-Net's modality encoders,

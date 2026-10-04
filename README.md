@@ -1,208 +1,67 @@
 # EPT-Net
 
-<div align="center">
+EPT-Net is a causal multimodal network for continuous event recognition and temporal localization. The implementation combines EEG, PPG-derived physiology, and video features with modality-specific memory, adaptive reading, and a persistent temporal state.
 
-**Event-guided Persistent Temporal Network for causal multimodal event recognition and localization**
-
-[![CI](https://github.com/w2yiwen/EPT2026/actions/workflows/ci.yml/badge.svg)](https://github.com/w2yiwen/EPT2026/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?logo=python&logoColor=white)](pyproject.toml)
-[![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A52.3-EE4C2C?logo=pytorch&logoColor=white)](pyproject.toml)
-
-[Overview](#overview) · [Quick start](#quick-start) · [Experiments](#reproduce-the-complete-experiment) · [Documentation](#documentation) · [Citation](#citation)
-
-</div>
-
-EPT-Net is a research implementation for continuous, causal recognition and temporal localization from synchronized EEG, PPG-derived physiology, and video features. It maintains modality-specific causal memories, uses event-guided adaptive reading, and updates a persistent multimodal state to produce frame-level class probabilities and event boundaries.
-
-## Overview
-
-The task is sequence-level inference rather than session-level classification. At every valid time step, the model predicts the probability of the target event and estimates its temporal extent.
-```mermaid
-flowchart LR
-    ET[EEG time features] --> MP[Modality projections]
-    ES[EEG spectral features] --> MP
-    PP[PPG-derived physiology] --> MP
-    MP --> CM[Causal modality memories]
-    CM --> ER[Event-guided adaptive reader]
-    V[Video features] --> BC[Behavior context]
-    ER --> PU[Persistent multimodal update]
-    BC --> PU
-    PU --> CP[Per-step class probability]
-    PU --> BH[Boundary prediction]
-    PU --> OH[Event offset prediction]
-```
-
-The paper-facing configuration intentionally excludes audio and text. It consumes frozen, precomputed features and does not rerun feature extraction, alignment, or annotation.
-
-
-## Quick start
-
-### 1. Install
+## Installation
 
 ```bash
-git clone https://github.com/w2yiwen/EPT2026.git
-cd EPT2026
-
-python3 -m venv .venv
+python -m venv .venv
 . .venv/bin/activate
-python -m pip install -r requirements-lock.txt -r requirements-figures.txt -e .
-python -m pip check
+python -m pip install -r requirements-lock.txt -e .
 ```
 
-The project is not tied to a particular GPU, driver, or cloud provider. The available device is selected through PyTorch with `DEVICE=auto`, or can be set explicitly to `cpu` or a supported accelerator.
+## Data
 
-### 2. Prepare the frozen data
-
-The dataset is not distributed in this repository. Place the frozen artifact under a data root with the following structure:
+Place the prepared feature dataset at:
 
 ```text
-data/
-└── processed/
-    └── bci_subjects_ept_v6_aligned11/
-        ├── dataset_summary.json
-        ├── feature_schema.json
-        ├── normalization_stats.npz
-        ├── manifests/
-        │   ├── sessions_all.jsonl
-        │   ├── sessions_val.jsonl
-        │   └── sessions_test.jsonl
-        └── sessions/
-            └── session_*/
-                └── timeline.pt
+data/processed/bci_subjects_ept_v6_aligned11/
+├── dataset_summary.json
+├── feature_schema.json
+├── normalization_stats.npz
+├── manifests/
+└── sessions/
 ```
 
-The paper configurations resolve this artifact from `data/processed/`. If the artifact is stored elsewhere, create a local `data` symlink or copy a configuration and update its manifest paths. The code reads the existing tensors and manifests but never regenerates or repairs them. Further details are in [DATA.md](DATA.md).
+## Usage
 
-### 3. Validate the installation
+Train one model:
 
 ```bash
-DEVICE=auto bash scripts/experiments/run_marlin11_complete.sh validate
+bash scripts/train.sh configs/main.yaml
 ```
 
-This command runs the test suite, configuration dry runs, frozen-data integrity checks, six bounded smoke runs, and figure-export QA. It does **not** launch the full experiment or report smoke outputs as paper results.
-
-## Reproduce the complete experiment
-
-After validation succeeds, the complete training, evaluation, aggregation, and figure pipeline is one command:
+Evaluate one checkpoint:
 
 ```bash
-DEVICE=auto bash scripts/experiments/run_marlin11_complete.sh formal
+bash scripts/evaluate.sh \
+  configs/main.yaml \
+  results/final/eptnet/seed_42/best.pt \
+  results/final/eptnet/seed_42
 ```
 
-The entry point performs the following operations in order:
+Run the complete experiment set and generate PNG figures:
 
-1. verifies the code, configuration, frozen manifests, tensor identities, cohort policy, and comparison fairness;
-2. trains the main models and diagnostic variants using the declared seeds;
-3. evaluates the selected checkpoints on the fixed training-included evaluation views;
-4. exports per-step predictions, decoded events, metrics, and cross-run aggregates;
-5. generates the declared paper figures as PDF, SVG, and 500 dpi PNG files with QA reports.
+```bash
+bash scripts/run_experiments.sh
+```
 
-A qualitative sample identifier is declared before training and stored in `results/marlin11_shortpaper_figure_sample_id.txt`. Repeated runs must reuse the same identifier, preventing post-hoc selection based on visual appearance.
+Generate figures from existing results:
 
+```bash
+python figures/generate.py
+```
 
-
-### Evaluation
-
-The pipeline reports complementary frame- and event-level metrics:
-
-- probability quality: average precision, Brier score, and negative log-likelihood;
-- frame classification: macro-F1, balanced accuracy, and AUROC;
-- boundary quality: boundary F1;
-- event localization: event F1 at IoU 0.5, event AP at IoU 0.3/0.5/0.7, and event mAP;
-- temporal behavior: detection delay and early-recall summaries.
-
-Because the evaluation views overlap the training cohort, these measurements characterize the fixed protocol only. They are not held-out generalization estimates.
-
-## Outputs
-
-Each formal run is written to an isolated directory:
+## Structure
 
 ```text
-results/<experiment>/seed_<seed>/
-├── resolved_config.yaml
-├── run_metadata.json
-├── history.json
-├── best.pt
-├── last.pt
-├── test_metrics.json
-├── test_predictions.jsonl
-├── test_events.json
-└── figures/
-    ├── training_history.csv
-    ├── fig_training_dynamics.pdf
-    ├── fig_training_dynamics.png
-    └── training_figure_manifest.json
+configs/       model and ablation configurations
+figures/       PNG figure generator and generated images
+scripts/       training and evaluation entry points
+src/eptnet/    model, data, training, and evaluation code
+results/final/ completed runs, metrics, predictions, and checkpoints
 ```
 
-Experiment directories additionally contain `aggregate.json` and `aggregate.csv`. Paper figures are exported under `fig/fig04_dynamic_tracking/` and `fig/fig05_modality_evidence/`, together with their source data and QA reports.
+Available configurations are `main`, `fixed_reader`, `no_persistent`, `video_only`, `lstr`, `gatehub`, and `testra`.
 
-The repository does not ship numerical paper results or pretrained checkpoints. These outputs are produced only by the formal pipeline from the frozen artifact.
-
-## Repository structure
-
-```text
-EPT2026/
-├── configs/                 # Defaults and paper experiment configurations
-├── docs/                    # Architecture, protocol, and reproducibility records
-├── fig/                     # Figure contracts and deterministic generators
-├── scripts/
-│   ├── audit/               # Repository and release audits
-│   ├── experiments/         # Validation and formal experiment entry points
-│   └── reporting/           # Result aggregation and reporting utilities
-├── src/eptnet/
-│   ├── data/                # Frozen artifact readers and validation
-│   ├── evaluation/          # Metrics, event decoding, and evaluation
-│   ├── models/              # EPT-Net and comparison models
-│   ├── training/            # Training, checkpoints, and run metadata
-│   └── cli/                 # Unified `ept` command-line interface
-└── tests/                   # Unit and contract tests
-```
-
-See [the architecture guide](docs/architecture.md) for ownership boundaries and the role of each module.
-
-## Reproducibility safeguards
-
-Every formal run is designed to preserve the evidence needed to audit its origin:
-
-- resolved configuration and declared seed;
-- Git revision and source fingerprint;
-- frozen manifest and session-tensor identities;
-- cohort policy and label semantics;
-- environment, device, and determinism metadata;
-- best and last checkpoints, training history, predictions, and decoded events;
-- aggregate identities and figure input manifests;
-- fail-closed checks that prevent incompatible or partial outputs from being silently reused.
-
-The complete evidence contract is documented in [docs/reproducibility.md](docs/reproducibility.md), and figure inputs and QA requirements are defined in [fig/FIGURE_CONTRACTS.md](fig/FIGURE_CONTRACTS.md).
-
-## Release status
-
-| Artifact | Status |
-|---|---|
-| Source code and configurations | Public in this repository |
-| Paper | No public paper link is declared yet |
-| Frozen dataset | Not redistributed; no public access procedure is declared yet |
-| Pretrained checkpoints | Not released |
-| Numerical results | Not bundled; generated by the formal pipeline |
-| License | No open-source license has been selected; see [LICENSE_STATUS.md](LICENSE_STATUS.md) |
-
-Public source visibility does not by itself grant permission to copy, modify, or redistribute the code. Third-party dependency and asset boundaries are recorded in [THIRD_PARTY.md](THIRD_PARTY.md).
-
-## Dataset Availability
-
-The private dataset used in this study is available upon reasonable request. Researchers interested in reproducing the experiments or conducting related research may request access by contacting yw_wang@smail.nju.edu.com.
-
-Please briefly describe your affiliation and intended use of the dataset in your email.
-
-## Documentation
-
-- [Experiment design](docs/experiment_design.md): task definition, hypotheses, metrics, and comparison matrix.
-- [Reproducibility protocol](docs/reproducibility.md): frozen evidence, run identity, recovery, and reporting rules.
-- [Architecture](docs/architecture.md): package responsibilities and dependency boundaries.
-- [Figure contracts](fig/FIGURE_CONTRACTS.md): source-data identity, sample declaration, export, and QA.
-- [Data statement](DATA.md): expected artifact structure and redistribution status.
-- [Third-party statement](THIRD_PARTY.md): dependencies and external-asset boundary.
-
-## Citation
-
-The associated paper citation will be added when a public paper record is available. Until then, use GitHub's **Cite this repository** function, which reads the repository metadata from [CITATION.cff](CITATION.cff), when citing this software release.
+Each completed run stores its resolved configuration, metadata, training history, `best.pt`, `last.pt`, test metrics, event predictions, and frame-level predictions. The figure generator writes PNG files only.

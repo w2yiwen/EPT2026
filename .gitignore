@@ -1,14 +1,11 @@
 /data/
 /results/
-/figures/
 /logs/
 /.cache/
 /.venv/
 
-fig/**/*.pdf
-fig/**/*.svg
-fig/**/*.png
-fig/**/qa-report.json
+*.pdf
+*.svg
 
 __pycache__/
 *.py[cod]

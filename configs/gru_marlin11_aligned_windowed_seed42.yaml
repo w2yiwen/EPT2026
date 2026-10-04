@@ -1,9 +1,0 @@
-inherits: eptnet_marlin11_aligned_windowed_seed42.yaml
-
-experiment:
-  name: gru_marlin11_aligned_windowed_seed42
-  output_dir: results/gru_marlin11_aligned_windowed_seed42
-
-model:
-  name: early_fusion_gru
-  hidden_dim: 124

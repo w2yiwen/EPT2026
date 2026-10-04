@@ -1,0 +1,10 @@
+inherits: main.yaml
+
+experiment:
+  name: video_only
+  output_dir: results/final/video_only
+
+model:
+  use_eeg_time: false
+  use_eeg_spec: false
+  use_hr: false

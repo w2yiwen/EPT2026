@@ -1,0 +1,12 @@
+inherits: main.yaml
+
+experiment:
+  name: lstr
+  output_dir: results/final/lstr
+
+model:
+  name: lstr
+  lstr_work_steps: 8
+  lstr_long_queries: [16, 32]
+  lstr_encoder_layers: [1, 2]
+  lstr_decoder_layers: 2

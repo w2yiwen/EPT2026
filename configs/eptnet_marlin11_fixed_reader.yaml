@@ -1,8 +1,0 @@
-inherits: eptnet_marlin11_eeg_ppg_video.yaml
-
-experiment:
-  name: eptnet_marlin11_fixed_reader_no_text
-  output_dir: results/eptnet_marlin11_fixed_reader_no_text
-
-model:
-  adaptive_reader: false

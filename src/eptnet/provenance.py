@@ -18,10 +18,8 @@ DEFAULT_SOURCE_TREE_PATHS: tuple[str, ...] = (
     "src",
     "configs",
     "scripts",
-    "tests",
     "requirements.txt",
     "requirements-lock.txt",
-    "pytest.ini",
 )
 OPTIONAL_SOURCE_TREE_PATHS: tuple[str, ...] = (
     "pyproject.toml",

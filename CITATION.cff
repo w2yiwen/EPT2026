@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: "EPT-Net: Event-guided Persistent Temporal Network"
-message: "If you use this repository, please cite the associated paper."
+message: "If you use this software, please cite this repository."
 type: software
 authors:
   - family-names: Yiwen

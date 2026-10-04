@@ -1,0 +1,13 @@
+inherits: main.yaml
+
+experiment:
+  name: testra
+  output_dir: results/final/testra
+
+model:
+  name: testra
+  lstr_work_steps: 8
+  lstr_long_queries: [16, 32]
+  lstr_encoder_layers: [1, 2]
+  lstr_decoder_layers: 2
+  testra_decay: 0.97

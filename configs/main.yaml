@@ -1,0 +1,5 @@
+inherits: base.yaml
+
+experiment:
+  name: eptnet
+  output_dir: results/final/eptnet
