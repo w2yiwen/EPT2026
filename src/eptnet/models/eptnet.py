@@ -66,6 +66,8 @@ class EPTNetConfig:
     gatehub_history_layers: int = 2
     gatehub_decoder_layers: int = 2
     testra_decay: float = 0.97
+    mult_cross_layers: int = 2
+    mult_memory_layers: int = 3
 
     @classmethod
     def from_mapping(cls, config: Mapping[str, Any]) -> EPTNetConfig:
@@ -117,6 +119,8 @@ class EPTNetConfig:
             gatehub_history_layers=int(model.get("gatehub_history_layers", 2)),
             gatehub_decoder_layers=int(model.get("gatehub_decoder_layers", 2)),
             testra_decay=float(model.get("testra_decay", 0.97)),
+            mult_cross_layers=int(model.get("mult_cross_layers", 2)),
+            mult_memory_layers=int(model.get("mult_memory_layers", 3)),
         )
 
 

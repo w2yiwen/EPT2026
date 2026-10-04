@@ -19,6 +19,7 @@ MODELS = (
     ("LSTR", "lstr"),
     ("GateHUB", "gatehub"),
     ("TeSTra", "testra"),
+    ("MulT", "mult"),
 )
 
 

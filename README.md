@@ -109,6 +109,7 @@ Available configurations:
 | `lstr` | LSTR comparison |
 | `gatehub` | GateHUB comparison |
 | `testra` | TeSTra comparison |
+| `mult` | MulT comparison |
 
 ## Outputs
 

@@ -1,0 +1,10 @@
+inherits: main.yaml
+
+experiment:
+  name: mult
+  output_dir: results/final/mult
+
+model:
+  name: mult
+  mult_cross_layers: 2
+  mult_memory_layers: 3

@@ -69,6 +69,8 @@ _SECTION_KEYS = {
             "gatehub_history_layers",
             "gatehub_decoder_layers",
             "testra_decay",
+            "mult_cross_layers",
+            "mult_memory_layers",
         }
     ),
     "loss": frozenset(
@@ -351,7 +353,7 @@ def _validate_config(config: Mapping[str, Any]) -> None:
 
     model = sections["model"]
     model_name = _require_string(model, "name", "model")
-    if model_name not in {"eptnet", "lstr", "gatehub", "testra"}:
+    if model_name not in {"eptnet", "lstr", "gatehub", "testra", "mult"}:
         raise ValueError(f"Unsupported model.name: {model_name!r}")
     hidden_dim = _require_int(model, "hidden_dim", "model", minimum=1)
     num_heads = _require_int(model, "num_heads", "model", minimum=1)
@@ -364,6 +366,8 @@ def _validate_config(config: Mapping[str, Any]) -> None:
         "gatehub_latent_size",
         "gatehub_history_layers",
         "gatehub_decoder_layers",
+        "mult_cross_layers",
+        "mult_memory_layers",
     ):
         if key in model:
             _require_int(model, key, "model", minimum=1)

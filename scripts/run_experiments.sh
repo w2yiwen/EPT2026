@@ -6,7 +6,7 @@ export PYTHONPATH=src
 device="${DEVICE:-auto}"
 seed="${SEED:-42}"
 
-experiments=(main fixed_reader no_persistent video_only lstr gatehub testra)
+experiments=(main fixed_reader no_persistent video_only lstr gatehub testra mult)
 
 for name in "${experiments[@]}"; do
   config="configs/${name}.yaml"

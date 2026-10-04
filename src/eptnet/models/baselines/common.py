@@ -50,7 +50,8 @@ class _BaselineBase(nn.Module):
         self.boundary_head = nn.Linear(d, 2)
         self.offset_head = nn.Linear(d, 2)
 
-    def encode(self, batch: dict[str, Tensor]) -> Tensor:
+    def encode_modalities(self, batch: dict[str, Tensor]) -> tuple[Tensor, ...]:
+        """Encode the four shared evidence streams without fusing them."""
         if self.config.input_mode == "raw_windows":
             time_input = batch["eeg"]
             spec_input = batch["eeg"]
@@ -91,7 +92,10 @@ class _BaselineBase(nn.Module):
             value if enabled else torch.zeros_like(value)
             for value, enabled in zip(modalities, switches, strict=False)
         ]
-        return self.fusion(torch.cat(modalities, dim=-1))
+        return tuple(modalities)
+
+    def encode(self, batch: dict[str, Tensor]) -> Tensor:
+        return self.fusion(torch.cat(self.encode_modalities(batch), dim=-1))
 
     def make_output(self, states: Tensor, mask: Tensor) -> dict[str, Any]:
         return {
