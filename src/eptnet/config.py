@@ -60,6 +60,15 @@ _SECTION_KEYS = {
             "use_eeg_time",
             "use_eeg_spec",
             "use_hr",
+            "lstr_work_steps",
+            "lstr_long_queries",
+            "lstr_encoder_layers",
+            "lstr_decoder_layers",
+            "gatehub_present_steps",
+            "gatehub_latent_size",
+            "gatehub_history_layers",
+            "gatehub_decoder_layers",
+            "testra_decay",
         }
     ),
     "loss": frozenset(
@@ -128,6 +137,19 @@ _OPTIONAL_SECTION_KEYS = {
             "window_stride",
             "window_warmup_steps",
             "positive_window_oversample",
+        }
+    ),
+    "model": frozenset(
+        {
+            "lstr_work_steps",
+            "lstr_long_queries",
+            "lstr_encoder_layers",
+            "lstr_decoder_layers",
+            "gatehub_present_steps",
+            "gatehub_latent_size",
+            "gatehub_history_layers",
+            "gatehub_decoder_layers",
+            "testra_decay",
         }
     ),
 }
@@ -329,12 +351,41 @@ def _validate_config(config: Mapping[str, Any]) -> None:
 
     model = sections["model"]
     model_name = _require_string(model, "name", "model")
-    if model_name not in {"eptnet", "early_fusion_gru", "fusion_transformer"}:
+    if model_name not in {"eptnet", "lstr", "gatehub", "testra"}:
         raise ValueError(f"Unsupported model.name: {model_name!r}")
     hidden_dim = _require_int(model, "hidden_dim", "model", minimum=1)
     num_heads = _require_int(model, "num_heads", "model", minimum=1)
     if hidden_dim % num_heads != 0:
         raise ValueError("model.hidden_dim must be divisible by model.num_heads")
+    for key in (
+        "lstr_work_steps",
+        "lstr_decoder_layers",
+        "gatehub_present_steps",
+        "gatehub_latent_size",
+        "gatehub_history_layers",
+        "gatehub_decoder_layers",
+    ):
+        if key in model:
+            _require_int(model, key, "model", minimum=1)
+    for key in ("lstr_long_queries", "lstr_encoder_layers"):
+        if key in model:
+            value = model[key]
+            if (
+                not isinstance(value, list)
+                or len(value) != 2
+                or any(isinstance(item, bool) or not isinstance(item, int) or item < 1 for item in value)
+            ):
+                raise ValueError(f"model.{key} must be a two-item list of positive integers")
+    if "testra_decay" in model:
+        _require_real(
+            model,
+            "testra_decay",
+            "model",
+            minimum=0.0,
+            maximum=1.0,
+            minimum_inclusive=False,
+            maximum_inclusive=True,
+        )
     _require_real(
         model,
         "dropout",

@@ -1,6 +1,8 @@
-"""Capacity-matched baseline models with the same contract as EPT-Net."""
+"""Published online temporal baselines with the same contract as EPT-Net."""
 
-from .early_fusion_gru import EarlyFusionGRU
-from .fusion_transformer import FusionTransformer, SinusoidalPositionEncoding
+from .gatehub import GateHUB
+from .lstr import LSTR
+from .position import SinusoidalPositionEncoding
+from .testra import TeSTra
 
-__all__ = ["EarlyFusionGRU", "FusionTransformer", "SinusoidalPositionEncoding"]
+__all__ = ["GateHUB", "LSTR", "SinusoidalPositionEncoding", "TeSTra"]

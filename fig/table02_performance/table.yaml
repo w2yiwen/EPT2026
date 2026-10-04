@@ -1,0 +1,29 @@
+version: 1
+table_id: table02_performance
+purpose: Compare held-out test performance for the actual formal model matrix while exposing metric-specific trade-offs.
+expression: Full-width IEEE LaTeX table plus CSV and Markdown mirrors.
+data:
+  sources:
+    - path: results/dual4090_seed42_3way/{lstr,gatehub,testra,eptnet}_marlin11_eeg_ppg_video_no_text/aggregate_seed_42.json
+      role: held_out_test_aggregate
+  fields:
+    - frame.auprc
+    - event.event_ap_iou_0.3
+    - event.event_ap_iou_0.5
+    - event.event_ap_iou_0.7
+    - event.event_f1_iou_0.5
+    - latency.mean_detection_delay_seconds
+  filters:
+    - models exactly LSTR, GateHUB, TeSTra, and EPT-Net
+    - identical matched seed set across models
+    - held-out test split only
+  aggregation: Use upstream aggregate mean and sample standard deviation; omit uncertainty when n=1.
+  uncertainty: Sample standard deviation across matched seeds when at least two runs exist.
+  statistical_notes: Best value is bolded independently per metric. No overall winner is inferred.
+layout:
+  units: mm
+  width: 181.38
+  size_source: IEEEtran conference text width (43 pc)
+style:
+  table_format: booktabs
+exceptions: []

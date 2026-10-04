@@ -4,6 +4,14 @@ These contracts separate scientific evidence from visual rendering. Plotting
 scripts do not choose thresholds, repair missing values, smooth curves, or
 aggregate raw runs. The `--demo` route exists only to test layout and export.
 
+## Fig. 3 — Seed-matched main comparison
+
+The main figure compares exactly EPT-Net, LSTR, causal GateHUB, and TeSTra on
+frame AP, Brier score, event F1 at tIoU 0.5, and event mAP. Each input is the
+formal aggregate for seed 42. The renderer requires identical data,
+evaluation, calibration, and provenance metadata and performs no additional
+aggregation. EPT-Net is the sole accent color; baselines remain neutral.
+
 ## Fig. 4 — Dynamic tracking and temporal localization
 
 **Claim tested.** The system can continuously track target-event evidence and

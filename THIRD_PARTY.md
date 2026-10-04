@@ -1,6 +1,17 @@
 # Third-party components
 
 Runtime dependencies are declared in `pyproject.toml` and pinned in the lock
-files. The final repository contains no vendored pretrained model source or
-weights. Frozen feature tensors remain external data; their provenance is
-checked by the experiment preflight.
+files. Frozen feature tensors remain external data; their provenance is checked
+by the experiment preflight. No pretrained weights are vendored.
+
+The baseline temporal modules are clean in-repository adaptations of these
+official open-source implementations. They reuse EPT-Net's modality encoders,
+heads, loss, decoder, and evaluation protocol.
+
+| Baseline | Official source | License | Adapted component |
+|---|---|---|---|
+| LSTR | https://github.com/amazon-science/long-short-term-transformer | Apache-2.0 | Learned-query long-memory encoder and causal work-memory decoder |
+| GateHUB | https://github.com/g1910/GateHUB | MIT | Gated History Unit and causal present decoder; FaH excluded |
+| TeSTra | https://github.com/zhaoyue-zephyrus/TeSTra | Apache-2.0 | Exponentially decayed long-memory attention and causal work-memory decoder |
+
+Copyright and license notices remain with their respective upstream projects.

@@ -1,0 +1,109 @@
+{
+  "table_id": "table02_performance",
+  "generated_files": [
+    "table02_performance.tex",
+    "table02_performance.csv",
+    "table02_performance.md"
+  ],
+  "models": [
+    "LSTR",
+    "GateHUB",
+    "TeSTra",
+    "EPT-Net (ours)"
+  ],
+  "seeds": [
+    42
+  ],
+  "uncertainty": "unavailable for a single run",
+  "best_by_metric": {
+    "frame.auprc": "EPT-Net (ours)",
+    "event.event_ap_iou_0.3": "TeSTra",
+    "event.event_ap_iou_0.5": "TeSTra",
+    "event.event_ap_iou_0.7": "TeSTra",
+    "event.event_f1_iou_0.5": "EPT-Net (ours)",
+    "latency.mean_detection_delay_seconds": "EPT-Net (ours)"
+  },
+  "sources": {
+    "LSTR": {
+      "path": "results/dual4090_seed42_3way/lstr_marlin11_eeg_ppg_video_no_text/aggregate_seed_42.json",
+      "sha256": "611112818c7fdb62eef8df3e36ca8bba28bd3789cc452bff2db95357e063040d"
+    },
+    "GateHUB": {
+      "path": "results/dual4090_seed42_3way/gatehub_marlin11_eeg_ppg_video_no_text/aggregate_seed_42.json",
+      "sha256": "935f55c047bd80f927c1d2dcf6c17b91dc1f46b709d781549a49e52210002881"
+    },
+    "TeSTra": {
+      "path": "results/dual4090_seed42_3way/testra_marlin11_eeg_ppg_video_no_text/aggregate_seed_42.json",
+      "sha256": "0092fb808581d11fcbe4d37fb89cf54fdc6a8e59d4edc540f413aeb925bd896a"
+    },
+    "EPT-Net (ours)": {
+      "path": "results/dual4090_seed42_3way/eptnet_marlin11_eeg_ppg_video_no_text/aggregate_seed_42.json",
+      "sha256": "e1615e5e8812085b37b9858430e77e648c86f1c3f3ca225617e4454550de47e1"
+    }
+  },
+  "protocol": {
+    "protocol": {
+      "evaluation_unit": "unique chronological rows reconstructed per session",
+      "positive_class": 0,
+      "class_encoding": {
+        "0": "deception",
+        "1": "truth"
+      },
+      "boundary_threshold": 0.5,
+      "boundary_tolerance_steps": 1,
+      "event_iou_thresholds": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "early_detection_delays_steps": [
+        0.0,
+        1.0,
+        2.0
+      ],
+      "latency_definition": "non-negative time-to-detection; steps=max(raw emit_step minus target start step, 0); seconds=max(word-end decision time at raw emit_step minus target event onset time, 0), including overlapping word intervals; decoded events retain the raw emit_step",
+      "target_mask_definition": "losses and metrics include only target-speaker intervals; the model observes the complete interaction timeline; invalid intervals close and cannot open decoded events",
+      "probability_metrics": {
+        "score": "softmax probability assigned to positive_class",
+        "target": "1[label == positive_class] on target-valid steps",
+        "brier_score": "mean squared error between score and binary target",
+        "negative_log_likelihood": "binary cross-entropy of the score after clipping to [1e-07, 1]",
+        "threshold_independent": true
+      },
+      "event_f1_protocol": {
+        "proposal_source": "thresholded causal event decoder",
+        "uses_frame_threshold": true,
+        "used_for": "event precision, recall, F1, early detection, and latency"
+      },
+      "event_ap_protocol": {
+        "proposal_source": "one dense proposal per target-valid step",
+        "score": "positive-class probability at the proposal step",
+        "interval": "[step - predicted left offset, step + predicted right offset], clamped to the proposal step's contiguous target-valid segment",
+        "score_threshold": null,
+        "nms": "none",
+        "ranking": "global descending score; deterministic sequence and chronological-step tie-break"
+      }
+    },
+    "data": {
+      "num_sequences": 3,
+      "num_unique_steps": 1069,
+      "num_evaluated_target_steps": 645,
+      "num_target_events": 39,
+      "num_dense_event_proposals": 645
+    },
+    "calibration_protocol": {
+      "enabled": true,
+      "method": "validation_subject_macro_f1_grid",
+      "selection_split": "validation",
+      "calibration_min_threshold": 0.1,
+      "calibration_max_threshold": 0.9,
+      "calibration_steps": 81
+    }
+  },
+  "checks": {
+    "matched_seeds": "pass",
+    "matched_protocol_and_data": "pass",
+    "no_recomputation": "pass",
+    "write_boundary": "pass"
+  }
+}

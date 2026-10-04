@@ -19,12 +19,16 @@ CONFIGS = {
         "eptnet",
         (True, True, True, True),
     ),
-    "configs/gru_marlin11_eeg_ppg_video.yaml": (
-        "early_fusion_gru",
+    "configs/lstr_marlin11_eeg_ppg_video.yaml": (
+        "lstr",
         (True, True, True, True),
     ),
-    "configs/transformer_marlin11_eeg_ppg_video.yaml": (
-        "fusion_transformer",
+    "configs/gatehub_marlin11_eeg_ppg_video.yaml": (
+        "gatehub",
+        (True, True, True, True),
+    ),
+    "configs/testra_marlin11_eeg_ppg_video.yaml": (
+        "testra",
         (True, True, True, True),
     ),
     "configs/eptnet_marlin11_video_only.yaml": (
@@ -86,12 +90,16 @@ def test_paper_configs_preserve_frozen_aligned11_contract(path, expected):
     assert "marlin11" in config["experiment"]["output_dir"]
 
 
-def test_paper_gru_uses_frozen_aligned11_gru_architecture():
-    frozen = load_config("configs/gru_marlin11_aligned_windowed_seed42.yaml")
-    paper = load_config("configs/gru_marlin11_eeg_ppg_video.yaml")
+def test_published_baselines_declare_their_official_temporal_hyperparameters():
+    lstr = load_config("configs/lstr_marlin11_eeg_ppg_video.yaml")["model"]
+    gatehub = load_config("configs/gatehub_marlin11_eeg_ppg_video.yaml")["model"]
+    testra = load_config("configs/testra_marlin11_eeg_ppg_video.yaml")["model"]
 
-    assert paper["model"]["name"] == frozen["model"]["name"] == "early_fusion_gru"
-    assert paper["model"]["hidden_dim"] == frozen["model"]["hidden_dim"]
+    assert lstr["lstr_work_steps"] == testra["lstr_work_steps"] == 8
+    assert lstr["lstr_long_queries"] == testra["lstr_long_queries"] == [16, 32]
+    assert gatehub["gatehub_present_steps"] == 8
+    assert gatehub["gatehub_latent_size"] == 16
+    assert testra["testra_decay"] == 0.97
 
 
 def test_paper_diagnostics_change_only_the_named_mechanism():
@@ -481,7 +489,7 @@ def test_runner_dry_run_requires_no_local_dataset_or_accelerator():
             "--suite",
             "main",
             "--seeds",
-            "13 42 73",
+            "42",
         ],
         check=True,
         capture_output=True,
@@ -489,9 +497,7 @@ def test_runner_dry_run_requires_no_local_dataset_or_accelerator():
     )
 
     assert "passed_with_warnings" in completed.stdout
-    assert "seed_13" in completed.stdout
     assert "seed_42" in completed.stdout
-    assert "seed_73" in completed.stdout
     assert "eptnet.train" in completed.stdout
     assert "eptnet.evaluate" in completed.stdout
 

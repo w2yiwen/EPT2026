@@ -12,6 +12,9 @@ from eptnet.losses import EPTNetLoss
 from eptnet.models import EPTNetConfig, build_model
 from eptnet.models.reader import EventGuidedReader, PersistentMultimodalUpdate
 
+MODEL_NAMES = ("eptnet", "lstr", "gatehub", "testra")
+BASELINE_NAMES = MODEL_NAMES[1:]
+
 
 def _config():
     config = load_config("configs/default.yaml")
@@ -140,7 +143,7 @@ def test_causal_prefix_invariance():
     torch.testing.assert_close(original_output, changed_output, rtol=0, atol=1e-6)
 
 
-@pytest.mark.parametrize("model_name", ("eptnet", "early_fusion_gru", "fusion_transformer"))
+@pytest.mark.parametrize("model_name", MODEL_NAMES)
 def test_all_models_are_causal_under_future_input_perturbations(model_name):
     torch.manual_seed(11)
     config = _config()
@@ -156,9 +159,10 @@ def test_all_models_are_causal_under_future_input_perturbations(model_name):
     torch.testing.assert_close(original_output, changed_output, rtol=0, atol=1e-6)
 
 
-def test_fusion_transformer_position_encoding_is_dynamic_and_dtype_safe():
+@pytest.mark.parametrize("model_name", BASELINE_NAMES)
+def test_baseline_position_encoding_is_dynamic_and_dtype_safe(model_name):
     config = _config()
-    config["model"].update(name="fusion_transformer", dropout=0.0)
+    config["model"].update(name=model_name, dropout=0.0)
     model = build_model(config).eval()
 
     for dtype in (torch.float16, torch.float32, torch.float64):
@@ -172,10 +176,11 @@ def test_fusion_transformer_position_encoding_is_dynamic_and_dtype_safe():
         assert not torch.equal(encoded[:, 0], encoded[:, 1])
 
 
-def test_fusion_transformer_truncated_prefix_matches_full_sequence():
+@pytest.mark.parametrize("model_name", BASELINE_NAMES)
+def test_baseline_truncated_prefix_matches_full_sequence(model_name):
     torch.manual_seed(12)
     config = _config()
-    config["model"].update(name="fusion_transformer", dropout=0.0)
+    config["model"].update(name=model_name, dropout=0.0)
     model = build_model(config).double().eval()
     batch = _batch(config)
     batch = {
@@ -227,7 +232,7 @@ def _assert_predictions_equal(original, changed):
         torch.testing.assert_close(original[name], changed[name], rtol=0, atol=1e-6)
 
 
-@pytest.mark.parametrize("model_name", ("eptnet", "early_fusion_gru", "fusion_transformer"))
+@pytest.mark.parametrize("model_name", MODEL_NAMES)
 def test_default_protocol_ignores_text_values(model_name):
     torch.manual_seed(2)
     config = _config()
@@ -243,7 +248,7 @@ def test_default_protocol_ignores_text_values(model_name):
     _assert_predictions_equal(original_output, changed_output)
 
 
-@pytest.mark.parametrize("model_name", ("eptnet", "early_fusion_gru", "fusion_transformer"))
+@pytest.mark.parametrize("model_name", MODEL_NAMES)
 def test_text_audit_switch_makes_text_observable(model_name):
     torch.manual_seed(3)
     config = _config()
@@ -259,7 +264,7 @@ def test_text_audit_switch_makes_text_observable(model_name):
     assert not torch.allclose(original_logits, changed_logits, rtol=0, atol=1e-6)
 
 
-@pytest.mark.parametrize("model_name", ("eptnet", "early_fusion_gru", "fusion_transformer"))
+@pytest.mark.parametrize("model_name", MODEL_NAMES)
 def test_unavailable_text_token_cannot_affect_predictions(model_name):
     torch.manual_seed(4)
     config = _config()
@@ -276,7 +281,7 @@ def test_unavailable_text_token_cannot_affect_predictions(model_name):
     _assert_predictions_equal(original_output, changed_output)
 
 
-@pytest.mark.parametrize("model_name", ("eptnet", "early_fusion_gru", "fusion_transformer"))
+@pytest.mark.parametrize("model_name", MODEL_NAMES)
 def test_unavailable_physiology_tokens_cannot_affect_predictions(model_name):
     torch.manual_seed(41)
     config = _config()
@@ -502,7 +507,7 @@ def test_gated_update_exposes_bounded_write_and_retention_controls():
     torch.testing.assert_close(state[1], previous_state[1], rtol=0, atol=0)
 
 
-@pytest.mark.parametrize("model_name", ("eptnet", "early_fusion_gru", "fusion_transformer"))
+@pytest.mark.parametrize("model_name", MODEL_NAMES)
 def test_all_behavior_modalities_disabled_are_finite_and_invariant(model_name):
     torch.manual_seed(5)
     config = _config()
@@ -542,7 +547,7 @@ def test_decoder_contract_uses_production_positive_class():
 def test_baseline_output_contracts():
     config = _config()
     batch = _batch(config)
-    for name in ("early_fusion_gru", "fusion_transformer"):
+    for name in BASELINE_NAMES:
         config["model"]["name"] = name
         outputs = build_model(config)(batch)
         assert outputs["class_logits"].shape == (2, 4, 2)

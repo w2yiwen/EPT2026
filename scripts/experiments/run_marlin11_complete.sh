@@ -7,7 +7,7 @@ cd "$project_root"
 mode="${1:-formal}"
 python_bin="${PYTHON_BIN:-$project_root/.venv/bin/python}"
 device="${DEVICE:-cpu}"
-eptnet_seeds="${EPTNET_SEEDS:-13}"
+eptnet_seeds="${EPTNET_SEEDS:-42}"
 comparison_seeds="${COMPARISON_SEEDS:-42}"
 modality_seeds="${MODALITY_SEEDS:-42}"
 diagnostic_seeds="${DIAGNOSTIC_SEEDS:-42}"
@@ -28,8 +28,8 @@ formal    Run the complete declared experiment matrix, evaluation, aggregation,
 Environment overrides:
   PYTHON_BIN       Python executable (default: .venv/bin/python)
   DEVICE           Training device (default: cpu; PyTorch device syntax)
-  EPTNET_SEEDS     Full EPT-Net seeds (default: "13")
-  COMPARISON_SEEDS GRU/Transformer seeds (default: "42")
+  EPTNET_SEEDS     Full EPT-Net seeds (default: "42")
+  COMPARISON_SEEDS LSTR/GateHUB/TeSTra seeds (default: "42")
   MODALITY_SEEDS   Video-only diagnostic seeds (default: "42")
   DIAGNOSTIC_SEEDS Mechanism-diagnostic seeds (default: "42")
   TRACE_SEED       Full EPT-Net seed used for trace figures (default: first
@@ -95,8 +95,9 @@ if [[ "$mode" == "validate" ]]; then
   validation_root="results/validation/$validation_tag"
   configs=(
     configs/eptnet_marlin11_eeg_ppg_video.yaml
-    configs/gru_marlin11_eeg_ppg_video.yaml
-    configs/transformer_marlin11_eeg_ppg_video.yaml
+    configs/lstr_marlin11_eeg_ppg_video.yaml
+    configs/gatehub_marlin11_eeg_ppg_video.yaml
+    configs/testra_marlin11_eeg_ppg_video.yaml
     configs/eptnet_marlin11_video_only.yaml
     configs/eptnet_marlin11_fixed_reader.yaml
     configs/eptnet_marlin11_no_persistent.yaml
@@ -165,6 +166,10 @@ bash scripts/experiments/run_marlin11_shortpaper.sh \
 full_run="results/eptnet_marlin11_eeg_ppg_video_no_text/seed_${trace_seed}"
 echo "[FIGURE] formal dynamic-tracking and two-group evidence figures sample=$sample_id"
 "$python_bin" fig/generate_all.py --suite paper \
+  --main-aggregate 'EPT-Net=results/eptnet_marlin11_eeg_ppg_video_no_text/aggregate.json' \
+  --main-aggregate 'LSTR=results/lstr_marlin11_eeg_ppg_video_no_text/aggregate.json' \
+  --main-aggregate 'GateHUB=results/gatehub_marlin11_eeg_ppg_video_no_text/aggregate.json' \
+  --main-aggregate 'TeSTra=results/testra_marlin11_eeg_ppg_video_no_text/aggregate.json' \
   --predictions "$full_run/test_predictions.jsonl" \
   --events "$full_run/test_events.json" \
   --metrics "$full_run/test_metrics.json" \
@@ -173,5 +178,5 @@ echo "[FIGURE] formal dynamic-tracking and two-group evidence figures sample=$sa
   --modality-aggregate 'Video=results/eptnet_marlin11_video_only_no_text/aggregate.json'
 
 echo "[OUTPUT] metrics_and_checkpoints=$project_root/results"
-echo "[OUTPUT] figures=$project_root/fig/fig04_dynamic_tracking,$project_root/fig/fig05_modality_evidence"
+echo "[OUTPUT] figures=$project_root/fig/fig03_main_comparison,$project_root/fig/fig04_dynamic_tracking,$project_root/fig/fig05_modality_evidence"
 echo "[DONE] Complete experiment matrix, evaluation, aggregation, and figures finished."

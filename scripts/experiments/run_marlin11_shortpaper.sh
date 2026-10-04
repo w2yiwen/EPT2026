@@ -12,8 +12,8 @@ fi
 python_bin="${PYTHON_BIN:-$default_python}"
 device="${DEVICE:-cpu}"
 suite="all"
-primary_seed_string="13 42 73"
-eptnet_seed_string=""
+primary_seed_string="42"
+eptnet_seed_string="42"
 analysis_seed_string="42"
 dry_run=0
 preflight_only=0
@@ -25,13 +25,12 @@ usage() {
 Usage: scripts/experiments/run_marlin11_shortpaper.sh [options]
 
 Read-only experiment orchestration over the frozen aligned11 artifact. By
-default, main comparisons use seeds 13/42/73; the video-only and mechanism
-diagnostics use seed 42. EPT-Net main seeds can be overridden independently.
+default, every main comparison and diagnostic uses seed 42.
 
 Options:
   --suite NAME             all, main, modalities, or diagnostics (default: all)
-  --seeds "13 42 73"       Main-comparison seeds
-  --eptnet-seeds "13"      EPT-Net main seeds (default: same as --seeds)
+  --seeds "42"             Baseline main-comparison seeds
+  --eptnet-seeds "42"      EPT-Net main seed
   --analysis-seeds "42"    Modality/diagnostic seeds
   --device DEVICE          PyTorch device (default: cpu)
   --python PATH            Python executable (default: $PYTHON_BIN or .venv/bin/python)
@@ -126,8 +125,9 @@ done
 
 main_matrix=(
   "configs/eptnet_marlin11_eeg_ppg_video.yaml|eptnet_marlin11_eeg_ppg_video_no_text|main"
-  "configs/gru_marlin11_eeg_ppg_video.yaml|gru_marlin11_eeg_ppg_video_no_text|main"
-  "configs/transformer_marlin11_eeg_ppg_video.yaml|transformer_marlin11_eeg_ppg_video_no_text|main"
+  "configs/lstr_marlin11_eeg_ppg_video.yaml|lstr_marlin11_eeg_ppg_video_no_text|main"
+  "configs/gatehub_marlin11_eeg_ppg_video.yaml|gatehub_marlin11_eeg_ppg_video_no_text|main"
+  "configs/testra_marlin11_eeg_ppg_video.yaml|testra_marlin11_eeg_ppg_video_no_text|main"
 )
 modality_matrix=(
   "configs/eptnet_marlin11_video_only.yaml|eptnet_marlin11_video_only_no_text|analysis"
@@ -194,8 +194,9 @@ if [[ "$suite" == "all" || "$suite" == "main" ]]; then
   fairness_output="results/marlin11_shortpaper_parameter_fairness.json"
   fairness_configs=(
     configs/eptnet_marlin11_eeg_ppg_video.yaml
-    configs/gru_marlin11_eeg_ppg_video.yaml
-    configs/transformer_marlin11_eeg_ppg_video.yaml
+    configs/lstr_marlin11_eeg_ppg_video.yaml
+    configs/gatehub_marlin11_eeg_ppg_video.yaml
+    configs/testra_marlin11_eeg_ppg_video.yaml
   )
   if [[ -e "$fairness_output" && "$dry_run" -eq 0 ]]; then
     if [[ "$skip_existing" -eq 1 || "$resume_partial" -eq 1 ]]; then

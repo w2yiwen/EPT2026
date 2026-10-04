@@ -39,12 +39,16 @@ CONFIG_CONTRACTS = {
         "model": "eptnet",
         "modalities": {"eeg_time", "eeg_spectral", "ppg", "video"},
     },
-    "gru_marlin11_eeg_ppg_video.yaml": {
-        "model": "early_fusion_gru",
+    "lstr_marlin11_eeg_ppg_video.yaml": {
+        "model": "lstr",
         "modalities": {"eeg_time", "eeg_spectral", "ppg", "video"},
     },
-    "transformer_marlin11_eeg_ppg_video.yaml": {
-        "model": "fusion_transformer",
+    "gatehub_marlin11_eeg_ppg_video.yaml": {
+        "model": "gatehub",
+        "modalities": {"eeg_time", "eeg_spectral", "ppg", "video"},
+    },
+    "testra_marlin11_eeg_ppg_video.yaml": {
+        "model": "testra",
         "modalities": {"eeg_time", "eeg_spectral", "ppg", "video"},
     },
     "eptnet_marlin11_video_only.yaml": {
@@ -320,7 +324,12 @@ def validate_configs(
                 raise ValueError(f"{path.name} violates the {key} diagnostic contract")
         output_dir = experiment["output_dir"]
         if not output_dir.startswith(
-            ("results/eptnet_marlin11_", "results/gru_marlin11_", "results/transformer_marlin11_")
+            (
+                "results/eptnet_marlin11_",
+                "results/lstr_marlin11_",
+                "results/gatehub_marlin11_",
+                "results/testra_marlin11_",
+            )
         ) or not output_dir.endswith("_no_text"):
             raise ValueError(f"{path.name} does not use an isolated paper result directory")
         if output_dir in output_directories:

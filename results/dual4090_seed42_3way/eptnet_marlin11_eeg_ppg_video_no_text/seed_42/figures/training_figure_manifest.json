@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source": {
+    "history.json": "00bc0154d061dfa06457be7262411fd3bf426f68e5200692de5398780597b9d1"
+  },
+  "epochs": 100,
+  "scientific_scope": "Optimization diagnostics only; no independent performance claim is plotted.",
+  "outputs": {
+    "training_history.csv": {
+      "bytes": 27994,
+      "sha256": "12567d66700537da262dc8263664b48cd5569de47ec8a367b907c63b9e588c9e"
+    },
+    "fig_training_dynamics.pdf": {
+      "bytes": 37792,
+      "sha256": "43a31061dc3b3ee72f97e196db97331c5f0ec2b6157d894ca960d544dc495ee6"
+    },
+    "fig_training_dynamics.png": {
+      "bytes": 282016,
+      "sha256": "6c7424c7fb969794233bcedb7153ac357f0d76612bd904daea2e9cb219f987e4"
+    }
+  }
+}

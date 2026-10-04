@@ -68,7 +68,10 @@ def test_report_and_figure_generators_live_under_scripts() -> None:
 
 def test_baselines_use_one_model_per_module() -> None:
     baseline_root = CODE_ROOT / "src" / "eptnet" / "models" / "baselines"
-    assert (baseline_root / "early_fusion_gru.py").is_file()
-    assert (baseline_root / "fusion_transformer.py").is_file()
+    assert (baseline_root / "lstr.py").is_file()
+    assert (baseline_root / "gatehub.py").is_file()
+    assert (baseline_root / "testra.py").is_file()
+    assert not (baseline_root / "early_fusion_gru.py").exists()
+    assert not (baseline_root / "fusion_transformer.py").exists()
     assert (baseline_root / "common.py").is_file()
     assert not (baseline_root.parent / "baselines.py").exists()

@@ -34,7 +34,6 @@ def test_all_trusted_configs_use_isolated_no_text_outputs():
     explicit_text_configs = {
         "eptnet_marlin11_aligned_seed42.yaml",
         "eptnet_marlin11_aligned_windowed_seed42.yaml",
-        "gru_marlin11_aligned_windowed_seed42.yaml",
     }
     for path in Path("configs").glob("*.yaml"):
         if path.name in explicit_text_configs:
@@ -67,19 +66,25 @@ def test_seed42_marlin11_aligned_config_declares_exact_cohort() -> None:
     )
 
 
-def test_marlin11_windowed_and_gru_configs_use_causal_training_only() -> None:
+def test_marlin11_main_configs_use_causal_training_only() -> None:
     main = load_config("configs/eptnet_marlin11_aligned_windowed_seed42.yaml")
-    baseline = load_config(
-        "configs/gru_marlin11_aligned_windowed_seed42.yaml"
-    )
-    for config in (main, baseline):
+    baselines = [
+        load_config("configs/lstr_marlin11_eeg_ppg_video.yaml"),
+        load_config("configs/gatehub_marlin11_eeg_ppg_video.yaml"),
+        load_config("configs/testra_marlin11_eeg_ppg_video.yaml"),
+    ]
+    for config in (main, *baselines):
         assert config["training"]["sequence_protocol"] == "causal_windows"
         assert config["training"]["window_size"] == 128
         assert config["training"]["window_stride"] == 32
         assert config["training"]["window_warmup_steps"] == 32
         assert config["data"]["dataset_name"] == "bci_subjects_ept_v6_aligned11"
     assert main["model"]["name"] == "eptnet"
-    assert baseline["model"]["name"] == "early_fusion_gru"
+    assert [config["model"]["name"] for config in baselines] == [
+        "lstr",
+        "gatehub",
+        "testra",
+    ]
 
 
 @pytest.mark.parametrize(

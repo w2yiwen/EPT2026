@@ -8,6 +8,8 @@ migration, and historical cohort builders are intentionally excluded.
 ## `experiments/`
 
 - `run_marlin11_complete.sh`: one-command validation or formal execution.
+- `run_dual4090_seed42.sh`: six concurrent slots across two GPUs, with the
+  seventh run queued in GPU 0's first slot and formal figure generation.
 - `run_marlin11_shortpaper.sh`: additive matrix runner with dry-run,
   preflight, resume, and skip-existing modes.
 - `preflight_marlin11_shortpaper.py`: read-only manifest, cohort, label, and

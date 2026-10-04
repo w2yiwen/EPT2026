@@ -1,0 +1,49 @@
+{
+  "figure_id": "fig01_training_loss",
+  "generated_formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "dimensions_mm": {
+    "width": 90.0,
+    "height": 90.0
+  },
+  "rendered_dimensions_mm": {
+    "width": 90.0176,
+    "height": 90.0176
+  },
+  "png": {
+    "dpi": 500,
+    "width_px": 1772,
+    "height_px": 1772
+  },
+  "sources": {
+    "results/dual4090_seed42_3way/eptnet_marlin11_eeg_ppg_video_no_text/seed_42/history.json": "00bc0154d061dfa06457be7262411fd3bf426f68e5200692de5398780597b9d1"
+  },
+  "data_summary": {
+    "model": "EPT-Net (ours)",
+    "seeds": [
+      42
+    ],
+    "seed_count": 1,
+    "epochs_plotted": 100,
+    "aggregation": "epoch-wise arithmetic mean across seeds over the common completed-epoch prefix",
+    "uncertainty": "not shown; one seed",
+    "selected_checkpoint_rule": "first epoch attaining minimum validation total loss, independently per seed",
+    "selected_checkpoint_epochs": [
+      100
+    ],
+    "smoothing": "none"
+  },
+  "checks": {
+    "files": "pass",
+    "dimensions": "pass",
+    "font": "pass",
+    "color": "pass",
+    "data_scope": "pass",
+    "visual_preview": "manual-pass",
+    "write_boundary": "pass"
+  },
+  "exceptions": []
+}

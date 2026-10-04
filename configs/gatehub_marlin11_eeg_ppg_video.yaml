@@ -1,0 +1,13 @@
+inherits: eptnet_marlin11_eeg_ppg_video.yaml
+
+experiment:
+  name: gatehub_marlin11_eeg_ppg_video_no_text
+  output_dir: results/gatehub_marlin11_eeg_ppg_video_no_text
+
+model:
+  name: gatehub
+  # Official online GateHUB layout. FaH is not part of this causal baseline.
+  gatehub_present_steps: 8
+  gatehub_latent_size: 16
+  gatehub_history_layers: 2
+  gatehub_decoder_layers: 2

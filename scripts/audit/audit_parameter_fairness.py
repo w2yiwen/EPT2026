@@ -21,8 +21,9 @@ from eptnet.train import resolve_device
 
 DEFAULT_CONFIGS = (
     "configs/eptnet_marlin11_eeg_ppg_video.yaml",
-    "configs/gru_marlin11_eeg_ppg_video.yaml",
-    "configs/transformer_marlin11_eeg_ppg_video.yaml",
+    "configs/lstr_marlin11_eeg_ppg_video.yaml",
+    "configs/gatehub_marlin11_eeg_ppg_video.yaml",
+    "configs/testra_marlin11_eeg_ppg_video.yaml",
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

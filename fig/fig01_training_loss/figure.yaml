@@ -1,0 +1,34 @@
+version: 1
+figure_id: fig01_training_loss
+purpose: Show whether EPT-Net optimization converges and whether training and validation total loss separate.
+expression: Single-panel line chart with checkpoint marker and optional across-seed uncertainty bands.
+arrangement: Standalone single-column training figure; use fig01_training_convergence when measured validation metric trajectories are available.
+data:
+  sources:
+    - path: results/dual4090_seed42_3way/eptnet_marlin11_eeg_ppg_video_no_text/seed_*/history.json
+      role: measured_training_history
+  fields:
+    - epoch
+    - train.total
+    - val.total
+  filters:
+    - EPT-Net full model only
+    - completed epochs shared by all included seeds
+  grouping: [seed, epoch]
+  aggregation: Epoch-wise arithmetic mean across seeds over the common completed-epoch prefix.
+  uncertainty: Sample standard deviation across seeds (ddof=1); omitted for a single seed.
+  statistical_notes: No smoothing, interpolation, outlier removal, or imputation. Each seed's selected checkpoint is the first epoch attaining minimum validation total loss.
+layout:
+  units: mm
+  width: 90
+  height: 90
+  size_source: layout_default_single_column_square
+  dpi: 500
+style:
+  font_library: skill:references/font-library.yaml
+  color_library: skill:references/color-library.yaml
+  semantic_colors:
+    training_loss: blue
+    validation_loss: coral
+    selected_checkpoint: charcoal
+exceptions: []

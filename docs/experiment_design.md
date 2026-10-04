@@ -51,10 +51,10 @@ training-included evaluation sessions?
 ### RQ2 — Model comparison
 
 Does EPT-Net improve temporal probability and localization outcomes relative
-to parameter-audited causal early-fusion GRU and fusion-Transformer baselines
-under the same inputs, manifests, losses, decoder, and evaluation code?
+to LSTR, causal GateHUB, and TeSTra under the same inputs, manifests, losses,
+decoder, and evaluation code?
 
-> Evidence: the three-model main matrix with each run's declared seed. The
+> Evidence: the four-model main matrix with seed 42 for every run. The
 > parameter audit is a prerequisite, not a performance result.
 
 ### RQ3 — Read/update mechanism
@@ -71,13 +71,14 @@ the EPT-Net realization?
 
 | Model | Configuration | Seeds | Difference and purpose |
 |---|---|---|---|
-| EPT-Net | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | 13 | Adaptive branch-specific temporal reading plus persistent multimodal state |
-| Early-Fusion GRU | `configs/gru_marlin11_eeg_ppg_video.yaml` | 42 | Recurrent causal baseline without EPT-Net's read/update mechanism |
-| Fusion Transformer | `configs/transformer_marlin11_eeg_ppg_video.yaml` | 42 | Attention-based causal fusion baseline using the same input families |
+| EPT-Net | `configs/eptnet_marlin11_eeg_ppg_video.yaml` | 42 | Adaptive branch-specific temporal reading plus persistent multimodal state |
+| LSTR | `configs/lstr_marlin11_eeg_ppg_video.yaml` | 42 | Learned-query long-memory compression with causal short-memory decoding |
+| GateHUB | `configs/gatehub_marlin11_eeg_ppg_video.yaml` | 42 | Gated history compression and causal present decoding; FaH is disabled |
+| TeSTra | `configs/testra_marlin11_eeg_ppg_video.yaml` | 42 | LSTR-style long/short memory with exponential temporal smoothing |
 
 **Why this design:** it holds the artifact, all-session training policy, modalities,
 training/evaluation interfaces, and event decoder constant while comparing
-three temporal fusion strategies. `audit_parameter_fairness.py` records the
+four temporal fusion strategies. `audit_parameter_fairness.py` records the
 executed parameter counts for the exact configs before training.
 
 ### 4.2 Video-only input diagnostic

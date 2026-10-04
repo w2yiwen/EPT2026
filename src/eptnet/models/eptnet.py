@@ -57,6 +57,15 @@ class EPTNetConfig:
     use_eeg_time: bool = True
     use_eeg_spec: bool = True
     use_hr: bool = True
+    lstr_work_steps: int = 8
+    lstr_long_queries: tuple[int, int] = (16, 32)
+    lstr_encoder_layers: tuple[int, int] = (1, 2)
+    lstr_decoder_layers: int = 2
+    gatehub_present_steps: int = 8
+    gatehub_latent_size: int = 16
+    gatehub_history_layers: int = 2
+    gatehub_decoder_layers: int = 2
+    testra_decay: float = 0.97
 
     @classmethod
     def from_mapping(cls, config: Mapping[str, Any]) -> EPTNetConfig:
@@ -99,6 +108,15 @@ class EPTNetConfig:
             use_eeg_time=bool(model.get("use_eeg_time", True)),
             use_eeg_spec=bool(model.get("use_eeg_spec", True)),
             use_hr=bool(model.get("use_hr", True)),
+            lstr_work_steps=int(model.get("lstr_work_steps", 8)),
+            lstr_long_queries=tuple(model.get("lstr_long_queries", (16, 32))),
+            lstr_encoder_layers=tuple(model.get("lstr_encoder_layers", (1, 2))),
+            lstr_decoder_layers=int(model.get("lstr_decoder_layers", 2)),
+            gatehub_present_steps=int(model.get("gatehub_present_steps", 8)),
+            gatehub_latent_size=int(model.get("gatehub_latent_size", 16)),
+            gatehub_history_layers=int(model.get("gatehub_history_layers", 2)),
+            gatehub_decoder_layers=int(model.get("gatehub_decoder_layers", 2)),
+            testra_decay=float(model.get("testra_decay", 0.97)),
         )
 
 

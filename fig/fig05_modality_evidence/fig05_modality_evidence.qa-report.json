@@ -1,0 +1,62 @@
+{
+  "figure_id": "fig05_modality_evidence",
+  "generated_formats": [
+    "pdf",
+    "svg",
+    "png"
+  ],
+  "dimensions_mm": {
+    "width": 90.0,
+    "height": 60.0
+  },
+  "rendered_dimensions_mm": {
+    "width": 90.0176,
+    "height": 59.9948
+  },
+  "png": {
+    "dpi": 500,
+    "width_px": 1772,
+    "height_px": 1181
+  },
+  "sources": {
+    "results/eptnet_marlin11_eeg_ppg_video_no_text/aggregate.json": "8e320750259813d0f8d52236cf441a80836a62d23f8ebc5efb8191b2c513f015",
+    "results/eptnet_marlin11_video_only_no_text/aggregate.json": "d5e8903d4c7c4198636abd3ffda1dc5aebc79888f11de6e1c9a93068fc64da8d"
+  },
+  "data_summary": {
+    "demo": false,
+    "configurations": [
+      "Full",
+      "Video"
+    ],
+    "seeds_by_configuration": {
+      "Full": [
+        13
+      ],
+      "Video": [
+        42
+      ]
+    },
+    "provenance_sha256_by_configuration": {
+      "Full": "5a6acb38b3e56141d77daf4349b06a1f604de449170f4267e64839204e6141b0",
+      "Video": "d4d7cc55df6d97c15c61150ce586b6e4373fdb2ff12a5f320058041555039eff"
+    },
+    "seed_policy": "unmatched seeds are allowed and reported, never relabelled",
+    "metrics": [
+      "AP",
+      "Brier",
+      "Event mAP"
+    ],
+    "uncertainty_intervals_present": false,
+    "plotting_aggregation": "none; reads one upstream aggregate per cell"
+  },
+  "checks": {
+    "files": "pass",
+    "dimensions": "pass",
+    "font": "pass",
+    "color": "pass",
+    "data_scope": "pass",
+    "visual_preview": "manual-required",
+    "write_boundary": "pass"
+  },
+  "exceptions": []
+}
