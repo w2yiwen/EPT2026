@@ -54,7 +54,7 @@ Place the prepared feature dataset at:
 ```text
 data/
 └── processed/
-    └── bci_subjects_ept_v6_aligned11/
+    └── bci_subjects_ept/
         ├── dataset_summary.json
         ├── feature_schema.json
         ├── normalization_stats.npz
