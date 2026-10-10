@@ -575,6 +575,17 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_config(args.config)
+    if config["data"].get("input_mode") == "native_streams":
+        from .streaming import train
+
+        if args.seed is not None:
+            config["experiment"]["seed"] = args.seed
+        if args.device is not None:
+            config["training"]["device"] = args.device
+        if args.output_dir is not None:
+            config["experiment"]["output_dir"] = args.output_dir
+        print(json.dumps(train(config, resume=args.resume), ensure_ascii=False), flush=True)
+        return
     experiment = config["experiment"]
     settings = config["training"]
     if args.seed is not None:

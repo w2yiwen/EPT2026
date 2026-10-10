@@ -13,6 +13,13 @@
 
 EPT-Net is a research implementation for continuous, causal recognition and temporal localization from synchronized EEG, PPG-derived physiology, and video features. It combines modality-specific causal memories, event-guided adaptive reading, and a persistent multimodal state to produce frame-level probabilities and temporal boundaries.
 
+The `1011branch` implementation adds the manuscript's native-time EEG, spectral
+EEG and cardiac streams, independent audiovisual event guidance, completed-word
+text context, ATER and PMSU. Use [configs/paper.yaml](configs/paper.yaml) with the
+same `ept train` and `ept evaluate` commands. [PAPER.md](PAPER.md) documents
+preparation, frozen model loading, streaming inference and the equation-to-source
+mapping. The existing configurations and result paths remain available.
+
 ## Overview
 
 EPT-Net performs sequence-level inference over synchronized, precomputed features. At every valid time step, the model estimates the target-event probability together with its temporal extent.
@@ -67,7 +74,9 @@ data/
                 └── timeline.pt
 ```
 
-The repository reads the prepared tensors and manifests directly. Feature extraction and annotation are outside the scope of this codebase.
+The existing feature protocol reads the prepared tensors and manifests directly.
+The native-time protocol also provides causal feature extraction through `ept prepare`;
+its input recordings and annotations are described in [PAPER.md](PAPER.md).
 
 ## Experiments
 

@@ -737,6 +737,17 @@ def main() -> None:
     args = parser.parse_args()
 
     requested_config = load_config(args.config)
+    if requested_config["data"].get("input_mode") == "native_streams":
+        from .streaming import evaluate as evaluate_streams
+
+        if args.device is not None:
+            requested_config["training"]["device"] = args.device
+        output = args.output or str(Path(args.checkpoint).parent / "test_metrics.json")
+        metrics = evaluate_streams(requested_config, args.checkpoint, output,
+            predictions_output=args.predictions_output, events_output=args.events_output,
+            no_calibration=args.no_calibration)
+        print(json.dumps(metrics, ensure_ascii=False, indent=2, allow_nan=False))
+        return
     if args.device is not None:
         requested_config["training"]["device"] = args.device
     device = resolve_device(str(requested_config["training"]["device"]))

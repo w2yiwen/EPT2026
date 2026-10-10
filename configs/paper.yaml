@@ -1,0 +1,78 @@
+# Native-time implementation of the supplied manuscript. Existing configurations
+# and results/final are independent of this protocol.
+experiment:
+  name: eptnet
+  seed: 42
+  output_dir: results/1011branch/eptnet
+
+data:
+  dataset_name: bci_subjects_ept
+  input_mode: native_streams
+  train_manifest: data/processed/bci_subjects_ept_native/manifests/sessions_train.jsonl
+  val_manifest: data/processed/bci_subjects_ept_native/manifests/sessions_val.jsonl
+  test_manifest: data/processed/bci_subjects_ept_native/manifests/sessions_test.jsonl
+  normalization_stats: data/processed/bci_subjects_ept_native/normalization_stats.json
+  cohort_policy: subject_disjoint
+  decision_seconds: 0.5
+  num_classes: 2
+
+model:
+  name: eptnet
+  hidden_dim: 64
+  num_heads: 4
+  dropout: 0.2
+  # Explicit experiment settings; the manuscript specifies H_m symbolically.
+  retention_seconds: {time: 16.0, spec: 32.0, hr: 32.0}
+  adaptive_reader: true
+  shared_read_policy: false
+  event_guidance: true
+  state_feedback: true
+  fixed_read_width: 0.25
+  persistent_state: true
+  use_video: true
+  use_audio: true
+  use_text: true
+  use_eeg_time: true
+  use_eeg_spec: true
+  use_hr: true
+
+encoders:
+  video_checkpoint: null
+  video_model: marlin_vit_small_ytf
+  video_window_seconds: 2.0
+  audio_source: speechbrain/emotion-recognition-wav2vec2-IEMOCAP
+  audio_revision: 117a9c3dff08be81a3628eecf6a66b547ec1659b
+  text_source: hfl/chinese-macbert-base
+  text_revision: ec3608e5b8c5790b0c35848128878ee809a7a794
+  cache_dir: .cache/eptnet
+
+loss:
+  av_weight: 1.0
+  cls_weight: 1.0
+  boundary_weight: 1.0
+  offset_weight: 0.5
+  label_smoothing: 0.0
+
+training:
+  sequence_protocol: chronological_chunks
+  epochs: 100
+  batch_size: 1
+  chunk_steps: 64
+  learning_rate: 0.0003
+  weight_decay: 0.001
+  grad_clip_norm: 1.0
+  patience: 15
+  device: auto
+  deterministic: true
+
+evaluation:
+  positive_class: 0
+  frame_threshold: 0.5
+  boundary_threshold: 0.5
+  boundary_tolerance_steps: 1
+  event_iou_thresholds: [0.3, 0.5, 0.7]
+  early_detection_delays: [0, 1, 2]
+  calibrate_frame_threshold: false
+  calibration_min_threshold: 0.1
+  calibration_max_threshold: 0.9
+  calibration_steps: 81

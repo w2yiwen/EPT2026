@@ -638,7 +638,12 @@ def load_config(path: str, base_path: str | None = None) -> dict[str, Any]:
     config = _load_config_file(Path(path), ())
     if base_path is not None:
         config = _deep_update(_load_config_file(Path(base_path), ()), config)
-    _validate_config(config)
+    if config.get("data", {}).get("input_mode") == "native_streams":
+        from eptnet.data.stream_config import validate_stream_config
+
+        validate_stream_config(config)
+    else:
+        _validate_config(config)
     return config
 
 

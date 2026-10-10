@@ -1,0 +1,5 @@
+inherits: paper.yaml
+experiment:
+  output_dir: results/1011branch/no_feedback
+model:
+  state_feedback: false

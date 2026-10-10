@@ -1,0 +1,9 @@
+# Existing runtime plus optional frozen feature encoders and the paper's detector.
+-r requirements-lock.txt
+neurokit2==0.2.11
+marlin-pytorch>=0.3,<0.4
+speechbrain>=1.0,<1.1
+transformers>=4.50,<5
+torchaudio==2.8.0
+torchvision==0.23.0
+huggingface-hub>=0.25,<1

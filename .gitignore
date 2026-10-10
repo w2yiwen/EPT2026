@@ -2,6 +2,7 @@
 /results/
 /logs/
 /.cache/
+/.marlin/
 /.venv/
 
 *.pdf

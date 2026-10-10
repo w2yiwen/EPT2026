@@ -15,3 +15,18 @@ heads, loss, decoder, and evaluation protocol.
 | MulT | https://github.com/yaohungt/Multimodal-Transformer | MIT | All-pairs directional cross-modal Transformers and modality memory encoders |
 
 Copyright and license notices remain with their respective upstream projects.
+
+The optional native-time feature pipeline loads these official pretrained
+components. Its adapters call upstream libraries and retain the encoders frozen
+in evaluation mode.
+
+| Component | Official source | Use |
+|---|---|---|
+| MARLIN ViT-Small YTF | https://github.com/ControlNet/MARLIN | 384-dimensional facial clip descriptor; upstream CC BY-NC 4.0 |
+| SpeechBrain wav2vec 2.0 IEMOCAP | https://huggingface.co/speechbrain/emotion-recognition-wav2vec2-IEMOCAP | 768-dimensional mean-pooled speech descriptor before classification; upstream Apache-2.0 |
+| HFL Chinese MacBERT-base | https://huggingface.co/hfl/chinese-macbert-base | 768-dimensional final-layer content-token mean; upstream Apache-2.0 |
+| NeuroKit2 0.2.11 | https://github.com/neuropsychology/NeuroKit | Elgendi pulse detection in observed trailing windows; upstream MIT |
+
+Optional dependencies are declared in `pyproject.toml` and
+`requirements-paper.txt`. Checkpoint files, model caches and private recordings
+remain external to the source repository.
